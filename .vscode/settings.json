@@ -1,0 +1,44 @@
+{
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "restoreTerminals.terminals": [
+    {
+      "splitTerminals": [
+        {
+          "name": "compose",
+          "commands": ["docker compose up"]
+        },
+        {
+          "name": "cmd"
+        }
+      ]
+    },
+    {
+      "splitTerminals": [
+        {
+          "name": "next",
+          "commands": ["cd next", "npm run dev"]
+        },
+        {
+          "name": "cmd",
+          "commands": ["cd next"]
+        }
+      ]
+    },
+    {
+      "splitTerminals": [
+        {
+          "name": "expo",
+          "commands": ["cd native", " npx expo start --clear"]
+        },
+        {
+          "name": "cmd",
+          "commands": ["cd native"]
+        }
+      ]
+    }
+  ],
+  "cSpell.words": ["dayjs", "inngest", "timeouted"],
+  "[prisma]": {
+    "editor.defaultFormatter": "Prisma.prisma"
+  }
+}

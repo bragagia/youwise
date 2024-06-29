@@ -1,0 +1,172 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  email    String
+  password String
+
+  courses         Course[]
+  resourcesGroups ResourceGroup[]
+  resources       Resource[]
+  highlights      Highlight[]
+  questions       Question[]
+  memories        Memory[]
+  aiUsages        AIUsage[]
+
+  @@map("users")
+}
+
+model AIUsage {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user           User   @relation(fields: [userId], references: [id])
+  userId         String
+  model          String
+  promptTokens   Int
+  responseTokens Int
+
+  @@map("ai_usages")
+}
+
+model Course {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ownerUser   User   @relation(fields: [ownerUserId], references: [id])
+  ownerUserId String
+
+  name        String
+  description String?
+
+  resourceGroups ResourceGroup[]
+
+  @@map("courses")
+}
+
+model ResourceGroup {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ownerUser   User    @relation(fields: [ownerUserId], references: [id])
+  ownerUserId String
+  course      Course? @relation(fields: [courseId], references: [id])
+  courseId    String?
+
+  name        String
+  description String?
+
+  resources Resource[]
+
+  @@map("resource_groups")
+}
+
+model Resource {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ownerUser       User           @relation(fields: [ownerUserId], references: [id])
+  ownerUserId     String
+  resourceGroup   ResourceGroup? @relation(fields: [resourceGroupId], references: [id])
+  resourceGroupId String?
+
+  name          String
+  description   String?
+  resourceType  String
+  originalUrl   String?
+  fileId        String?
+  chapterNumber Int?
+  content       String?
+
+  highlights Highlight[]
+  questions  Question[]
+  memories   Memory[]
+
+  @@map("resources")
+}
+
+model Highlight {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  User       User?    @relation(fields: [userId], references: [id])
+  userId     String?
+  resource   Resource @relation(fields: [resourceId], references: [id])
+  resourceId String
+
+  isAiCreated     Boolean
+  highlightedText String
+  note            String?
+  context         String?
+
+  question Question?
+
+  @@map("highlights")
+}
+
+model Question {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ownerUser   User       @relation(fields: [ownerUserId], references: [id])
+  ownerUserId String
+  resource    Resource   @relation(fields: [resourceId], references: [id])
+  resourceId  String
+  highlightId String?    @unique
+  highlight   Highlight? @relation(fields: [highlightId], references: [id])
+
+  question String
+  answer   String
+
+  memories Memory[]
+
+  @@map("questions")
+}
+
+enum MemoryStatusEnum {
+  learning
+  reviewing
+  relearning
+}
+
+model Memory {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ownerUser   User      @relation(fields: [ownerUserId], references: [id])
+  ownerUserId String
+  question    Question  @relation(fields: [questionId], references: [id])
+  questionId  String
+  Resource    Resource? @relation(fields: [resourceId], references: [id])
+  resourceId  String?
+
+  memoryStatus MemoryStatusEnum
+  interval     Int? // Nullable
+  easeFactor   Float
+  stepNumber   Int
+
+  @@map("memories")
+}
