@@ -31,6 +31,8 @@ const Ressource = () => {
   const circleScale = useRef(new Animated.Value(0)).current;
   const circleOpacity = useRef(new Animated.Value(0)).current;
 
+  const prevBackgroundOpacity = useRef(new Animated.Value(0)).current;
+
   const {
     prevMemory,
     currentMemory,
@@ -71,11 +73,24 @@ const Ressource = () => {
     }, 100); // Timeout is there to allow the swipe card to be animated before the new card start to appear
   };
 
+  useEffect(() => {
+    prevBackgroundOpacity.setValue(1);
+
+    Animated.timing(prevBackgroundOpacity, {
+      toValue: 0,
+      duration: 301,
+      useNativeDriver: true,
+    }).start();
+  }, [prevMemory]);
+
+  const prevMemoryTint = prevMemory?.memory.card.resource.tint;
+  const currentMemoryTint = currentMemory?.memory.card.resource.tint;
+
   return (
     <View className="min-h-full">
+      {/* Default background that will only be visible on stat screen */}
       <LinearGradient
-        colors={["rgb(251 146 60)", "rgb(255 97 69)"]}
-        //colors={["rgb(163 163 163)", "rgb(82 82 82)"]}
+        colors={[`hsl(${30}, 90%, 50%)`, `hsl(${(30 + 235) % 255}, 90%, 60%)`]}
         style={{
           position: "absolute",
           left: 0,
@@ -84,6 +99,63 @@ const Ressource = () => {
           bottom: 0,
         }}
       />
+
+      {currentMemoryTint && (
+        <View
+          key={currentMemory.key}
+          style={{
+            position: "absolute",
+            left: 0,
+            right: 0,
+            top: 0,
+            bottom: 0,
+          }}
+        >
+          <LinearGradient
+            colors={[
+              `hsl(${currentMemoryTint}, 90%, 50%)`,
+              `hsl(${(currentMemoryTint + 235) % 255}, 90%, 60%)`,
+            ]}
+            //colors={["rgb(163 163 163)", "rgb(82 82 82)"]}
+            style={{
+              position: "absolute",
+              left: 0,
+              right: 0,
+              top: 0,
+              bottom: 0,
+            }}
+          />
+        </View>
+      )}
+
+      {prevMemoryTint && (
+        <Animated.View
+          key={prevMemory.key}
+          style={{
+            position: "absolute",
+            left: 0,
+            right: 0,
+            top: 0,
+            bottom: 0,
+            opacity: prevBackgroundOpacity,
+          }}
+        >
+          <LinearGradient
+            colors={[
+              `hsl(${prevMemoryTint}, 90%, 50%)`,
+              `hsl(${(prevMemoryTint + 235) % 255}, 90%, 60%)`,
+            ]}
+            //colors={["rgb(163 163 163)", "rgb(82 82 82)"]}
+            style={{
+              position: "absolute",
+              left: 0,
+              right: 0,
+              top: 0,
+              bottom: 0,
+            }}
+          />
+        </Animated.View>
+      )}
 
       <ImageBackground
         source={require("@/assets/images/noise-strong.png")}

@@ -42,7 +42,7 @@ export function RevisionStatsCard({
     <View
       className="absolute top-0 flex flex-col justify-center w-full h-full px-4"
       style={{
-        marginTop: insets.top,
+        paddingTop: insets.top,
       }}
     >
       <View className="flex-1 flex flex-col justify-center">

@@ -7,18 +7,27 @@ import {
   MemoryBeingRevisedWithKey,
 } from "./Memory";
 
-const resource: Memory["card"]["resource"] = {
+const resourceSF: Memory["card"]["resource"] = {
   name: "SF",
   resourceGroup: {
     name: "Culture geek",
   },
+  tint: 30,
+};
+
+const resourceGeo: Memory["card"]["resource"] = {
+  name: "Geography",
+  resourceGroup: {
+    name: "Europe",
+  },
+  tint: 210,
 };
 
 const memories: Memory[] = [
   {
     id: uuid(),
     card: {
-      resource: resource,
+      resource: resourceSF,
       value: {
         type: "classic",
         variants: [
@@ -39,7 +48,7 @@ const memories: Memory[] = [
   {
     id: uuid(),
     card: {
-      resource: resource,
+      resource: resourceSF,
       value: {
         type: "classic",
         variants: [
@@ -63,7 +72,7 @@ const memories: Memory[] = [
   {
     id: uuid(),
     card: {
-      resource: resource,
+      resource: resourceGeo,
       value: {
         type: "classic",
         variants: [

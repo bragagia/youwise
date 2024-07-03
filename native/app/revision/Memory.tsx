@@ -120,4 +120,5 @@ export type Ressource = {
   resourceGroup?: {
     name: string;
   };
+  tint: number;
 };

@@ -51,7 +51,12 @@ export function FlashcardContentComponent({
     if (cardChoosedContent.subtype === "no-complication") {
       return (
         <View className="flex flex-col gap-6 self-stretch">
-          <Text className="mx-10 font-[Avenir] font-medium text-xs text-orange-600">
+          <Text
+            className="mx-10 font-[Avenir] font-medium text-xs"
+            style={{
+              color: `hsl(${ressource.tint}, 90%, 50%)`,
+            }}
+          >
             {ressource.resourceGroup && ressource.resourceGroup.name + " > "}
 
             {ressource.name}
@@ -73,7 +78,12 @@ export function FlashcardContentComponent({
     } else if (cardChoosedContent.subtype === "fake-answer") {
       return (
         <View className="flex flex-col gap-6 self-stretch">
-          <Text className="mx-10 font-[Avenir] font-medium text-xs text-orange-600">
+          <Text
+            className="mx-10 font-[Avenir] font-medium text-xs"
+            style={{
+              color: `hsl(${ressource.tint}, 90%, 50%)`,
+            }}
+          >
             {ressource.resourceGroup && ressource.resourceGroup.name + " > "}
 
             {ressource.name}
