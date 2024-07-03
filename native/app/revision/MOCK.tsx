@@ -8,6 +8,7 @@ const resourceSF: Memory["card"]["resource"] = {
   },
   tint: 30,
 };
+
 const resourceGeo: Memory["card"]["resource"] = {
   name: "Geography",
   resourceGroup: {
@@ -15,6 +16,7 @@ const resourceGeo: Memory["card"]["resource"] = {
   },
   tint: 210,
 };
+
 export const memories: Memory[] = [
   {
     id: uuid(),
@@ -37,6 +39,7 @@ export const memories: Memory[] = [
 
     memoryStatus: "new",
   },
+
   {
     id: uuid(),
     card: {
@@ -61,6 +64,7 @@ export const memories: Memory[] = [
 
     memoryStatus: "review",
   },
+
   {
     id: uuid(),
     card: {

@@ -2,7 +2,7 @@ import React from "react";
 import { Text, View } from "react-native";
 import { CardBlocks } from "./Card";
 
-export function CardBlock({
+export function CardBlockComponent({
   cardBlocks,
   textSize = "text-lg",
 }: {

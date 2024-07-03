@@ -1,6 +1,6 @@
 import { CardBlocks } from "./Card";
 
-export type CardChoosedContent =
+export type CardChoosenContent =
   | {
       type: "classic";
       subtype: "no-complication";

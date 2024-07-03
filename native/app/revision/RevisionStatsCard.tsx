@@ -5,7 +5,7 @@ import React, { useEffect, useRef } from "react";
 import { Animated, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { RevisionActionButton } from "./RevisionActionButton";
-import { RevisionStats } from "./useLocalRevisionEngine";
+import { RevisionStats } from "./RevisionStats";
 
 export function RevisionStatsCard({
   finishedStats,

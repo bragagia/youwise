@@ -1,5 +1,5 @@
 import { ClassCardVariant } from "./Card";
-import { CardChoosedContent } from "./CardChoosedContent";
+import { CardChoosenContent } from "./CardChoosenContent";
 import {
   GOOD_REVIEW_IN_A_ROW_FOR_NEW_CARD,
   MemoryBeingRevised,
@@ -7,7 +7,7 @@ import {
 
 export function chooseCardContent(
   memoryBeingRevised: MemoryBeingRevised
-): CardChoosedContent {
+): CardChoosenContent {
   const value = memoryBeingRevised.memory.card.value;
 
   if (value.type === "classic") {
@@ -27,7 +27,8 @@ export function chooseCardContent(
         answer: randomVariantChoice.answer,
       };
     } else if (randomVariantChoice.type === "fake-answer") {
-      let shouldUseQuizz = false;
+      let shouldUseQuizz = false; // Use quizz only for first review of forgotten and new cards, never for their last review. Use quizz random for known cards
+
       if (
         memoryBeingRevised.firstTime &&
         memoryBeingRevised.firstTime.goodInARow <
@@ -41,7 +42,8 @@ export function chooseCardContent(
       ) {
         shouldUseQuizz = true;
       } else if (memoryBeingRevised.firstTime || memoryBeingRevised.forgotten) {
-        shouldUseQuizz = false; // We never use quizz for the last review of new and forgotten cards (to make sure the user knows the answer)
+        // We never use quizz for the last review of new and forgotten cards (to make sure the user knows the answer)
+        shouldUseQuizz = false;
       } else {
         shouldUseQuizz = Math.random() < 0.1;
       }
@@ -65,7 +67,8 @@ export function chooseCardContent(
           )[0],
         ];
 
-        const trueAnswerPos = Math.floor(Math.random() * 4); // Randomize the position of the real answer
+        // Randomize the position of the real answer
+        const trueAnswerPos = Math.floor(Math.random() * 4);
 
         // Insert the real answer at the random position
         answerChoices.splice(trueAnswerPos, 0, randomVariantChoice.answer);

@@ -7,17 +7,12 @@ import {
   MemoryBeingRevised,
   MemoryBeingRevisedWithKey,
 } from "./Memory";
+import { RevisionStats } from "./RevisionStats";
 
 type DisplayedMemories = {
   prev: MemoryBeingRevisedWithKey | undefined;
   current: MemoryBeingRevisedWithKey | undefined;
   next: MemoryBeingRevisedWithKey | undefined; // Note: Next card allow to preload the next card to avoid lag when swiping
-};
-
-export type RevisionStats = {
-  newlyLearned: number;
-  revisedCards: number;
-  timePerCard: number;
 };
 
 export function useLocalRevisionEngine() {

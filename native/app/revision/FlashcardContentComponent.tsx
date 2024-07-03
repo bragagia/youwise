@@ -1,8 +1,8 @@
 import React, { useRef, useState } from "react";
 import { Dimensions, LayoutChangeEvent, Text, View } from "react-native";
-import { AnswerButton } from "./AnswerButton";
-import { CardBlock } from "./CardBlock";
-import { CardChoosedContent } from "./CardChoosedContent";
+import { AnswerButtonComponent } from "./AnswerButtonComponent";
+import { CardBlockComponent } from "./CardBlockComponent";
+import { CardChoosenContent } from "./CardChoosenContent";
 import { Ressource } from "./Ressource";
 
 export function FlashcardContentComponent({
@@ -11,7 +11,7 @@ export function FlashcardContentComponent({
   onDisplayBlur,
   onCardAnswered,
 }: {
-  cardChoosedContent: CardChoosedContent;
+  cardChoosedContent: CardChoosenContent;
   ressource: Ressource;
   onDisplayBlur: (height: number) => void; // Used on swipable cards
   onCardAnswered: (isRight: boolean) => void; // Used on non-swipable cards
@@ -41,87 +41,80 @@ export function FlashcardContentComponent({
     onCardAnswered(isRight);
   }
 
-  if (cardChoosedContent.type === "classic") {
-    if (cardChoosedContent.subtype === "no-complication") {
-      return (
-        <View className="flex flex-col gap-6 self-stretch">
-          <Text
-            className="mx-10 font-[Avenir] font-medium text-xs"
-            style={{
-              color: `hsl(${ressource.tint}, 90%, 50%)`,
-            }}
-          >
-            {ressource.resourceGroup && ressource.resourceGroup.name + " > "}
-
-            {ressource.name}
-          </Text>
-
-          <View className="mx-10">
-            <CardBlock cardBlocks={cardChoosedContent.question} />
-          </View>
-
-          <View
-            className="mx-5 px-5 py-4 bg-neutral-200 rounded-2xl"
-            onLayout={handleAnswerWithBlurLayout} // Attach layout handler
-            ref={answerRef} // Attach ref for measurements
-          >
-            <CardBlock cardBlocks={cardChoosedContent.answer} />
-          </View>
-        </View>
-      );
-    } else if (cardChoosedContent.subtype === "fake-answer") {
-      return (
-        <View className="flex flex-col gap-6 self-stretch">
-          <Text
-            className="mx-10 font-[Avenir] font-medium text-xs"
-            style={{
-              color: `hsl(${ressource.tint}, 90%, 50%)`,
-            }}
-          >
-            {ressource.resourceGroup && ressource.resourceGroup.name + " > "}
-
-            {ressource.name}
-          </Text>
-
-          <View className="mx-10">
-            <CardBlock cardBlocks={cardChoosedContent.question} />
-          </View>
-
-          {/* Grid of answers and fake answers: */}
-          <View className="flex flex-col gap-4 mx-6">
-            {cardChoosedContent.answerChoices.map((answerChoice, i) => {
-              if (i % 2 !== 0) return;
-
-              return (
-                <View key={i} className="flex flex-row gap-4">
-                  {cardChoosedContent.answerChoices
-                    .slice(i, i + 2)
-                    .map((answerChoice, e) => {
-                      const isTrueAnswer =
-                        cardChoosedContent.trueAnswerPos === i + e;
-
-                      return (
-                        <AnswerButton
-                          key={e}
-                          isGoodAnswer={isTrueAnswer}
-                          showGoodAnswer={showTrueAnswer}
-                          onPress={() => handleCardAnswered(isTrueAnswer)}
-                        >
-                          <CardBlock
-                            cardBlocks={answerChoice}
-                            textSize="text-md"
-                          />
-                        </AnswerButton>
-                      );
-                    })}
-                </View>
-              );
-            })}
-          </View>
-        </View>
-      );
-    }
-  } else {
+  if (cardChoosedContent.type === "text") {
     return <Text>Unsupported card type</Text>;
   }
+
+  if (cardChoosedContent.subtype === "occlusions") {
+    return (
+      <View>
+        <Text>Unsupported card subtype</Text>
+      </View>
+    );
+  }
+
+  console.log(ressource);
+
+  return (
+    <View className="flex flex-col gap-6 self-stretch">
+      <Text
+        className="mx-10 font-[Avenir] font-medium text-xs"
+        style={{
+          color: `hsl(${ressource.tint}, 90%, 50%)`,
+        }}
+      >
+        {ressource.resourceGroup && ressource.resourceGroup.name + " > "}
+
+        {ressource.name}
+      </Text>
+
+      <View className="mx-10">
+        <CardBlockComponent cardBlocks={cardChoosedContent.question} />
+      </View>
+
+      {cardChoosedContent.subtype === "no-complication" && (
+        <View
+          className="mx-5 px-5 py-4 bg-neutral-200 rounded-2xl"
+          onLayout={handleAnswerWithBlurLayout} // Attach layout handler
+          ref={answerRef} // Attach ref for measurements
+        >
+          <CardBlockComponent cardBlocks={cardChoosedContent.answer} />
+        </View>
+      )}
+
+      {/* Grid of answers and fake answers: */}
+      {cardChoosedContent.subtype === "fake-answer" && (
+        <View className="flex flex-col gap-4 mx-6">
+          {cardChoosedContent.answerChoices.map((_, i) => {
+            if (i % 2 !== 0) return;
+
+            return (
+              <View key={i} className="flex flex-row gap-4">
+                {cardChoosedContent.answerChoices
+                  .slice(i, i + 2)
+                  .map((answerChoice, e) => {
+                    const isTrueAnswer =
+                      cardChoosedContent.trueAnswerPos === i + e;
+
+                    return (
+                      <AnswerButtonComponent
+                        key={e}
+                        isGoodAnswer={isTrueAnswer}
+                        showGoodAnswer={showTrueAnswer}
+                        onPress={() => handleCardAnswered(isTrueAnswer)}
+                      >
+                        <CardBlockComponent
+                          cardBlocks={answerChoice}
+                          textSize="text-md"
+                        />
+                      </AnswerButtonComponent>
+                    );
+                  })}
+              </View>
+            );
+          })}
+        </View>
+      )}
+    </View>
+  );
 }

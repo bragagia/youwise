@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Animated, Easing, TouchableWithoutFeedback, View } from "react-native";
 
-export function AnswerButton({
+export function AnswerButtonComponent({
   children,
   isGoodAnswer,
   showGoodAnswer,

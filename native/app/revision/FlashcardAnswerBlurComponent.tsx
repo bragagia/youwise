@@ -35,6 +35,24 @@ export function FlashcardAnswerBlurComponent({
     blurTranslateY.setValue(Math.max(0, event.nativeEvent.translationY));
   };
 
+  const onBlurGestureStateChange = (
+    event: HandlerStateChangeEvent<PanGestureHandlerEventPayload>
+  ) => {
+    if (event.nativeEvent.oldState === State.ACTIVE) {
+      let dest: "hide" | "reset";
+      if (
+        event.nativeEvent.translationY > 50 ||
+        event.nativeEvent.velocityY > 300
+      ) {
+        dest = "hide";
+      } else {
+        dest = "reset";
+      }
+
+      handleTouchRelease(dest, event.nativeEvent.velocityY);
+    }
+  };
+
   const handleTouchRelease = (dest: "reset" | "hide", initialVelocity = 0) => {
     if (!blurHeight) return;
 
@@ -56,30 +74,12 @@ export function FlashcardAnswerBlurComponent({
     });
   };
 
-  const onBlurHandlerStateChange = (
-    event: HandlerStateChangeEvent<PanGestureHandlerEventPayload>
-  ) => {
-    if (event.nativeEvent.oldState === State.ACTIVE) {
-      let dest: "hide" | "reset";
-      if (
-        event.nativeEvent.translationY > 50 ||
-        event.nativeEvent.velocityY > 300
-      ) {
-        dest = "hide";
-      } else {
-        dest = "reset";
-      }
-
-      handleTouchRelease(dest, event.nativeEvent.velocityY);
-    }
-  };
-
   if (!blurHeight || hidden) return null;
 
   return (
     <PanGestureHandler
       onGestureEvent={onBlurGestureEvent}
-      onHandlerStateChange={onBlurHandlerStateChange}
+      onHandlerStateChange={onBlurGestureStateChange}
     >
       <Animated.View
         style={{
