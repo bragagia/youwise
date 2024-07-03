@@ -8,7 +8,6 @@ import ChevronDown from "@/assets/images/chevron.down.svg";
 import ChevronLeft from "@/assets/images/chevron.left.svg";
 import ChevronRight from "@/assets/images/chevron.right.svg";
 import ChevronUp from "@/assets/images/chevron.up.svg";
-import Forward from "@/assets/images/forward.svg";
 import Lineweight from "@/assets/images/lineweight.svg";
 import LoudlyCryingFace from "@/assets/images/loudly-crying-face.png";
 import Pause from "@/assets/images/pause.svg";
@@ -29,7 +28,6 @@ const Icons = {
   Tada,
   LoudlyCryingFace,
   ArrowUTurnLeft,
-  Forward,
   ChevronRight,
   ChevronLeft,
   ChevronDown,

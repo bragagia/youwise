@@ -3,6 +3,7 @@ import { BlurView } from "expo-blur";
 import { router } from "expo-router";
 import React, { useEffect, useRef } from "react";
 import { Animated, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { RevisionActionButton } from "./RevisionActionButton";
 import { RevisionStats } from "./useLocalRevisionEngine";
 
@@ -11,6 +12,8 @@ export function RevisionStatsCard({
 }: {
   finishedStats: RevisionStats;
 }): React.ReactNode {
+  const insets = useSafeAreaInsets();
+
   const scaleWellDone = useRef(new Animated.Value(0)).current;
   const scaleStats = useRef(new Animated.Value(0)).current;
   const scaleButton = useRef(new Animated.Value(0)).current;
@@ -36,10 +39,15 @@ export function RevisionStatsCard({
   }, []);
 
   return (
-    <View className="absolute top-0 flex flex-col justify-center w-full h-full px-4">
+    <View
+      className="absolute top-0 flex flex-col justify-center w-full h-full px-4"
+      style={{
+        marginTop: insets.top,
+      }}
+    >
       <View className="flex-1 flex flex-col justify-center">
         <Animated.Text
-          className="text-5xl font-bold text-center text-white shadow font-[Avenir] mt-14"
+          className="text-5xl font-bold text-center text-white shadow font-[Avenir] "
           style={{
             transform: [{ scale: scaleWellDone }],
           }}
@@ -49,13 +57,13 @@ export function RevisionStatsCard({
       </View>
 
       <Animated.View
-        className="rounded-xl overflow-hidden mx-4 my-12"
+        className="rounded-xl overflow-hidden mx-4 my-8"
         style={{
           backgroundColor: "rgba(245, 245, 245, 0.6)", // bg-neutral-100
           transform: [{ scale: scaleStats }],
         }}
       >
-        <BlurView className="flex flex-col gap-6 py-5 px-6">
+        <BlurView className="flex flex-col gap-6 py-6 px-8">
           <View className="flex flex-row justify-between">
             <Text className="text-lg text-neutral-500 font-[Avenir] font-bold">
               <Text className="font-bold text-2xl text-black">
