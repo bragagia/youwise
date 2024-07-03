@@ -1,5 +1,6 @@
 import Icons from "@/app/icons";
 import { FlashcardAnswerBlurComponent } from "@/app/revision/FlashcardAnswerBlurComponent";
+import { RevisionActionButton } from "@/app/revision/RevisionActionButton";
 import * as Haptics from "expo-haptics";
 import React, { useEffect, useRef, useState } from "react";
 import { Animated, Text, TouchableWithoutFeedback, View } from "react-native";
@@ -11,19 +12,24 @@ import {
   State,
 } from "react-native-gesture-handler";
 import { FlashcardContentComponent } from "./FlashcardContentComponent";
-import { Memory } from "./Memory";
+import { MemoryBeingRevised } from "./Memory";
+import { chooseCardContent } from "./chooseCardContent";
 
 export function FlashcardComponent({
-  memory,
+  memoryBeingRevised,
   isVisible,
   onCardSwiped,
 }: {
-  memory: Memory;
+  memoryBeingRevised: MemoryBeingRevised;
   isVisible: boolean;
   onCardSwiped: (direction: "left" | "right") => void;
 }) {
-  const [blurHeight, setBlurHeight] = useState(900); // Initial state for blur height
-  const [isTouchable, setIsTouchable] = useState(false);
+  const [cardChoosedContent] = useState(() => {
+    return chooseCardContent(memoryBeingRevised);
+  });
+
+  const [blurHeight, setBlurHeight] = useState<number | null>(null);
+  const [isTouchable, setIsTouchable] = useState(false); // Card become touchable when blur is defined or for some cardChoosedContent
 
   const cardTranslateXMax = 400;
   const cardTranslateX = useRef(new Animated.Value(0)).current;
@@ -42,11 +48,11 @@ export function FlashcardComponent({
     outputRange: [0, 1, 0],
   });
 
-  const tadaOpacity = useRef(new Animated.Value(0)).current;
-  const tadaScale = tadaOpacity;
+  const continueButtonOpacity = useRef(new Animated.Value(0)).current;
+  const [continueButtonClickable, setContinueButtonClickable] = useState(false);
 
+  const tadaOpacity = useRef(new Animated.Value(0)).current;
   const cryingOpacity = useRef(new Animated.Value(0)).current;
-  const cryingScale = cryingOpacity;
 
   const onCardGestureEvent = (
     event: GestureEvent<PanGestureHandlerEventPayload>
@@ -55,16 +61,18 @@ export function FlashcardComponent({
 
     cardTranslateX.setValue(event.nativeEvent.translationX);
     cardTranslateY.setValue(event.nativeEvent.translationY);
-    tadaOpacity.setValue(Math.min(1, event.nativeEvent.translationX / 100));
-    cryingOpacity.setValue(Math.min(1, -event.nativeEvent.translationX / 100));
+    tadaOpacity.setValue(
+      Math.max(0, Math.min(1, event.nativeEvent.translationX / 100))
+    );
+    cryingOpacity.setValue(
+      Math.max(0, Math.min(1, -event.nativeEvent.translationX / 100))
+    );
   };
 
   const handleTouchRelease = (
     direction: "right" | "left" | undefined,
     initialVelocity = 0
   ) => {
-    if (!isTouchable) return;
-
     if (direction !== undefined) {
       onCardSwiped(direction);
       setIsTouchable(false);
@@ -134,9 +142,15 @@ export function FlashcardComponent({
     if (event.nativeEvent.oldState === State.ACTIVE && isTouchable) {
       let newCardSwipeDirection: "left" | "right" | undefined;
 
-      if (event.nativeEvent.translationX > 15) {
+      if (
+        event.nativeEvent.translationX > 50 ||
+        event.nativeEvent.velocityX > 300
+      ) {
         newCardSwipeDirection = "right";
-      } else if (event.nativeEvent.translationX < -15) {
+      } else if (
+        event.nativeEvent.translationX < -50 ||
+        event.nativeEvent.velocityX < -300
+      ) {
         newCardSwipeDirection = "left";
       }
 
@@ -158,6 +172,40 @@ export function FlashcardComponent({
     }).start();
   }, [isVisible, scale]);
 
+  const handleCardAnswered = (isRightAnswer: boolean) => {
+    if (isRightAnswer) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+
+      setTimeout(() => handleTouchRelease("right"), 600);
+    } else {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
+      setContinueButtonClickable(true);
+
+      Animated.spring(continueButtonOpacity, {
+        toValue: 1,
+        delay: 600,
+        useNativeDriver: true,
+      }).start();
+    }
+  };
+
+  let footerType: "none" | "swipable" | "continue-button" = "none";
+  let cardHasShadow: boolean = false;
+  if (
+    cardChoosedContent.type === "classic" &&
+    cardChoosedContent.subtype === "no-complication"
+  ) {
+    footerType = "swipable";
+    cardHasShadow = true;
+  } else if (
+    cardChoosedContent.type === "classic" &&
+    cardChoosedContent.subtype === "fake-answer"
+  ) {
+    footerType = "continue-button";
+    cardHasShadow = false;
+  }
+
   return (
     <Animated.View
       className="absolute top-0 flex flex-col justify-center w-full h-full"
@@ -167,15 +215,15 @@ export function FlashcardComponent({
         transform: [{ scale: scale }],
       }}
     >
-      <View className="flex flex-col justify-center w-full gap-6 shadow grow">
-        <View className="grow" />
+      <View className="flex flex-col justify-center w-full gap-6 grow">
+        <View className="grow flex-1" />
 
         <PanGestureHandler
           onGestureEvent={onCardGestureEvent}
           onHandlerStateChange={onCardHandlerStateChange}
         >
           <Animated.View
-            className="mx-10 rounded-xl bg-white pt-8 pb-6 self-stretch overflow-hidden z-20"
+            className="mx-10 rounded-xl bg-white pt-8 pb-6 self-stretch z-20"
             style={{
               transform: [
                 { translateX: cardTranslateX },
@@ -184,71 +232,124 @@ export function FlashcardComponent({
                   rotate: cardRotation,
                 },
               ],
+              shadowColor: cardHasShadow ? "#000" : "transparent",
+              shadowOffset: {
+                width: 0,
+                height: 6,
+              },
+              shadowOpacity: 0.25,
+              shadowRadius: 8,
             }}
           >
             <Animated.Image
               source={Icons.Tada}
-              className="absolute left-4 top-2 h-40 w-40 z-50 origin-top-left bg-white"
+              className="absolute left-4 top-2 h-40 w-40 z-50"
               style={{
-                opacity: tadaOpacity,
                 transform: [
                   {
-                    scale: tadaScale,
+                    scale: tadaOpacity.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0.6, 1],
+                    }),
                   },
                 ],
+                opacity: tadaOpacity,
               }}
               alt="Tada"
             />
 
             <Animated.Image
               source={Icons.LoudlyCryingFace}
-              className="absolute right-4 top-2 h-40 w-40 z-50 origin-top-right bg-white"
+              className="absolute right-4 top-2 h-40 w-40 z-50"
               style={{
-                opacity: cryingOpacity,
                 transform: [
                   {
-                    scale: cryingScale,
+                    scale: cryingOpacity.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0.6, 1],
+                    }),
                   },
                 ],
+                opacity: cryingOpacity,
               }}
               alt="Crying face"
             />
 
             <FlashcardContentComponent
-              onAnswerPositionLayout={setBlurHeight}
-              memory={memory}
+              onDisplayBlur={setBlurHeight}
+              cardChoosedContent={cardChoosedContent}
+              ressource={memoryBeingRevised.memory.card.resource}
+              onCardAnswered={handleCardAnswered}
             />
           </Animated.View>
         </PanGestureHandler>
 
-        <Animated.View
-          className="px-4 flex flex-row justify-between z-0 grow"
-          style={{
-            opacity: helpersOpacity,
-          }}
-        >
-          <TouchableWithoutFeedback onPress={() => handleTouchRelease("left")}>
-            <View className="flex flex-row items-start grow">
-              <View className="flex flex-row items-center gap-1 opacity-50">
-                <Icons.ArrowArcLeft width={15} height={15} color="black" />
-                <Text className="text-xs font-[Avenir]">
-                  {"Forgotten?\nTap or swipe left"}
-                </Text>
-              </View>
-            </View>
-          </TouchableWithoutFeedback>
+        {footerType === "swipable" && (
+          <Animated.View
+            className="px-4 flex flex-row justify-between z-0 grow flex-1"
+            style={{
+              opacity: helpersOpacity,
+            }}
+          >
+            <TouchableWithoutFeedback
+              onPress={() => isTouchable && handleTouchRelease("left")}
+            >
+              <View className="flex flex-row items-start grow">
+                <View className="flex flex-row items-center gap-1 opacity-50">
+                  <Icons.ArrowArcLeft width={15} height={15} color="black" />
 
-          <TouchableWithoutFeedback onPress={() => handleTouchRelease("right")}>
-            <View className="flex flex-row justify-end items-start grow">
-              <View className="flex flex-row items-center gap-1 opacity-50">
-                <Text className="text-xs font-[Avenir] text-right">
-                  {"Perfect recall?\nTap or swipe right"}
-                </Text>
-                <Icons.ArrowArcRight width={15} height={15} color="black" />
+                  <Text className="text-xs font-medium font-[Avenir]">
+                    {"Forgotten?\nTap or swipe left"}
+                  </Text>
+                </View>
               </View>
-            </View>
-          </TouchableWithoutFeedback>
-        </Animated.View>
+            </TouchableWithoutFeedback>
+
+            <TouchableWithoutFeedback
+              onPress={() => isTouchable && handleTouchRelease("right")}
+            >
+              <View className="flex flex-row justify-end items-start grow">
+                <View className="flex flex-row items-center gap-1 opacity-50">
+                  <Text className="text-xs font-medium font-[Avenir] text-right">
+                    {"Perfect recall?\nTap or swipe right"}
+                  </Text>
+
+                  <Icons.ArrowArcRight width={15} height={15} color="black" />
+                </View>
+              </View>
+            </TouchableWithoutFeedback>
+          </Animated.View>
+        )}
+
+        {footerType === "continue-button" && (
+          <Animated.View
+            className="flex flex-row grow justify-center flex-1"
+            style={{
+              opacity: helpersOpacity,
+            }}
+          >
+            <Animated.View
+              style={{
+                opacity: continueButtonOpacity,
+              }}
+            >
+              <RevisionActionButton onPress={() => handleTouchRelease("left")}>
+                <Text className="text-lg font-bold font-[Avenir] text-center text-neutral-700">
+                  Continue
+                </Text>
+
+                <Icons.ChevronRight
+                  width={18}
+                  height={18}
+                  color={"#4b5563"}
+                  strokeWidth={2.5}
+                />
+              </RevisionActionButton>
+            </Animated.View>
+          </Animated.View>
+        )}
+
+        {footerType === "none" && <View className="grow flex-1" />}
       </View>
 
       <FlashcardAnswerBlurComponent

@@ -26,11 +26,6 @@ const HomeScreen = () => {
     { id: "3", title: "Resource 3", illustration: "video" },
   ];
 
-  const startRevision = () => {
-    // Add logic to start revision
-    setShowRevision(!showRevision);
-  };
-
   const revisionButtonMarginBottom = Math.max(insets.bottom, 8);
 
   const lineDataMemorized = [
@@ -131,7 +126,7 @@ const HomeScreen = () => {
           }}
         >
           <View className="mt-16 mb-6 flex-col gap-3">
-            <Text className="pl-2 text-md font-light text-gray-500 absolute">
+            <Text className="pl-2 text-md font-light text-neutral-500 absolute">
               Last month progress
             </Text>
 
@@ -151,9 +146,9 @@ const HomeScreen = () => {
                   curved
                   thickness1={3}
                   thickness2={3}
-                  color1="rgb(60 60 60)"
+                  color1="rgb(230 230 230)"
                   color2="rgb(250 173 51)"
-                  startFillColor1="rgb(60 60 60)"
+                  startFillColor1="rgb(230 230 230)"
                   startFillColor2="rgb(250 173 51)"
                   startOpacity={0.15}
                   endOpacity={0}
@@ -172,7 +167,7 @@ const HomeScreen = () => {
 
           {["Continue", "Saved for later", "Your library", "Explore"].map(
             (category) => (
-              <View key={category} className="pt-3 border-t border-gray-200">
+              <View key={category} className="pt-3 border-t border-neutral-200">
                 <View className="flex-row justify-between px-6">
                   <Text className="text-lg font-medium">{category}</Text>
 
@@ -223,7 +218,7 @@ const HomeScreen = () => {
             )
           )}
 
-          <View className="border-t border-gray-200">
+          <View className="border-t border-neutral-200">
             <Text className="mt-8 mb-4 mx-6 text-2xl font-medium">
               Discover
             </Text>
@@ -244,7 +239,7 @@ const HomeScreen = () => {
                   </Text>
 
                   <Text
-                    className="text-md flex-1 text-gray-500"
+                    className="text-md flex-1 text-neutral-500"
                     numberOfLines={2}
                   >
                     1k learned
@@ -261,7 +256,7 @@ const HomeScreen = () => {
           colors={["rgba(255,255,255,0)", "rgba(255,255,255,1)"]}
           style={{
             paddingBottom: revisionButtonMarginBottom,
-            paddingRight: insets.right + 8,
+            paddingRight: insets.right + 16,
             paddingLeft: insets.left + 16,
           }}
         >
@@ -277,28 +272,25 @@ const HomeScreen = () => {
               elevation: 5, // Android only
             }}
           >
-            <View className="rounded-full overflow-hidden">
-              <LinearGradient
-                colors={[
-                  "rgb(255, 149, 0)", // Orange
-                  "rgb(255, 204, 0)", // Yellow
-                  "rgb(255, 204, 0)", // Yellow
-                  "rgb(255, 204, 0)", // Yellow
-                  "rgb(52, 199, 89)", // Green
-                  "rgb(0, 122, 255)", // Blue
-                  "rgb(88, 86, 214)", // Indigo
-                  "rgb(191, 90, 242)", // Violet
-                  "rgb(225, 59, 48)", // Red
-                ]}
-                start={{ x: 0.5, y: 3 }}
-                end={{ x: 0.8, y: 0 }}
-                className="rounded-full"
-              >
-                <Link asChild href="/revision">
-                  <TouchableOpacity
-                    onPress={startRevision}
-                    className="bg-white rounded-full m-[2px]"
-                  >
+            <Link asChild href="/revision">
+              <TouchableOpacity className="rounded-full overflow-hidden">
+                <LinearGradient
+                  colors={[
+                    "rgb(255, 149, 0)", // Orange
+                    "rgb(255, 204, 0)", // Yellow
+                    "rgb(255, 204, 0)", // Yellow
+                    "rgb(255, 204, 0)", // Yellow
+                    "rgb(52, 199, 89)", // Green
+                    "rgb(0, 122, 255)", // Blue
+                    "rgb(88, 86, 214)", // Indigo
+                    "rgb(191, 90, 242)", // Violet
+                    "rgb(225, 59, 48)", // Red
+                  ]}
+                  start={{ x: 0.5, y: 3 }}
+                  end={{ x: 0.8, y: 0 }}
+                  className="rounded-full"
+                >
+                  <View className="bg-white rounded-full m-[2px]">
                     <View className="flex-row items-center justify-between py-4 px-6">
                       <View className="flex-row items-center gap-1">
                         <Icons.Lineweight width={16} height={16} />
@@ -316,10 +308,10 @@ const HomeScreen = () => {
                         />
                       </View>
                     </View>
-                  </TouchableOpacity>
-                </Link>
-              </LinearGradient>
-            </View>
+                  </View>
+                </LinearGradient>
+              </TouchableOpacity>
+            </Link>
           </View>
         </LinearGradient>
       </View>

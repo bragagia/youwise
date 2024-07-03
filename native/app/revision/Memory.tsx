@@ -1,6 +1,6 @@
-import { uuid } from "@/lib/uuid";
+export const GOOD_REVIEW_IN_A_ROW_FOR_NEW_CARD = 2;
 
-type CardImageBlock = {
+export type CardImageBlock = {
   type: "image";
   blockId: string;
   imageId: string;
@@ -11,14 +11,17 @@ type CardImageBlock = {
     height: number;
   }[]; // Those parts will always be occluded, even when the answer is shown. This is useful for hiding other cards answers in the image
 };
-type CardBlockPrimitive = string | CardImageBlock;
-type CardBlock = CardBlockPrimitive[];
-type ClassicCardOcclusionText = {
+
+export type CardBlockPrimitive = string | CardImageBlock;
+export type CardBlocks = CardBlockPrimitive[];
+
+export type ClassicCardOcclusionText = {
   type: "text";
   value: string;
 };
+
 // ClassicCardOcclusionBlock are used to hide a whole block
-type ClassicCardOcclusionBlock = {
+export type ClassicCardOcclusionBlock = {
   type: "block";
   blockId: string;
   blockImageSection?: {
@@ -28,99 +31,93 @@ type ClassicCardOcclusionBlock = {
     height: number;
   };
 };
-type ClassicCardOcclusionsComplication = {
+
+export type ClassicCardVariantOcclusionsComplication = {
+  type: "occlusions";
+  answer: CardBlocks;
   occlusions: (ClassicCardOcclusionText | ClassicCardOcclusionBlock)[]; // Answer will be hidden behind occlusions
 };
-type ClassicCardFakeAnswerComplication = {
-  fakeAnswers: CardBlock[]; // Answer will be presented sometimes as a quizz, sometimes as a hidden answer (always will be presented as quizz on first presentation)
+
+export type ClassicCardVariantFakeAnswerComplication = {
+  type: "fake-answer";
+  question: CardBlocks;
+  answer: CardBlocks;
+  fakeAnswers: CardBlocks[]; // Answer will be presented sometimes as a quizz, sometimes as a hidden answer (always will be presented as quizz on first presentation)
 };
+
+export type ClassicCardVariantWithoutComplication = {
+  type: "no-complication";
+  question: CardBlocks;
+  answer: CardBlocks;
+};
+
+export type ClassCardVariant =
+  | ClassicCardVariantOcclusionsComplication
+  | ClassicCardVariantFakeAnswerComplication
+  | ClassicCardVariantWithoutComplication;
+
 // ClassicCardValue are used to memorize standalone facts
-type ClassicCardValue = {
+export type ClassicCardValue = {
   type: "classic";
-  variants: {
-    question?: CardBlock; // There can be no question if the card use occlusions in the answer
-    answer: CardBlock;
-    answerComplication?:
-      | ClassicCardOcclusionsComplication
-      | ClassicCardFakeAnswerComplication;
-  }[];
+  variants: ClassCardVariant[];
 };
-type TextCardLine = {
+
+export type TextCardLine = {
   id: string; // Unique ID to identify the part
-  part: CardBlock; // Must be smart cut by AI to be at least multiple words but not more than 6 (to be less than 7 items of short memory limit)
+  part: CardBlocks; // Must be smart cut by AI to be at least multiple words but not more than 6 (to be less than 7 items of short memory limit)
 }[];
+
 // TextCardValue are used to memorize long texts or quote by heart
-type TextCardValue = {
+export type TextCardValue = {
   type: "text";
-  title: CardBlock;
+  title: CardBlocks;
   text: TextCardLine[];
 };
-type CardValue = ClassicCardValue | TextCardValue;
+
+export type CardValue = ClassicCardValue | TextCardValue;
+
+export type Card = {
+  resource: Ressource;
+  value: CardValue;
+};
 
 export type Memory = {
   id: string;
-  card: {
-    resource: {
-      name: string;
-      resourceGroup?: {
-        name: string;
-      };
-    };
-    value: CardValue;
-  };
+
+  card: Card;
+
   memoryStatus: "new" | "review" | "forgotten";
+
   partsMemory?: {
     id: string;
     memoryStatus: "new" | "review" | "forgotten";
   }[]; // Used to store the memory status of each part of the card (for text cards)
 };
-export const memories: Memory[] = [
-  {
-    id: uuid(),
-    card: {
-      resource: {
-        name: "SF",
-        resourceGroup: {
-          name: "Culture geek",
-        },
-      },
 
-      value: {
-        type: "classic",
-        variants: [
-          {
-            question: [
-              "What is the answer to life, the universe, and everything?",
-            ],
-            answer: ["42"],
-          },
-        ],
-      },
-    },
+export type MemoryBeingRevised = {
+  memory: Memory;
+  memoryStatusBefore: Memory["memoryStatus"];
+  firstTime?: {
+    goodInARow: number;
+    reviewCount: number;
+    failureCount: number;
+  };
+  forgotten?: {
+    goodInARow: number;
+    reviewCount: number;
+    failureCount: number;
+  };
+};
 
-    memoryStatus: "new",
-  },
-  {
-    id: uuid(),
-    card: {
-      resource: {
-        name: "SF",
-        resourceGroup: {
-          name: "Culture geek",
-        },
-      },
+export type MemoryBeingRevisedWithKey = MemoryBeingRevised & {
+  key: string; // That unique random key allow to force the component to render correctly, it identify the pass of the memory, not the memory itself
+};
 
-      value: {
-        type: "classic",
-        variants: [
-          {
-            question: ["What is AlphaGo?"],
-            answer: ["A computer program that plays the board game Go."],
-          },
-        ],
-      },
-    },
+// TODO: separate file:
 
-    memoryStatus: "new",
-  },
-];
+export type Ressource = {
+  name: string;
+  resourceGroup?: {
+    name: string;
+  };
+};

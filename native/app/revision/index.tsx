@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { FlashcardComponent } from "./FlashcardComponent";
+import { RevisionStatsCard } from "./RevisionStatsCard";
 import { useLocalRevisionEngine } from "./useLocalRevisionEngine";
 
 const Ressource = () => {
@@ -30,24 +31,29 @@ const Ressource = () => {
   const circleScale = useRef(new Animated.Value(0)).current;
   const circleOpacity = useRef(new Animated.Value(0)).current;
 
-  const [progress, setProgress] = useState(0);
+  const {
+    prevMemory,
+    currentMemory,
+    nextMemory,
+    progress,
+    finishedStats,
+    swipeCard,
+  } = useLocalRevisionEngine();
+
   const progressAnimated = useRef(new Animated.Value(0)).current;
 
-  const { prevMemory, currentMemory, nextMemory, swipeCard } =
-    useLocalRevisionEngine();
+  useEffect(() => {
+    Animated.spring(progressAnimated, {
+      toValue: progress,
+      useNativeDriver: false,
+    }).start();
+  }, [progress]);
 
   const onCardSwiped = (direction: "left" | "right") => {
     setTimeout(() => {
       swipeCard(direction);
 
       if (direction === "right") {
-        setProgress((progress + 0.1) % 1); // TODO:
-
-        Animated.spring(progressAnimated, {
-          toValue: progress + 0.1,
-          useNativeDriver: false,
-        }).start();
-
         circleScale.setValue(0);
         circleOpacity.setValue(1);
 
@@ -69,6 +75,7 @@ const Ressource = () => {
     <View className="min-h-full">
       <LinearGradient
         colors={["rgb(251 146 60)", "rgb(255 97 69)"]}
+        //colors={["rgb(163 163 163)", "rgb(82 82 82)"]}
         style={{
           position: "absolute",
           left: 0,
@@ -90,12 +97,14 @@ const Ressource = () => {
         }}
         className="absolute grow w-full bottom-0 top-0"
       >
-        <TouchableOpacity
-          onPress={() => router.back()}
-          className="absolute right-2 top-4 h-14 w-14 z-20 p-4"
-        >
-          <Icons.Pause />
-        </TouchableOpacity>
+        {!finishedStats && (
+          <TouchableOpacity
+            onPress={() => router.back()}
+            className="absolute right-2 top-4 h-14 w-14 z-20 p-4"
+          >
+            <Icons.Pause />
+          </TouchableOpacity>
+        )}
 
         <View className="absolute top-1 h-2 flex flex-row left-2 right-2 rounded-full">
           <View className="absolute h-full w-full bg-black opacity-15 z-40 rounded-full" />
@@ -121,28 +130,32 @@ const Ressource = () => {
 
         {prevMemory && (
           <FlashcardComponent
-            key={prevMemory.id}
+            key={prevMemory.key}
             onCardSwiped={onCardSwiped}
-            memory={prevMemory}
+            memoryBeingRevised={prevMemory}
             isVisible={true}
           />
         )}
 
-        <FlashcardComponent
-          key={currentMemory.id}
-          onCardSwiped={onCardSwiped}
-          memory={currentMemory}
-          isVisible={loading}
-        />
+        {currentMemory && (
+          <FlashcardComponent
+            key={currentMemory.key}
+            onCardSwiped={onCardSwiped}
+            memoryBeingRevised={currentMemory}
+            isVisible={loading}
+          />
+        )}
 
         {nextMemory && (
           <FlashcardComponent
-            key={nextMemory.id}
+            key={nextMemory.key}
             onCardSwiped={onCardSwiped}
-            memory={nextMemory}
+            memoryBeingRevised={nextMemory}
             isVisible={false}
           />
         )}
+
+        {finishedStats && <RevisionStatsCard finishedStats={finishedStats} />}
       </View>
     </View>
   );

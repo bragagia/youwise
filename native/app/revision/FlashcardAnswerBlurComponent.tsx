@@ -22,7 +22,7 @@ export function FlashcardAnswerBlurComponent({
   blurHeight,
 }: {
   onBlurHidden: () => void;
-  blurHeight: number;
+  blurHeight: number | null;
 }) {
   const [hidden, setHidden] = useState(false);
 
@@ -36,6 +36,8 @@ export function FlashcardAnswerBlurComponent({
   };
 
   const handleTouchRelease = (dest: "reset" | "hide", initialVelocity = 0) => {
+    if (!blurHeight) return;
+
     let newTranslateY = 0;
     if (dest === "hide") {
       newTranslateY = blurHeight;
@@ -48,7 +50,9 @@ export function FlashcardAnswerBlurComponent({
       velocity: Math.max(0, initialVelocity), // Prevent going up on swipe up
       useNativeDriver: true,
     }).start(() => {
-      setHidden(true);
+      if (dest === "hide") {
+        setHidden(true);
+      }
     });
   };
 
@@ -56,11 +60,21 @@ export function FlashcardAnswerBlurComponent({
     event: HandlerStateChangeEvent<PanGestureHandlerEventPayload>
   ) => {
     if (event.nativeEvent.oldState === State.ACTIVE) {
-      const dest = event.nativeEvent.translationY > 15 ? "hide" : "reset";
+      let dest: "hide" | "reset";
+      if (
+        event.nativeEvent.translationY > 50 ||
+        event.nativeEvent.velocityY > 300
+      ) {
+        dest = "hide";
+      } else {
+        dest = "reset";
+      }
 
       handleTouchRelease(dest, event.nativeEvent.velocityY);
     }
   };
+
+  if (!blurHeight || hidden) return null;
 
   return (
     <PanGestureHandler
