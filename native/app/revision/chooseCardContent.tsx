@@ -1,31 +1,9 @@
+import { ClassCardVariant } from "./Card";
+import { CardChoosedContent } from "./CardChoosedContent";
 import {
-  CardBlocks,
-  ClassCardVariant,
   GOOD_REVIEW_IN_A_ROW_FOR_NEW_CARD,
   MemoryBeingRevised,
 } from "./Memory";
-
-export type CardChoosedContent =
-  | {
-      type: "classic";
-      subtype: "no-complication";
-      question: CardBlocks;
-      answer: CardBlocks;
-    }
-  | {
-      type: "classic";
-      subtype: "fake-answer";
-      question: CardBlocks;
-      answerChoices: CardBlocks[];
-      trueAnswerPos: number;
-    }
-  | {
-      type: "classic";
-      subtype: "occlusions";
-    }
-  | {
-      type: "text";
-    };
 
 export function chooseCardContent(
   memoryBeingRevised: MemoryBeingRevised
