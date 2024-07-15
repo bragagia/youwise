@@ -1,6 +1,6 @@
 import { validateRequestAccessToken } from "@/lib/jwt";
 import { SuccessResponse } from "@/lib/responses";
-import { VoidResponseT } from "../../../../../shared/api/void";
+import { VoidResponseT } from "youwise-shared/api/void";
 
 export async function POST(request: Request) {
   const { userId, tokenErrorResponse } = validateRequestAccessToken(request);
