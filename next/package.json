@@ -1,23 +1,30 @@
 {
-  "name": "hey-professor",
+  "name": "youwise-next",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "prisma:migrate": "prisma migrate dev --schema=../prisma-client/prisma/schema.prisma",
+    "prisma:generate": "npx prisma generate --schema=../shared/prisma/schema.prisma"
   },
   "dependencies": {
-    "@prisma/client": "^5.15.0",
+    "@prisma/client": "^5.16.2",
+    "google-auth-library": "^9.11.0",
+    "jsonwebtoken": "^9.0.2",
     "next": "14.2.3",
     "openai": "^4.49.1",
+    "prisma": "^5.16.2",
     "react": "^18",
     "react-dom": "^18",
     "uuid": "^10.0.0",
+    "youwise-shared": "*",
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.6",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
@@ -25,7 +32,6 @@
     "eslint": "^8",
     "eslint-config-next": "14.2.3",
     "postcss": "^8",
-    "prisma": "^5.15.0",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
   }

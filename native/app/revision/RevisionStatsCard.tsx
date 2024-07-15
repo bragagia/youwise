@@ -1,11 +1,11 @@
-import Icons from "@/app/icons";
+import Icons from "@/components/icons";
 import { BlurView } from "expo-blur";
 import { router } from "expo-router";
 import React, { useEffect, useRef } from "react";
 import { Animated, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { RevisionStats } from "../db/RevisionStats";
 import { RevisionActionButton } from "./RevisionActionButton";
-import { RevisionStats } from "./RevisionStats";
 
 export function RevisionStatsCard({
   finishedStats,
@@ -63,7 +63,7 @@ export function RevisionStatsCard({
           transform: [{ scale: scaleStats }],
         }}
       >
-        <BlurView className="flex flex-col gap-6 py-6 px-8">
+        <BlurView className="flex flex-col gap-6 py-6 px-8" tint="light">
           <View className="flex flex-row justify-between">
             <Text className="text-lg text-neutral-500 font-[Avenir] font-bold">
               <Text className="font-bold text-2xl text-black">

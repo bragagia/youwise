@@ -1,8 +1,9 @@
-const { getDefaultConfig, mergeConfig } = require("@react-native/metro-config");
+const { getDefaultConfig } = require("@expo/metro-config");
+const { mergeConfig } = require("@react-native/metro-config");
+const { withNativeWind } = require("nativewind/metro");
 
 const defaultConfig = getDefaultConfig(__dirname);
 const { assetExts, sourceExts } = defaultConfig.resolver;
-const { withNativeWind } = require("nativewind/metro");
 
 /**
  * Metro configuration
@@ -13,7 +14,6 @@ const { withNativeWind } = require("nativewind/metro");
 const config = {
   transformer: {
     babelTransformerPath: require.resolve("react-native-svg-transformer"),
-    unstable_allowRequireContext: true,
   },
   resolver: {
     assetExts: assetExts.filter((ext) => ext !== "svg"),

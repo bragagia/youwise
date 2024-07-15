@@ -1,8 +1,9 @@
-import Icons from "@/app/icons";
 import { CardChoosenContent } from "@/app/revision/CardChoosenContent";
 import { FlashcardAnswerBlurComponent } from "@/app/revision/FlashcardAnswerBlurComponent";
 import { RevisionActionButton } from "@/app/revision/RevisionActionButton";
-import * as Haptics from "expo-haptics";
+import Icons from "@/components/icons";
+import { useHaptics } from "@/lib/haptics";
+import { ImpactFeedbackStyle, NotificationFeedbackType } from "expo-haptics";
 import React, { useEffect, useRef, useState } from "react";
 import { Animated, Text, TouchableWithoutFeedback, View } from "react-native";
 import {
@@ -12,9 +13,9 @@ import {
   PanGestureHandlerEventPayload,
   State,
 } from "react-native-gesture-handler";
-import { FlashcardContentComponent } from "./FlashcardContentComponent";
-import { MemoryBeingRevised } from "./Memory";
+import { MemoryBeingRevised } from "../db/Memory";
 import { chooseCardContent } from "./chooseCardContent";
+import { FlashcardContentComponent } from "./FlashcardContentComponent";
 
 export function FlashcardComponent({
   memoryBeingRevised,
@@ -25,6 +26,7 @@ export function FlashcardComponent({
   isVisible: boolean;
   onCardSwiped: (direction: "left" | "right") => void;
 }) {
+  const haptics = useHaptics();
   const scale = useRef(new Animated.Value(1)).current; // We actually start at 1 instead of zero to allow correct calculation of blur position
 
   const [cardChoosedContent] = useState(() => {
@@ -121,10 +123,10 @@ export function FlashcardComponent({
     let destX = 0;
     if (direction === "right") {
       destX = cardTranslateXMax;
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      haptics.notificationAsync(NotificationFeedbackType.Success);
     } else if (direction === "left") {
       destX = -cardTranslateXMax;
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      haptics.impactAsync(ImpactFeedbackStyle.Light);
     }
 
     if (direction === undefined) {
@@ -178,11 +180,11 @@ export function FlashcardComponent({
 
   const handleCardAnswered = (isRightAnswer: boolean) => {
     if (isRightAnswer) {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      haptics.notificationAsync(NotificationFeedbackType.Success);
 
       setTimeout(() => handleTouchRelease("right"), 600);
     } else {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      haptics.impactAsync(ImpactFeedbackStyle.Light);
 
       setIsContinueButtonClickable(true);
     }
@@ -213,7 +215,6 @@ export function FlashcardComponent({
           onHandlerStateChange={onCardGestureStateChange}
         >
           <Animated.View
-            className="mx-10 rounded-xl bg-white pt-8 pb-6 self-stretch z-20"
             style={{
               transform: [
                 { translateX: cardTranslateX },
@@ -222,55 +223,67 @@ export function FlashcardComponent({
                   rotate: cardRotation,
                 },
               ],
-              shadowColor: cardHasShadow ? "#000" : "transparent",
-              shadowOffset: {
-                width: 0,
-                height: 6,
-              },
-              shadowOpacity: 0.25,
-              shadowRadius: 8,
             }}
           >
-            <Animated.Image
-              source={Icons.Tada}
-              className="absolute left-4 top-2 h-40 w-40 z-50"
+            <View
+              className="mx-10 rounded-xl bg-white pt-8 pb-6 self-stretch z-20"
               style={{
-                transform: [
-                  {
-                    scale: tadaOpacity.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: [0.6, 1],
-                    }),
-                  },
-                ],
-                opacity: tadaOpacity,
+                shadowColor: cardHasShadow ? "#000" : "transparent",
+                shadowOffset: {
+                  width: 0,
+                  height: 6,
+                },
+                shadowOpacity: 0.25,
+                shadowRadius: 8,
               }}
-              alt="Tada"
-            />
+            >
+              <View className="absolute left-4 top-2 z-50 pointer-events-none">
+                <Animated.Image
+                  source={Icons.Tada}
+                  style={{
+                    height: 160,
+                    width: 160,
+                    transform: [
+                      {
+                        scale: tadaOpacity.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [0.6, 1],
+                        }),
+                      },
+                    ],
+                    opacity: tadaOpacity,
+                  }}
+                  alt="Tada"
+                />
+              </View>
 
-            <Animated.Image
-              source={Icons.LoudlyCryingFace}
-              className="absolute right-4 top-2 h-40 w-40 z-50"
-              style={{
-                transform: [
-                  {
-                    scale: cryingOpacity.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: [0.6, 1],
-                    }),
-                  },
-                ],
-                opacity: cryingOpacity,
-              }}
-              alt="Crying face"
-            />
+              <View className="absolute right-4 top-2 z-50 pointer-events-none">
+                <Animated.Image
+                  source={Icons.LoudlyCryingFace}
+                  style={{
+                    height: 160,
+                    width: 160,
+                    transform: [
+                      {
+                        scale: cryingOpacity.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [0.6, 1],
+                        }),
+                      },
+                    ],
+                    opacity: cryingOpacity,
+                  }}
+                  alt="Crying face"
+                />
+              </View>
 
-            <FlashcardContentComponent
-              onDisplayBlur={setBlurHeight}
-              cardChoosedContent={cardChoosedContent}
-              ressource={memoryBeingRevised.memory.card.resource}
-              onCardAnswered={handleCardAnswered}
-            />
+              <FlashcardContentComponent
+                onDisplayBlur={setBlurHeight}
+                cardChoosedContent={cardChoosedContent}
+                ressource={memoryBeingRevised.memory.card.resource}
+                onCardAnswered={handleCardAnswered}
+              />
+            </View>
           </Animated.View>
         </PanGestureHandler>
 

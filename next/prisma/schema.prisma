@@ -18,16 +18,20 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  email    String
-  password String
+  googleUid String? @unique
+  appleUid  String? @unique
 
-  courses         Course[]
-  resourcesGroups ResourceGroup[]
-  resources       Resource[]
-  highlights      Highlight[]
-  questions       Question[]
-  memories        Memory[]
-  aiUsages        AIUsage[]
+  givenName  String
+  familyName String?
+  email      String  @unique
+
+  // courses         Course[]
+  // resourcesGroups ResourceGroup[]
+  resources  Resource[]
+  highlights Highlight[]
+  cards      Card[]
+  memories   Memory[]
+  aiUsages   AIUsage[]
 
   @@map("users")
 }
@@ -46,49 +50,49 @@ model AIUsage {
   @@map("ai_usages")
 }
 
-model Course {
-  id        String   @id @default(uuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+// model Course {
+//   id        String   @id @default(uuid())
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
 
-  ownerUser   User   @relation(fields: [ownerUserId], references: [id])
-  ownerUserId String
+//   ownerUser   User   @relation(fields: [ownerUserId], references: [id])
+//   ownerUserId String
 
-  name        String
-  description String?
+//   name        String
+//   description String?
 
-  resourceGroups ResourceGroup[]
+//   resourceGroups ResourceGroup[]
 
-  @@map("courses")
-}
+//   @@map("courses")
+// }
 
-model ResourceGroup {
-  id        String   @id @default(uuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+// model ResourceGroup {
+//   id        String   @id @default(uuid())
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
 
-  ownerUser   User    @relation(fields: [ownerUserId], references: [id])
-  ownerUserId String
-  course      Course? @relation(fields: [courseId], references: [id])
-  courseId    String?
+//   ownerUser   User    @relation(fields: [ownerUserId], references: [id])
+//   ownerUserId String
+//   course      Course? @relation(fields: [courseId], references: [id])
+//   courseId    String?
 
-  name        String
-  description String?
+//   name        String
+//   description String?
 
-  resources Resource[]
+//   resources Resource[]
 
-  @@map("resource_groups")
-}
+//   @@map("resource_groups")
+// }
 
 model Resource {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  ownerUser       User           @relation(fields: [ownerUserId], references: [id])
-  ownerUserId     String
-  resourceGroup   ResourceGroup? @relation(fields: [resourceGroupId], references: [id])
-  resourceGroupId String?
+  ownerUser   User   @relation(fields: [ownerUserId], references: [id])
+  ownerUserId String
+  // resourceGroup   ResourceGroup? @relation(fields: [resourceGroupId], references: [id])
+  // resourceGroupId String?
 
   name          String
   description   String?
@@ -99,7 +103,7 @@ model Resource {
   content       String?
 
   highlights Highlight[]
-  questions  Question[]
+  cards      Card[]
   memories   Memory[]
 
   @@map("resources")
@@ -120,12 +124,12 @@ model Highlight {
   note            String?
   context         String?
 
-  question Question?
+  card Card?
 
   @@map("highlights")
 }
 
-model Question {
+model Card {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -137,12 +141,12 @@ model Question {
   highlightId String?    @unique
   highlight   Highlight? @relation(fields: [highlightId], references: [id])
 
-  question String
-  answer   String
+  card   String
+  answer String
 
   memories Memory[]
 
-  @@map("questions")
+  @@map("cards")
 }
 
 enum MemoryStatusEnum {
@@ -158,8 +162,8 @@ model Memory {
 
   ownerUser   User      @relation(fields: [ownerUserId], references: [id])
   ownerUserId String
-  question    Question  @relation(fields: [questionId], references: [id])
-  questionId  String
+  card        Card      @relation(fields: [cardId], references: [id])
+  cardId      String
   Resource    Resource? @relation(fields: [resourceId], references: [id])
   resourceId  String?
 

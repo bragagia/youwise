@@ -4,31 +4,16 @@
     {
       "splitTerminals": [
         {
-          "name": "compose",
-          "commands": ["docker compose up"]
-        },
-        {
-          "name": "cmd"
-        }
-      ]
-    },
-    {
-      "splitTerminals": [
-        {
           "name": "next",
           "commands": ["cd next", "npm run dev"]
         },
         {
-          "name": "cmd",
-          "commands": ["cd next"]
-        }
-      ]
-    },
-    {
-      "splitTerminals": [
-        {
           "name": "expo",
           "commands": ["cd native", " npx expo start --clear"]
+        },
+        {
+          "name": "cmd",
+          "commands": ["cd next"]
         },
         {
           "name": "cmd",

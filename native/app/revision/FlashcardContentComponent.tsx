@@ -1,9 +1,9 @@
 import React, { useRef, useState } from "react";
 import { Dimensions, LayoutChangeEvent, Text, View } from "react-native";
+import { Ressource } from "../db/Ressource";
 import { AnswerButtonComponent } from "./AnswerButtonComponent";
 import { CardBlockComponent } from "./CardBlockComponent";
 import { CardChoosenContent } from "./CardChoosenContent";
-import { Ressource } from "./Ressource";
 
 export function FlashcardContentComponent({
   cardChoosedContent,
@@ -52,8 +52,6 @@ export function FlashcardContentComponent({
       </View>
     );
   }
-
-  console.log(ressource);
 
   return (
     <View className="flex flex-col gap-6 self-stretch">

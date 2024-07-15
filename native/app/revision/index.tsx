@@ -1,10 +1,11 @@
-import Icons from "@/app/icons";
+import Icons from "@/components/icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
   Animated,
   ImageBackground,
+  Platform,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -78,7 +79,7 @@ const Ressource = () => {
 
     Animated.timing(prevBackgroundOpacity, {
       toValue: 0,
-      duration: 301,
+      duration: 200,
       useNativeDriver: true,
     }).start();
   }, [prevMemory]);
@@ -157,15 +158,17 @@ const Ressource = () => {
         </Animated.View>
       )}
 
-      <ImageBackground
-        source={require("@/assets/images/noise-strong.png")}
-        className="w-full h-full absolute"
-        resizeMode="repeat"
-      />
+      {Platform.OS === "ios" && (
+        <ImageBackground
+          source={require("@/assets/images/noise-strong.png")}
+          className="w-full h-full absolute"
+          resizeMode="repeat"
+        />
+      )}
 
       <View
         style={{
-          marginTop: insets.top,
+          marginTop: Math.max(6, insets.top),
         }}
         className="absolute grow w-full bottom-0 top-0"
       >

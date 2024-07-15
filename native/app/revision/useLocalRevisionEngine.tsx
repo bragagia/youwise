@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
 import { uuid } from "../../lib/uuid";
-import { memories } from "./MOCK";
+import { memories } from "../db/MOCK";
 import {
   GOOD_REVIEW_IN_A_ROW_FOR_NEW_CARD,
   Memory,
   MemoryBeingRevised,
   MemoryBeingRevisedWithKey,
-} from "./Memory";
-import { RevisionStats } from "./RevisionStats";
+} from "../db/Memory";
+import { RevisionStats } from "../db/RevisionStats";
 
 type DisplayedMemories = {
   prev: MemoryBeingRevisedWithKey | undefined;

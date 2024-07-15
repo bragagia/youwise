@@ -1,6 +1,7 @@
-import Icons from "@/app/icons";
+import Icons from "@/components/icons";
+import { useHaptics } from "@/lib/haptics";
 import { BlurView } from "expo-blur";
-import * as Haptics from "expo-haptics";
+import { ImpactFeedbackStyle } from "expo-haptics";
 import { useRef, useState } from "react";
 import {
   Animated,
@@ -25,6 +26,7 @@ export function FlashcardAnswerBlurComponent({
   blurHeight: number | null;
 }) {
   const [hidden, setHidden] = useState(false);
+  const haptics = useHaptics();
 
   // Blur animation
   const blurTranslateY = useRef(new Animated.Value(0)).current;
@@ -60,7 +62,7 @@ export function FlashcardAnswerBlurComponent({
     if (dest === "hide") {
       newTranslateY = blurHeight;
       onBlurHidden();
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      haptics.impactAsync(ImpactFeedbackStyle.Light);
     }
 
     Animated.spring(blurTranslateY, {

@@ -1,6 +1,6 @@
 import React from "react";
 import { Text, View } from "react-native";
-import { CardBlocks } from "./Card";
+import { CardBlocks } from "../db/Card";
 
 export function CardBlockComponent({
   cardBlocks,

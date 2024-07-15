@@ -156,19 +156,18 @@ export async function callOpenAISA() {
     },
   });
 
-  let questions: Prisma.QuestionCreateManyInput[] = [];
+  let questions: Prisma.CardCreateManyInput[] = [];
 
   const highlights: Prisma.HighlightCreateManyInput[] =
     highlightsWithQuestions.map((highlight) => {
       const highlightId = uuid();
 
-      questions.push({
-        highlightId: highlightId,
-        ownerUserId: session.userId,
-        resourceId: resource.id,
-        question: highlight.question,
-        answer: highlight.answer,
-      });
+      // questions.push({
+      //   highlightId: highlightId,
+      //   ownerUserId: session.userId,
+      //   resourceId: resource.id,
+      //   question: highlight.question,
+      // });
 
       return {
         id: highlightId,
@@ -183,7 +182,7 @@ export async function callOpenAISA() {
     data: highlights,
   });
 
-  await prisma.question.createMany({
+  await prisma.card.createMany({
     data: questions,
   });
 
@@ -193,14 +192,13 @@ export async function callOpenAISA() {
 export async function createUserSA() {
   const prisma = new PrismaClient();
 
-  const user = await prisma.user.create({
-    data: {
-      email: "mathias@bragagia.com",
-      password: "12345",
-    },
-  });
+  // const user = await prisma.user.create({
+  //   data: {
+  //     email: "mathias@bragagia.com",
+  //   },
+  // });
 
-  console.log("User created", user.id);
+  // console.log("User created", user.id);
 }
 
 function getSession() {

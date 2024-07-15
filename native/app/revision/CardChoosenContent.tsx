@@ -1,4 +1,4 @@
-import { CardBlocks } from "./Card";
+import { CardBlocks } from "../db/Card";
 
 export type CardChoosenContent =
   | {

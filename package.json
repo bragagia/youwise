@@ -1,0 +1,9 @@
+{
+  "name": "youwise",
+  "private": true,
+  "workspaces": [
+    "shared",
+    "native",
+    "next"
+  ]
+}

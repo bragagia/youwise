@@ -1,9 +1,9 @@
-import { ClassCardVariant } from "./Card";
-import { CardChoosenContent } from "./CardChoosenContent";
+import { ClassCardVariant } from "../db/Card";
 import {
   GOOD_REVIEW_IN_A_ROW_FOR_NEW_CARD,
   MemoryBeingRevised,
-} from "./Memory";
+} from "../db/Memory";
+import { CardChoosenContent } from "./CardChoosenContent";
 
 export function chooseCardContent(
   memoryBeingRevised: MemoryBeingRevised
