@@ -1,7 +1,7 @@
 import { ressources } from "@/app/db/MOCK";
 import { YoutubePlayerComponent } from "@/app/ressource/YoutubePlayerComponent";
 import { ExternalLink } from "@/components/ExternalLink";
-import Icons from "@/components/icons";
+import Icons from "@/components/Icons";
 import { MyModal } from "@/components/MyModal";
 import { router } from "expo-router";
 import React, { useState } from "react";

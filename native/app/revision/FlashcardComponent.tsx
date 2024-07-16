@@ -1,7 +1,7 @@
 import { CardChoosenContent } from "@/app/revision/CardChoosenContent";
 import { FlashcardAnswerBlurComponent } from "@/app/revision/FlashcardAnswerBlurComponent";
 import { RevisionActionButton } from "@/app/revision/RevisionActionButton";
-import Icons from "@/components/icons";
+import Icons from "@/components/Icons";
 import { useHaptics } from "@/lib/haptics";
 import { ImpactFeedbackStyle, NotificationFeedbackType } from "expo-haptics";
 import React, { useEffect, useRef, useState } from "react";

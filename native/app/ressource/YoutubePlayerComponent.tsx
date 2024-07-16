@@ -1,4 +1,4 @@
-import Icons from "@/components/icons";
+import Icons from "@/components/Icons";
 import React, { useEffect, useRef, useState } from "react";
 import { Animated, Dimensions, View } from "react-native";
 import YoutubePlayer, { PLAYER_STATES } from "react-native-youtube-iframe";

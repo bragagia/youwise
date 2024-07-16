@@ -1,4 +1,4 @@
-import Icons from "@/components/icons";
+import Icons from "@/components/Icons";
 import { useHaptics } from "@/lib/haptics";
 import { BlurView } from "expo-blur";
 import { ImpactFeedbackStyle } from "expo-haptics";

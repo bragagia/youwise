@@ -1,4 +1,4 @@
-import Icons from "@/components/icons";
+import Icons from "@/components/Icons";
 import { Spinner } from "@/components/Spinner";
 import { useAPI } from "@/lib/api/apiProvider";
 import { router } from "expo-router";

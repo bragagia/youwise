@@ -1,4 +1,4 @@
-import Icons from "@/components/icons";
+import Icons from "@/components/Icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";

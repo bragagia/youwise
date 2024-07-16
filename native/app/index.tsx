@@ -1,4 +1,4 @@
-import Icons from "@/components/icons";
+import Icons from "@/components/Icons";
 import { Link, router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {

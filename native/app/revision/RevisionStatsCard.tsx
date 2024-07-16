@@ -1,4 +1,4 @@
-import Icons from "@/components/icons";
+import Icons from "@/components/Icons";
 import { BlurView } from "expo-blur";
 import { router } from "expo-router";
 import React, { useEffect, useRef } from "react";

@@ -13,11 +13,7 @@
         },
         {
           "name": "cmd",
-          "commands": ["cd next"]
-        },
-        {
-          "name": "cmd",
-          "commands": ["cd native"]
+          "commands": []
         }
       ]
     }
@@ -25,5 +21,21 @@
   "cSpell.words": ["dayjs", "inngest", "timeouted"],
   "[prisma]": {
     "editor.defaultFormatter": "Prisma.prisma"
-  }
+  },
+  "files.exclude": {
+    "native/android": true,
+    "native/ios": true
+  },
+  "sqltools.connections": [
+    {
+      "previewLimit": 50,
+      "server": "localhost",
+      "port": 5433,
+      "driver": "PostgreSQL",
+      "name": "Local",
+      "database": "youwise",
+      "username": "postgres",
+      "password": "postgres"
+    }
+  ]
 }
