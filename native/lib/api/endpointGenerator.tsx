@@ -1,13 +1,13 @@
 import { APIContextType } from "@/lib/api/apiProvider";
 import {
-  AuthNewAccessTokenRequestT,
-  AuthNewAccessTokenResponseS,
-} from "youwise-shared/api/auth";
+  AuthNewAccessTokenRequest,
+  authNewAccessTokenResponseSchema,
+} from "youwise-shared/api";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL!;
 
-const newAccessTokenEndpoint = publicEndpointGen<AuthNewAccessTokenRequestT>()(
-  AuthNewAccessTokenResponseS,
+const newAccessTokenEndpoint = publicEndpointGen<AuthNewAccessTokenRequest>()(
+  authNewAccessTokenResponseSchema,
   "auth/new-access-token"
 );
 
@@ -65,9 +65,12 @@ export function privateEndpointGen<ReqT>(apiContext: APIContextType) {
         refreshToken: apiContext.userStored.refreshToken,
       });
       if (res.error !== undefined) {
+        apiContext._internal.removeUser();
+
         if (res.code === 400) {
           console.log("Refresh token expired, logging user out");
-          apiContext._internal.removeUser();
+        } else {
+          console.log("Error refreshing token: ", res.error);
         }
 
         return {

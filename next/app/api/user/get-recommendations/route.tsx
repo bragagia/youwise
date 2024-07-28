@@ -1,23 +1,30 @@
 import { validateRequestAccessToken } from "@/lib/jwt";
 import { SuccessResponse } from "@/lib/responses";
-import { UserResourcesResponseT } from "youwise-shared/api/user";
-
-const userResources = [
-  {
-    id: "1",
-    title: "Sapiens: A Brief History of Humankind",
-  },
-  { id: "2", title: "Resource 2" },
-  { id: "3", title: "Resource 3" },
-  { id: "3", title: "Resource 3" },
-  { id: "3", title: "Resource 3" },
-];
+import { PrismaClient } from "@prisma/client";
+import {
+  UserResourcesResponse,
+  userResourcesResponseSchema,
+} from "youwise-shared/api";
 
 export async function POST(request: Request) {
   const { userId, tokenErrorResponse } = validateRequestAccessToken(request);
   if (tokenErrorResponse) return tokenErrorResponse;
 
-  return SuccessResponse<UserResourcesResponseT>({
-    resources: userResources,
+  const prisma = new PrismaClient();
+  const resources = await prisma.resource.findMany({
+    where: {
+      ownerUserId: userId,
+    },
+  });
+
+  return SuccessResponse<UserResourcesResponse>(userResourcesResponseSchema, {
+    continue: [],
+    saveForLater: [],
+    library: resources.map((resource) => ({
+      id: resource.id,
+      ownerUserId: resource.ownerUserId,
+      name: resource.name,
+    })),
+    explore: [],
   });
 }

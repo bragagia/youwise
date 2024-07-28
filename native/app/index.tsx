@@ -4,19 +4,19 @@ import React, { useEffect, useState } from "react";
 import {
   Image,
   Pressable,
+  RefreshControl,
   ScrollView,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
-import { LineChart } from "react-native-gifted-charts";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import "@/app/global.css";
-import { Spinner } from "@/components/Spinner";
 import { useAPI } from "@/lib/api/apiProvider";
 import { SignedInOnly, SignedOutOnly } from "@/lib/api/helpers";
 import { LinearGradient } from "expo-linear-gradient";
+import { UserResourcesResponse } from "youwise-shared/api";
 
 const HomeScreen = () => {
   const api = useAPI();
@@ -24,16 +24,13 @@ const HomeScreen = () => {
 
   const [loading, setLoading] = useState(true);
 
-  const [userResources, setUserResources] = useState<
-    {
-      id: string;
-      title: string;
-    }[]
-  >([]); // TODO:
+  const [userResources, setUserResources] = useState<UserResourcesResponse>();
 
-  useEffect(() => {
+  const onRefresh = () => {
+    setLoading(true);
+
     if (!api.userStored) {
-      setUserResources([]);
+      setUserResources(undefined);
     } else {
       api.user.getRecommendations().then((res) => {
         if (res.error !== undefined) {
@@ -41,10 +38,15 @@ const HomeScreen = () => {
           return;
         }
 
-        setUserResources(res.resources);
-        setLoading(false);
+        setUserResources(res);
       });
     }
+
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    onRefresh();
   }, [api.userStored]);
 
   const revisionButtonMarginBottom = Math.max(insets.bottom, 8);
@@ -166,79 +168,79 @@ const HomeScreen = () => {
         </View>
       </View>
 
-      {loading ? (
-        <View className="flex flex-row justify-center items-center pt-32">
-          <Spinner size={32} />
-        </View>
-      ) : (
-        <>
-          <ScrollView>
-            <View
-              style={{
-                paddingBottom: revisionButtonMarginBottom + 64,
-              }}
-            >
-              <View className="mt-16 mb-6 flex-col gap-3">
-                <Text className="pl-2 text-md font-light text-neutral-500 absolute">
-                  Last month progress
-                </Text>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={loading} onRefresh={onRefresh} />
+        }
+      >
+        {!loading ? (
+          <View
+            style={{
+              paddingBottom: revisionButtonMarginBottom + 64,
+            }}
+          >
+            {/* <View className="mt-16 mb-6 flex-col gap-3">
+              <Text className="pl-2 text-md font-light text-neutral-500 absolute">
+                Last month progress
+              </Text>
 
-                <View className="w-full flex flex-row justify-start">
-                  <View className="w-full">
-                    <LineChart
-                      data={lineDataAdded}
-                      data2={lineDataMemorized}
-                      // Size
-                      maxValue={Math.max(
-                        ...lineDataAdded.map((d) => d.value),
-                        20
-                      )}
-                      height={100}
-                      initialSpacing={0}
-                      endSpacing={0}
-                      adjustToWidth
-                      // Appearance
-                      areaChart
-                      curved
-                      thickness1={3}
-                      thickness2={3}
-                      color1="rgb(230 230 230)"
-                      color2="rgb(250 173 51)"
-                      startFillColor1="rgb(230 230 230)"
-                      startFillColor2="rgb(250 173 51)"
-                      startOpacity={0.15}
-                      endOpacity={0}
-                      // Remove useless features
-                      hideAxesAndRules
-                      hideYAxisText
-                      yAxisThickness={0}
-                      yAxisLabelWidth={0}
-                      hideRules
-                      hideDataPoints
-                      disableScroll
-                    />
-                  </View>
+              <View className="w-full flex flex-row justify-start">
+                <View className="w-full">
+                  <LineChart
+                    data={lineDataAdded}
+                    data2={lineDataMemorized}
+                    // Size
+                    maxValue={Math.max(
+                      ...lineDataAdded.map((d) => d.value),
+                      20
+                    )}
+                    height={100}
+                    initialSpacing={0}
+                    endSpacing={0}
+                    adjustToWidth
+                    // Appearance
+                    areaChart
+                    curved
+                    thickness1={3}
+                    thickness2={3}
+                    color1="rgb(230 230 230)"
+                    color2="rgb(250 173 51)"
+                    startFillColor1="rgb(230 230 230)"
+                    startFillColor2="rgb(250 173 51)"
+                    startOpacity={0.15}
+                    endOpacity={0}
+                    // Remove useless features
+                    hideAxesAndRules
+                    hideYAxisText
+                    yAxisThickness={0}
+                    yAxisLabelWidth={0}
+                    hideRules
+                    hideDataPoints
+                    disableScroll
+                  />
                 </View>
               </View>
+            </View> */}
 
-              {["Continue", "Saved for later", "Your library", "Explore"].map(
-                (category) => (
-                  <View
-                    key={category}
-                    className="pt-3 border-t border-neutral-200"
-                  >
-                    <View className="flex-row justify-between px-6">
-                      <Text className="text-lg font-medium">{category}</Text>
+            {["Continue", "Saved for later", "Your library", "Explore"].map(
+              (category) => (
+                <View
+                  key={category}
+                  className="pt-3 border-b border-neutral-200"
+                >
+                  <View className="flex-row justify-between px-6">
+                    <Text className="text-lg font-medium">{category}</Text>
 
-                      {category === "Your library" && (
-                        <Text className="text-sm">View all</Text>
-                      )}
-                    </View>
+                    {category === "Your library" && (
+                      <Text className="text-sm">View all</Text>
+                    )}
+                  </View>
 
-                    <ScrollView horizontal className="">
-                      <View className="flex flex-row pt-2 px-4 gap-3 mb-3">
-                        {userResources.map((resource, i) => (
-                          <Link key={i} href="/ressource">
+                  <ScrollView horizontal className="">
+                    <View className="flex flex-row pt-2 px-4 gap-3 mb-3">
+                      {category === "Your library" &&
+                        userResources?.library.map((resource, i) => (
+                          <Link key={i} href={"/ressource/" + resource.id}>
                             <View className="w-40 flex flex-col">
                               <View
                                 className="rounded-lg bg-white"
@@ -269,7 +271,7 @@ const HomeScreen = () => {
                                   className="text-sm flex-1"
                                   numberOfLines={2}
                                 >
-                                  {resource.title}
+                                  {resource.name}
                                 </Text>
 
                                 <View className="pt-[2px]">
@@ -279,110 +281,105 @@ const HomeScreen = () => {
                             </View>
                           </Link>
                         ))}
-                      </View>
-                    </ScrollView>
+                    </View>
+                  </ScrollView>
+                </View>
+              )
+            )}
+
+            {/* <View className="border-t border-neutral-200">
+              <Text className="mt-8 mb-4 mx-6 text-2xl font-medium">
+                Discover
+              </Text>
+
+              {userResources.map((resource, i) => (
+                <View key={i} className="w-full flex flex-col mt-4">
+                  <View>
+                    <Image
+                      source={require("./../assets/images/homeImage.jpg")}
+                      className="w-full h-48"
+                      alt="Resource image"
+                    />
                   </View>
-                )
-              )}
 
-              <View className="border-t border-neutral-200">
-                <Text className="mt-8 mb-4 mx-6 text-2xl font-medium">
-                  Discover
-                </Text>
+                  <View className="flex flex-col justify-between gap-1 m-2">
+                    <Text className="text-lg flex-1" numberOfLines={2}>
+                      {resource.name}
+                    </Text>
 
-                {userResources.map((resource, i) => (
-                  <View key={i} className="w-full flex flex-col mt-4">
-                    <View>
-                      <Image
-                        source={require("./../assets/images/homeImage.jpg")}
-                        className="w-full h-48"
-                        alt="Resource image"
-                      />
-                    </View>
-
-                    <View className="flex flex-col justify-between gap-1 m-2">
-                      <Text className="text-lg flex-1" numberOfLines={2}>
-                        {resource.title}
-                      </Text>
-
-                      <Text
-                        className="text-md flex-1 text-neutral-500"
-                        numberOfLines={2}
-                      >
-                        1k learned
-                      </Text>
-                    </View>
+                    <Text
+                      className="text-md flex-1 text-neutral-500"
+                      numberOfLines={2}
+                    >
+                      1k learned
+                    </Text>
                   </View>
-                ))}
-              </View>
-            </View>
-          </ScrollView>
-
-          <View className="absolute bottom-0 w-full z-10 border-white flex flex-col">
-            <LinearGradient
-              colors={[
-                "rgba(255,255,255,0)",
-                "rgba(255,255,255,1)",
-                "rgba(255,255,255,1)",
-              ]}
-              style={{
-                paddingRight: insets.right + 12,
-                paddingLeft: insets.left + 12,
-                paddingBottom: revisionButtonMarginBottom,
-              }}
-            >
-              <Link asChild href="/revision">
-                <TouchableOpacity className="rounded-full overflow-hidden">
-                  <LinearGradient
-                    colors={[
-                      // "rgb(229, 48, 24)",
-                      // "rgb(229, 48, 24)",
-                      "rgb(255, 149, 0)", // Orange
-                      "rgb(255, 204, 0)", // Yellow
-                      "rgb(255, 204, 0)", // Yellow
-                      "rgb(255, 204, 0)", // Yellow
-                      "rgb(52, 199, 89)", // Green
-                      "rgb(0, 122, 255)", // Blue
-                      "rgb(88, 86, 214)", // Indigo
-                      "rgb(191, 90, 242)", // Violet
-                      "rgb(225, 59, 48)", // Red
-                    ]}
-                    start={{ x: 0.5, y: 3 }}
-                    end={{ x: 0.8, y: 0 }}
-                    className="rounded-full"
-                  >
-                    <View className="bg-white rounded-full m-[2px]">
-                      <View className="flex-row items-center justify-between py-3 px-6">
-                        <View className="flex-row items-center gap-1">
-                          <Icons.Lineweight
-                            width={16}
-                            height={16}
-                            color={"black"}
-                          />
-                          <Text className="font-bold text-sm">4</Text>
-                        </View>
-
-                        <View className="flex-row items-center gap-2">
-                          <Text className="text-lg font-bold font-[Avenir]">
-                            Start daily{" "}
-                            <Text className="font-[GillSans]">ReWise</Text>
-                          </Text>
-
-                          <Icons.PlayFill
-                            width={14}
-                            height={14}
-                            color={"black"}
-                          />
-                        </View>
-                      </View>
-                    </View>
-                  </LinearGradient>
-                </TouchableOpacity>
-              </Link>
-            </LinearGradient>
+                </View>
+              ))}
+            </View> */}
           </View>
-        </>
-      )}
+        ) : null}
+      </ScrollView>
+
+      <View className="absolute bottom-0 w-full z-10 border-white flex flex-col">
+        <LinearGradient
+          colors={[
+            "rgba(255,255,255,0)",
+            "rgba(255,255,255,1)",
+            "rgba(255,255,255,1)",
+          ]}
+          style={{
+            paddingRight: insets.right + 12,
+            paddingLeft: insets.left + 12,
+            paddingBottom: revisionButtonMarginBottom,
+          }}
+        >
+          <Link asChild href="/revision">
+            <TouchableOpacity className="rounded-full overflow-hidden">
+              <LinearGradient
+                colors={[
+                  // "rgb(229, 48, 24)",
+                  // "rgb(229, 48, 24)",
+                  "rgb(255, 149, 0)", // Orange
+                  "rgb(255, 204, 0)", // Yellow
+                  "rgb(255, 204, 0)", // Yellow
+                  "rgb(255, 204, 0)", // Yellow
+                  "rgb(52, 199, 89)", // Green
+                  "rgb(0, 122, 255)", // Blue
+                  "rgb(88, 86, 214)", // Indigo
+                  "rgb(191, 90, 242)", // Violet
+                  "rgb(225, 59, 48)", // Red
+                ]}
+                start={{ x: 0.5, y: 3 }}
+                end={{ x: 0.8, y: 0 }}
+                className="rounded-full"
+              >
+                <View className="bg-white rounded-full m-[2px]">
+                  <View className="flex-row items-center justify-between py-3 px-6">
+                    <View className="flex-row items-center gap-1">
+                      <Icons.Lineweight
+                        width={16}
+                        height={16}
+                        color={"black"}
+                      />
+                      <Text className="font-bold text-sm">4</Text>
+                    </View>
+
+                    <View className="flex-row items-center gap-2">
+                      <Text className="text-lg font-bold font-[Avenir]">
+                        Start daily{" "}
+                        <Text className="font-[GillSans]">ReWise</Text>
+                      </Text>
+
+                      <Icons.PlayFill width={14} height={14} color={"black"} />
+                    </View>
+                  </View>
+                </View>
+              </LinearGradient>
+            </TouchableOpacity>
+          </Link>
+        </LinearGradient>
+      </View>
     </View>
   );
 };

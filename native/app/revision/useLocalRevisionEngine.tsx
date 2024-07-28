@@ -1,13 +1,13 @@
+import { memories } from "@/app/db/MOCK";
 import { useCallback, useEffect, useState } from "react";
-import { uuid } from "../../lib/uuid";
-import { memories } from "../db/MOCK";
 import {
   GOOD_REVIEW_IN_A_ROW_FOR_NEW_CARD,
-  Memory,
   MemoryBeingRevised,
   MemoryBeingRevisedWithKey,
-} from "../db/Memory";
-import { RevisionStats } from "../db/RevisionStats";
+  MemoryWithCardAndResource,
+  RevisionStats,
+} from "youwise-shared/api";
+import { uuid } from "../../lib/uuid";
 
 type DisplayedMemories = {
   prev: MemoryBeingRevisedWithKey | undefined;
@@ -253,7 +253,7 @@ function addToDeckWithIncrementalPosition(
   return deck;
 }
 
-function createRevisionDeck(memories: Memory[]) {
+function createRevisionDeck(memories: MemoryWithCardAndResource[]) {
   return memories.map((memory) => {
     const localMemory: MemoryBeingRevised = {
       memory: memory,

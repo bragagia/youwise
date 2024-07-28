@@ -1,21 +1,26 @@
-import { Card } from "./Card";
+import { CardWithResource } from "./card";
 
 export const GOOD_REVIEW_IN_A_ROW_FOR_NEW_CARD = 2;
 
 export type Memory = {
   id: string;
 
-  card: Card;
+  cardId: string;
 
   memoryStatus: "new" | "review" | "forgotten";
 
-  partsMemory?: {
-    id: string;
-    memoryStatus: "new" | "review" | "forgotten";
-  }[]; // Used to store the memory status of each part of the card (for text cards)
+  // partsMemory?: {
+  //   id: string;
+  //   memoryStatus: "new" | "review" | "forgotten";
+  // }[]; // Used to store the memory status of each part of the card (for text cards)
 };
+
+export type MemoryWithCardAndResource = Memory & {
+  card: CardWithResource;
+};
+
 export type MemoryBeingRevised = {
-  memory: Memory;
+  memory: MemoryWithCardAndResource;
   memoryStatusBefore: Memory["memoryStatus"];
   firstTime?: {
     goodInARow: number;

@@ -1,12 +1,13 @@
 import { generateAccessToken, validateRefreshToken } from "@/lib/jwt";
 import { ErrorResponse, SuccessResponse } from "@/lib/responses";
 import {
-  AuthNewAccessTokenRequestS,
-  AuthNewAccessTokenResponseT,
-} from "youwise-shared/api/auth";
+  authNewAccessTokenRequestSchema,
+  AuthNewAccessTokenResponse,
+  authNewAccessTokenResponseSchema,
+} from "youwise-shared/api";
 
 export async function POST(request: Request) {
-  const body = AuthNewAccessTokenRequestS.safeParse(await request.json());
+  const body = authNewAccessTokenRequestSchema.safeParse(await request.json());
 
   if (!body.success) {
     return ErrorResponse(body.error, 400);
@@ -27,7 +28,10 @@ export async function POST(request: Request) {
 
   const accessToken = generateAccessToken(refreshTokenDecoded.userId);
 
-  return SuccessResponse<AuthNewAccessTokenResponseT>({
-    accessToken: accessToken,
-  });
+  return SuccessResponse<AuthNewAccessTokenResponse>(
+    authNewAccessTokenResponseSchema,
+    {
+      accessToken: accessToken,
+    }
+  );
 }

@@ -27,11 +27,11 @@ model User {
 
   // courses         Course[]
   // resourcesGroups ResourceGroup[]
-  resources  Resource[]
-  highlights Highlight[]
-  cards      Card[]
-  memories   Memory[]
-  aiUsages   AIUsage[]
+  resources Resource[]
+  //highlights Highlight[]
+  cards     Card[]
+  memories  Memory[]
+  aiUsages  AIUsage[]
 
   @@map("users")
 }
@@ -94,55 +94,55 @@ model Resource {
   // resourceGroup   ResourceGroup? @relation(fields: [resourceGroupId], references: [id])
   // resourceGroupId String?
 
-  name          String
-  description   String?
-  resourceType  String
-  originalUrl   String?
-  fileId        String?
-  chapterNumber Int?
-  content       String?
+  name        String
+  //description  String?
+  //resourceType String
+  originalUrl String?
+  //fileId        String?
+  //chapterNumber Int?
+  tint        Int     @default(0)
+  content     String
 
-  highlights Highlight[]
-  cards      Card[]
-  memories   Memory[]
+  //highlights Highlight[]
+  cards    Card[]
+  memories Memory[]
 
   @@map("resources")
 }
 
-model Highlight {
-  id        String   @id @default(uuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+// model Highlight {
+//   id        String   @id @default(uuid())
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
 
-  User       User?    @relation(fields: [userId], references: [id])
-  userId     String?
-  resource   Resource @relation(fields: [resourceId], references: [id])
-  resourceId String
+//   User       User?    @relation(fields: [userId], references: [id])
+//   userId     String?
+//   resource   Resource @relation(fields: [resourceId], references: [id])
+//   resourceId String
 
-  isAiCreated     Boolean
-  highlightedText String
-  note            String?
-  context         String?
+//   isAiCreated     Boolean
+//   highlightedText String
+//   note            String?
+//   context         String?
 
-  card Card?
+//   //card Card?
 
-  @@map("highlights")
-}
+//   @@map("highlights")
+// }
 
 model Card {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  ownerUser   User       @relation(fields: [ownerUserId], references: [id])
+  ownerUser   User     @relation(fields: [ownerUserId], references: [id])
   ownerUserId String
-  resource    Resource   @relation(fields: [resourceId], references: [id])
+  resource    Resource @relation(fields: [resourceId], references: [id])
   resourceId  String
-  highlightId String?    @unique
-  highlight   Highlight? @relation(fields: [highlightId], references: [id])
+  //highlightId String?    @unique
+  //highlight   Highlight? @relation(fields: [highlightId], references: [id])
 
-  card   String
-  answer String
+  variants Json
 
   memories Memory[]
 
@@ -150,9 +150,9 @@ model Card {
 }
 
 enum MemoryStatusEnum {
-  learning
-  reviewing
-  relearning
+  new
+  review
+  forgotten
 }
 
 model Memory {

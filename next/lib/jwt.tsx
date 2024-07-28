@@ -61,7 +61,26 @@ export function validateRefreshToken(token: string) {
   }
 }
 
-export function validateAccessToken(token: string) {
+type validateAccessTokenReturnType =
+  | {
+      userId: string;
+      expired: undefined;
+      error: undefined;
+    }
+  | {
+      userId: undefined;
+      expired: true;
+      error: undefined;
+    }
+  | {
+      userId: undefined;
+      expired: undefined;
+      error: string;
+    };
+
+export function validateAccessToken(
+  token: string
+): validateAccessTokenReturnType {
   try {
     const decoded = jwt.verify(token, JWT_PUBLIC_KEY, {
       algorithms: ["RS256"],
@@ -79,24 +98,43 @@ export function validateAccessToken(token: string) {
 
     return {
       userId: decoded.sub,
+      expired: undefined,
+      error: undefined,
     };
   } catch (err: any) {
     if (err.name === "TokenExpiredError") {
       return {
+        userId: undefined,
         expired: true,
+        error: undefined,
       };
     } else {
       return {
+        userId: undefined,
+        expired: undefined,
         error: err.message,
       };
     }
   }
 }
 
-export function validateRequestAccessToken(request: Request) {
+type validateRequestAccessTokenReturnType =
+  | {
+      userId: undefined;
+      tokenErrorResponse: Response;
+    }
+  | {
+      userId: string;
+      tokenErrorResponse: undefined;
+    };
+
+export function validateRequestAccessToken(
+  request: Request
+): validateRequestAccessTokenReturnType {
   const authHeader = request.headers.get("Authorization");
   if (!authHeader) {
     return {
+      userId: undefined,
       tokenErrorResponse: new Response(
         JSON.stringify({
           error: "Missing Authorization header",
@@ -113,6 +151,7 @@ export function validateRequestAccessToken(request: Request) {
 
   if (!authHeader.startsWith("Bearer ")) {
     return {
+      userId: undefined,
       tokenErrorResponse: new Response(
         JSON.stringify({
           error: "Invalid Authorization header",
@@ -129,8 +168,9 @@ export function validateRequestAccessToken(request: Request) {
   const token = authHeader.slice(7);
 
   const validation = validateAccessToken(token);
-  if (validation.error || validation.expired) {
+  if (validation.error !== undefined || validation.expired) {
     return {
+      userId: undefined,
       tokenErrorResponse: new Response(
         JSON.stringify({
           error: validation.error,
@@ -148,5 +188,6 @@ export function validateRequestAccessToken(request: Request) {
 
   return {
     userId: validation.userId,
+    tokenErrorResponse: undefined,
   };
 }

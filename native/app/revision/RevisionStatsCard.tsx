@@ -4,7 +4,7 @@ import { router } from "expo-router";
 import React, { useEffect, useRef } from "react";
 import { Animated, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { RevisionStats } from "../db/RevisionStats";
+import { RevisionStats } from "youwise-shared/api";
 import { RevisionActionButton } from "./RevisionActionButton";
 
 export function RevisionStatsCard({

@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
 import { Dimensions, LayoutChangeEvent, Text, View } from "react-native";
-import { Ressource } from "../db/Ressource";
+import { ResourceHeader } from "youwise-shared/api";
 import { AnswerButtonComponent } from "./AnswerButtonComponent";
 import { CardBlockComponent } from "./CardBlockComponent";
 import { CardChoosenContent } from "./CardChoosenContent";
@@ -12,7 +12,7 @@ export function FlashcardContentComponent({
   onCardAnswered,
 }: {
   cardChoosedContent: CardChoosenContent;
-  ressource: Ressource;
+  ressource: ResourceHeader;
   onDisplayBlur: (height: number) => void; // Used on swipable cards
   onCardAnswered: (isRight: boolean) => void; // Used on non-swipable cards
 }) {
@@ -61,7 +61,7 @@ export function FlashcardContentComponent({
           color: `hsl(${ressource.tint}, 90%, 50%)`,
         }}
       >
-        {ressource.resourceGroup && ressource.resourceGroup.name + " > "}
+        {/* {ressource.resourceGroup && ressource.resourceGroup.name + " > "} */}
 
         {ressource.name}
       </Text>

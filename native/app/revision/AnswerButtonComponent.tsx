@@ -81,9 +81,8 @@ export function AnswerButtonComponent({
     <View className="grow flex-1">
       <TouchableWithoutFeedback onPress={handlePressIn}>
         <Animated.View
-          className="rounded-3xl border"
           style={{
-            borderWidth: 1,
+            borderWidth: 2,
             borderRadius: 24,
             backgroundColor: colorState.interpolate({
               inputRange: [0, 1],
@@ -101,7 +100,7 @@ export function AnswerButtonComponent({
             shadowColor: isGoodAnswer ? "#22c55e" : "#ef4444",
             shadowOpacity: colorState.interpolate({
               inputRange: [0, 1],
-              outputRange: [0, isGoodAnswer ? 0.5 : 0.2],
+              outputRange: [0, isGoodAnswer ? 0.5 : 0],
             }),
           }}
         >

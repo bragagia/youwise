@@ -1,4 +1,4 @@
-import { CardBlocks } from "../db/Card";
+import { CardBlocks } from "youwise-shared/api";
 
 export type CardChoosenContent =
   | {

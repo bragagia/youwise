@@ -1,6 +1,6 @@
 import React from "react";
 import { Text, View } from "react-native";
-import { CardBlocks } from "../db/Card";
+import { CardBlocks } from "youwise-shared/api";
 
 export function CardBlockComponent({
   cardBlocks,
@@ -9,9 +9,11 @@ export function CardBlockComponent({
   cardBlocks: CardBlocks;
   textSize?: "text-md" | "text-lg";
 }) {
+  let blocks = Array.isArray(cardBlocks) ? cardBlocks : [cardBlocks];
+
   return (
     <View className="flex flex-col gap-2">
-      {cardBlocks.map((block, i) => {
+      {blocks.map((block, i) => {
         if (typeof block === "string") {
           return (
             <Text

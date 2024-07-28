@@ -4,36 +4,42 @@ import {
   publicEndpointGen,
 } from "@/lib/api/endpointGenerator";
 import {
-  AuthNewAccessTokenRequestT,
-  AuthNewAccessTokenResponseS,
-  AuthValidateOAuthRequestT,
-  AuthValidateOAuthResponseS,
-} from "youwise-shared/api/auth";
-import {
-  UserCreateRequestT,
-  UserResourcesResponseS,
-} from "youwise-shared/api/user";
-import { VoidResponseS } from "youwise-shared/api/void";
+  AuthNewAccessTokenRequest,
+  authNewAccessTokenResponseSchema,
+  AuthValidateOAuthRequest,
+  authValidateOAuthResponseSchema,
+  ResourceGetRequest,
+  resourceGetResponseSchema,
+  UserCreateRequest,
+  userResourcesResponseSchema,
+  voidResponseSchema,
+} from "youwise-shared/api";
 
 export function newAPI(apiContext: APIContextType) {
   return {
     auth: {
-      validateOAuth: publicEndpointGen<AuthValidateOAuthRequestT>()(
-        AuthValidateOAuthResponseS,
+      validateOAuth: publicEndpointGen<AuthValidateOAuthRequest>()(
+        authValidateOAuthResponseSchema,
         "auth/validate-oauth"
       ),
-      newAccessToken: publicEndpointGen<AuthNewAccessTokenRequestT>()(
-        AuthNewAccessTokenResponseS,
+      newAccessToken: publicEndpointGen<AuthNewAccessTokenRequest>()(
+        authNewAccessTokenResponseSchema,
         "auth/new-access-token"
       ),
     },
+    resources: {
+      get: privateEndpointGen<ResourceGetRequest>(apiContext)(
+        resourceGetResponseSchema,
+        "resources/get"
+      ),
+    },
     user: {
-      create: privateEndpointGen<UserCreateRequestT>(apiContext)(
-        VoidResponseS,
+      create: privateEndpointGen<UserCreateRequest>(apiContext)(
+        voidResponseSchema,
         "user/create"
       ),
       getRecommendations: privateEndpointGen<void>(apiContext)(
-        UserResourcesResponseS,
+        userResourcesResponseSchema,
         "user/get-recommendations"
       ),
     },

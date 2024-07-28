@@ -1,16 +1,15 @@
-import { z } from "zod";
+type RessourceArray = {
+  id: string;
+  name: string;
+}[];
 
-export const UserResourcesResponseS = z.object({
-  resources: z.array(
-    z.object({
-      id: z.string(),
-      title: z.string(),
-    })
-  ),
-});
-export type UserResourcesResponseT = z.infer<typeof UserResourcesResponseS>;
+export type UserResourcesResponse = {
+  continue: RessourceArray;
+  saveForLater: RessourceArray;
+  library: RessourceArray;
+  explore: RessourceArray;
+};
 
-export const UserCreateRequestS = z.object({
-  url: z.string(),
-});
-export type UserCreateRequestT = z.infer<typeof UserCreateRequestS>;
+export type UserCreateRequest = {
+  url: string;
+};

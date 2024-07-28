@@ -18,13 +18,14 @@
       ]
     }
   ],
-  "cSpell.words": ["dayjs", "inngest", "timeouted"],
+  "cSpell.words": ["dayjs", "inngest", "timeouted", "youwise"],
   "[prisma]": {
     "editor.defaultFormatter": "Prisma.prisma"
   },
   "files.exclude": {
     "native/android": true,
-    "native/ios": true
+    "native/ios": true,
+    "native/*.ipa": true,
   },
   "sqltools.connections": [
     {
@@ -38,5 +39,8 @@
       "password": "postgres"
     }
   ],
-  "svg.preview.background": "editor"
+  "svg.preview.background": "editor",
+  "explorer.fileNesting.patterns": {
+    "*.tsx": "$(capture)-schema.tsx" // Use in youwise-shared for auto generated content
+  }
 }

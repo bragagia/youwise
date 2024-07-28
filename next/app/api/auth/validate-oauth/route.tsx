@@ -3,10 +3,11 @@ import { ErrorResponse, SuccessResponse } from "@/lib/responses";
 import { PrismaClient, User } from "@prisma/client";
 import { OAuth2Client } from "google-auth-library";
 import {
-  AuthValidateOAuthRequestS,
-  AuthValidateOAuthRequestT,
-  AuthValidateOAuthResponseT,
-} from "youwise-shared/api/auth";
+  AuthValidateOAuthRequest,
+  authValidateOAuthRequestSchema,
+  AuthValidateOAuthResponse,
+  authValidateOAuthResponseSchema,
+} from "youwise-shared/api";
 
 type UserInfoOAuth = {
   email: string;
@@ -26,7 +27,7 @@ type UserInfoOAuth = {
 );
 
 export async function POST(request: Request) {
-  const body = AuthValidateOAuthRequestS.safeParse(await request.json());
+  const body = authValidateOAuthRequestSchema.safeParse(await request.json());
 
   if (!body.success) {
     return ErrorResponse(body.error, 400);
@@ -111,15 +112,18 @@ export async function POST(request: Request) {
 
   await prisma.$disconnect();
 
-  return SuccessResponse<AuthValidateOAuthResponseT>({
-    refreshToken: generateRefreshToken(user.id),
-    accessToken: generateAccessToken(user.id),
-    userId: user.id,
-  });
+  return SuccessResponse<AuthValidateOAuthResponse>(
+    authValidateOAuthResponseSchema,
+    {
+      refreshToken: generateRefreshToken(user.id),
+      accessToken: generateAccessToken(user.id),
+      userId: user.id,
+    }
+  );
 }
 
 async function validateGoogleAuth(
-  req: AuthValidateOAuthRequestT
+  req: AuthValidateOAuthRequest
 ): Promise<UserInfoOAuth> {
   if (req.type !== "google") {
     throw new Error("Invalid type");

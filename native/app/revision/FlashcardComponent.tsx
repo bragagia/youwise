@@ -13,7 +13,7 @@ import {
   PanGestureHandlerEventPayload,
   State,
 } from "react-native-gesture-handler";
-import { MemoryBeingRevised } from "../db/Memory";
+import { MemoryBeingRevised } from "youwise-shared/api";
 import { chooseCardContent } from "./chooseCardContent";
 import { FlashcardContentComponent } from "./FlashcardContentComponent";
 

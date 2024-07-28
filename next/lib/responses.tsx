@@ -1,5 +1,9 @@
-export function SuccessResponse<T>(data: T) {
-  return new Response(JSON.stringify(data), {
+import { Schema } from "zod";
+
+export function SuccessResponse<T>(schema: Schema, data: T) {
+  const resObj = schema.parse(data);
+
+  return new Response(JSON.stringify(resObj), {
     status: 200,
     headers: {
       "Content-Type": "application/json",

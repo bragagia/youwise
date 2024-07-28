@@ -19,7 +19,7 @@
   - Content as "blocks" like Deepstash ?
   - Content as
 
-  - Quizz just after consumption ?
+  - quiz just after consumption ?
 
 - Personnal folder <- Use a notion integration instead of building this?
   - Folders (recursive)
