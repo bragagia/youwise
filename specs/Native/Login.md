@@ -1,16 +1,7 @@
-# Screen
+# Login
 
-1. Login page
+Handles user authentication
 
-   - Field email
-   - Field password
-   - Button login
-   - Button forgot password
-   - Link to register
-
-2. Register page
-   - Field email
-   - Field password
-   - Field password confirmation
-   - Button register
-   - Link to login
+- Integrates Google Sign-In and Apple Authentication
+- Displays error messages for sign-in process
+- Shows app logo and title

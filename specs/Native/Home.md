@@ -1,31 +1,13 @@
-# Name ?
+# Home
 
-- HeyProfessor!
-- YouWise
-- A Bit Wiser
-- Learn.today
+Main entry point of the app
 
-# Screen
+- Displays user resources list
+- Features a header with user profile/login and a create resource button
+- Has a "Start daily ReWise" button at the bottom
 
-- [Suggested revision](#suggested-revision)
-- [Resources library](#resources-library)
-- Bottom bar (/specs/Components/BottomBar.md)
-
-# Features
-
-Use flow:
+Usage flow:
 
 - Discover new resources
-- View
-
-What is the order of learning new resources?
-
-## Suggested revision
-
-If user has some card that need to be revised now :
-
-Big button "start revision" stylized
-
-## Resources library
-
-List of the user resources that he didn't learn yet. Displayed as card with illustrations and title.
+- Learn one
+- Revise it if you liked it
