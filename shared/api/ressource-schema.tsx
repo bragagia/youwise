@@ -23,13 +23,18 @@ export const resourceBlockSchema = z.union([
   }),
 ]);
 
-export const resourceSchema = z.object({
+export const resourceHeaderSchema = z.object({
   id: z.string(),
   name: z.string(),
   tint: z.number(),
-  originalUrl: z.string().nullable(),
-  content: z.string(),
 });
+
+export const resourceSchema = resourceHeaderSchema.and(
+  z.object({
+    originalUrl: z.string().nullable(),
+    content: z.string(),
+  }),
+);
 
 export const resourceWithCardsAndMemorySchema = resourceSchema.and(
   z.object({

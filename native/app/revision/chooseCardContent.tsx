@@ -1,14 +1,14 @@
+import { MemoryBeingRevised } from "@/app/revision/MemoryBeingRevised";
 import {
   CardVariant,
   GOOD_REVIEW_IN_A_ROW_FOR_NEW_CARD,
-  MemoryBeingRevised,
 } from "youwise-shared/api";
 import { CardChoosenContent } from "./CardChoosenContent";
 
 export function chooseCardContent(
   memoryBeingRevised: MemoryBeingRevised
 ): CardChoosenContent {
-  const variants = memoryBeingRevised.memory.card.variants;
+  const variants = memoryBeingRevised.card.variants;
 
   let randomVariantChoice: CardVariant;
   if (memoryBeingRevised.firstTime) {

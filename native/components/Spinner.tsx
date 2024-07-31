@@ -9,8 +9,10 @@ export function Spinner({
   color?: string;
 }) {
   return (
-    <View className="animate-spin">
-      <Icons.Spinner width={size} height={size} color={color} />
+    <View className="flex flex-row items-center justify-center">
+      <View className="animate-spin">
+        <Icons.Spinner width={size} height={size} color={color} />
+      </View>
     </View>
   );
 }

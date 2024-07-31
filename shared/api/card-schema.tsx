@@ -35,7 +35,12 @@ export const cardVariantSchema = z.union([
   textCardVariantSchema,
 ]);
 
+export const cardGPTOutputSchema = z.object({
+  variants: z.array(cardVariantSchema),
+});
+
 export const cardSchema = z.object({
+  id: z.string(),
   variants: z.array(cardVariantSchema),
 });
 

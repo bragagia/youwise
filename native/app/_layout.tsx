@@ -25,6 +25,13 @@ export default function RootLayout() {
             />
 
             <Stack.Screen
+              name="revision/[resourceId]/index"
+              options={{
+                headerShown: false,
+              }}
+            />
+
+            <Stack.Screen
               name="ressource/[id]/index"
               options={{
                 headerShown: false,

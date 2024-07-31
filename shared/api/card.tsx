@@ -1,15 +1,15 @@
 import { Memory } from "./memory";
-import { ResourceHeader } from "./ressource";
 
 export type CardWithMemory = Card & {
   memories: Memory[];
 };
 
-export type CardWithResource = Card & {
-  resource: ResourceHeader;
+export type Card = {
+  id: string;
+  variants: CardVariant[]; // Each card should have a single variant by default, but if the piece of knowledge must be known in both side, there should be a reversed variant (eg: What's the capital of France? Paris + the variant: Of which country is Paris the capital? France)
 };
 
-export type Card = {
+export type CardGPTOutput = {
   variants: CardVariant[]; // Each card should have a single variant by default, but if the piece of knowledge must be known in both side, there should be a reversed variant (eg: What's the capital of France? Paris + the variant: Of which country is Paris the capital? France)
 };
 

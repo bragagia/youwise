@@ -1,5 +1,6 @@
 import { CardChoosenContent } from "@/app/revision/CardChoosenContent";
 import { FlashcardAnswerBlurComponent } from "@/app/revision/FlashcardAnswerBlurComponent";
+import { MemoryBeingRevised } from "@/app/revision/MemoryBeingRevised";
 import { RevisionActionButton } from "@/app/revision/RevisionActionButton";
 import Icons from "@/components/Icons";
 import { useHaptics } from "@/lib/haptics";
@@ -13,7 +14,6 @@ import {
   PanGestureHandlerEventPayload,
   State,
 } from "react-native-gesture-handler";
-import { MemoryBeingRevised } from "youwise-shared/api";
 import { chooseCardContent } from "./chooseCardContent";
 import { FlashcardContentComponent } from "./FlashcardContentComponent";
 
@@ -280,7 +280,7 @@ export function FlashcardComponent({
               <FlashcardContentComponent
                 onDisplayBlur={setBlurHeight}
                 cardChoosedContent={cardChoosedContent}
-                ressource={memoryBeingRevised.memory.card.resource}
+                ressource={memoryBeingRevised.resource}
                 onCardAnswered={handleCardAnswered}
               />
             </View>

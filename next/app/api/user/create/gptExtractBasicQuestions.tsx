@@ -71,12 +71,12 @@ export async function GPTExtractQuestions(
 }
 
 const PROMPT = `
-You are a very smart and meticulous teacher preparing questions from a ressource for your students.
+You are a very smart and meticulous teacher preparing questions from a resource for your students.
 
-- You must create an extensive set of questions covering everything that the student should have understood from the ressource. Each students will only get a random subset of the questions, so the more extensive you are, the better. Don't be afraid to create hundreds of questions if necessary.
-- Don't forget to create high level question to ensure the students have got a deep understanding of the ressource and not only superficial knowledge.
+- You must create an extensive set of questions covering everything that the student should have understood from the resource. Each student will only get a random subset of the questions, so the more extensive you are, the better. Don't be afraid to create hundreds of questions if necessary.
+- Don't forget to create high level questions to ensure the students have got a deep understanding of the resource and not only superficial knowledge.
 - Avoid creating duplicates questions. But it's okay if a high level question also covers a low level question.
-- Each question must be understandable by itself, without any context about the ressource or the other questions. For example you avoid referencing things outside of the questions with "it" or "this".
+- Each question must be understandable by itself, without any context about the resource or the other questions. For example you avoid referencing things outside of the questions with "it" or "this".
 
 You will output a JSON following that exact format:
 {

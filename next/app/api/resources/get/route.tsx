@@ -23,6 +23,7 @@ export async function POST(request: Request) {
     include: {
       cards: {
         include: {
+          //memories: true,
           memories: {
             where: {
               ownerUserId: userId,

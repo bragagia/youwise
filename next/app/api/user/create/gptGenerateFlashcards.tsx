@@ -2,11 +2,11 @@ import { BasicQuestion } from "@/app/api/user/create/gptExtractBasicQuestions";
 import { newOpenAI } from "@/lib/openai";
 import { PrismaClient } from "@prisma/client";
 import { ChatModel } from "openai/resources/index.mjs";
-import { Card, cardSchema } from "youwise-shared/api";
+import { CardGPTOutput, cardGPTOutputSchema } from "youwise-shared/api";
 import { z } from "zod";
 
 const FlashcardsOutputSchema = z.object({
-  cards: z.array(cardSchema),
+  cards: z.array(cardGPTOutputSchema),
 });
 
 type FlashcardsOutput = z.infer<typeof FlashcardsOutputSchema>;
@@ -14,7 +14,7 @@ type FlashcardsOutput = z.infer<typeof FlashcardsOutputSchema>;
 export async function GPTGenerateFlashcards(
   userId: string,
   basicQuestions: BasicQuestion[]
-): Promise<Card[]> {
+): Promise<CardGPTOutput[]> {
   const openai = newOpenAI();
   const prisma = new PrismaClient();
 

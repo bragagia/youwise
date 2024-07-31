@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Animated, Easing, TouchableWithoutFeedback, View } from "react-native";
+import { Animated, Easing, Pressable, View } from "react-native";
 
 export function AnswerButtonComponent({
   children,
@@ -79,9 +79,10 @@ export function AnswerButtonComponent({
 
   return (
     <View className="grow flex-1">
-      <TouchableWithoutFeedback onPress={handlePressIn}>
+      <Pressable className="grow" onPress={handlePressIn}>
         <Animated.View
           style={{
+            flexGrow: 1,
             borderWidth: 2,
             borderRadius: 24,
             backgroundColor: colorState.interpolate({
@@ -104,11 +105,11 @@ export function AnswerButtonComponent({
             }),
           }}
         >
-          <View className="flex flex-row justify-center px-4 py-3">
+          <View className="flex flex-row justify-center items-center grow px-4 py-3">
             {children}
           </View>
         </Animated.View>
-      </TouchableWithoutFeedback>
+      </Pressable>
     </View>
   );
 }

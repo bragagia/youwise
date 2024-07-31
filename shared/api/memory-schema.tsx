@@ -10,28 +10,3 @@ export const memorySchema = z.object({
     z.literal("forgotten"),
   ]),
 });
-
-export const memoryBeingRevisedSchema = z.object({
-  memory: memorySchema,
-  memoryStatusBefore: memorySchema.shape.memoryStatus,
-  firstTime: z
-    .object({
-      goodInARow: z.number(),
-      reviewCount: z.number(),
-      failureCount: z.number(),
-    })
-    .optional(),
-  forgotten: z
-    .object({
-      goodInARow: z.number(),
-      reviewCount: z.number(),
-      failureCount: z.number(),
-    })
-    .optional(),
-});
-
-export const memoryBeingRevisedWithKeySchema = memoryBeingRevisedSchema.and(
-  z.object({
-    key: z.string(),
-  }),
-);

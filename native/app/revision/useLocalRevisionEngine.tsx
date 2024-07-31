@@ -1,10 +1,11 @@
-import { memories } from "@/app/db/MOCK";
+import {
+  MemoryBeingRevised,
+  MemoryBeingRevisedWithKey,
+} from "@/app/revision/MemoryBeingRevised";
 import { useCallback, useEffect, useState } from "react";
 import {
   GOOD_REVIEW_IN_A_ROW_FOR_NEW_CARD,
-  MemoryBeingRevised,
-  MemoryBeingRevisedWithKey,
-  MemoryWithCardAndResource,
+  ResourceWithCardsAndMemory,
   RevisionStats,
 } from "youwise-shared/api";
 import { uuid } from "../../lib/uuid";
@@ -15,12 +16,10 @@ type DisplayedMemories = {
   next: MemoryBeingRevisedWithKey | undefined; // Note: Next card allow to preload the next card to avoid lag when swiping
 };
 
-export function useLocalRevisionEngine() {
-  const [revisionDeck, setRevisionDeck] = useState<MemoryBeingRevised[]>(
-    createRevisionDeck(memories)
-  );
+export function useLocalRevisionEngine(revisionDeck: MemoryBeingRevised[]) {
+  const [revisionDeckCache, setRevisionDeckCache] = useState(revisionDeck);
   const [doneDeck, setDoneDeck] = useState<MemoryBeingRevised[]>([]);
-  const [initialDeckSize] = useState(revisionDeck.length);
+  const [initialDeckSize] = useState(revisionDeckCache.length);
   const [startTime] = useState(Date.now());
 
   const [displayedMemories, setDisplayedMemories] =
@@ -32,7 +31,7 @@ export function useLocalRevisionEngine() {
 
   const onCardSwiped = useCallback(
     (direction: "left" | "right") => {
-      let newRevisionDeck = [...revisionDeck];
+      let newRevisionDeck = [...revisionDeckCache];
       let newDoneDeck = [...doneDeck];
 
       const swipedCard = newRevisionDeck.shift();
@@ -69,14 +68,14 @@ export function useLocalRevisionEngine() {
         next: newNextMemory,
       });
 
-      setRevisionDeck(newRevisionDeck);
+      setRevisionDeckCache(newRevisionDeck);
       setDoneDeck(newDoneDeck);
     },
-    [displayedMemories, initialDeckSize, revisionDeck, doneDeck]
+    [displayedMemories, initialDeckSize, revisionDeckCache, doneDeck]
   );
 
   function initialize() {
-    const newRevisionDeck = [...revisionDeck];
+    const newRevisionDeck = [...revisionDeckCache];
     if (newRevisionDeck.length === 0) return;
 
     let currentMemory = newRevisionDeck[0];
@@ -95,7 +94,7 @@ export function useLocalRevisionEngine() {
       },
     });
 
-    setRevisionDeck(newRevisionDeck);
+    setRevisionDeckCache(newRevisionDeck);
   }
 
   useEffect(() => {
@@ -103,7 +102,7 @@ export function useLocalRevisionEngine() {
   }, []);
 
   useEffect(() => {
-    if (revisionDeck.length === 0) {
+    if (revisionDeckCache.length === 0) {
       const newlyLearned = doneDeck.filter(
         (memory) => memory.memory.memoryStatus === "new"
       ).length;
@@ -116,9 +115,9 @@ export function useLocalRevisionEngine() {
         timePerCard,
       });
     }
-  }, [revisionDeck, doneDeck]);
+  }, [revisionDeckCache, doneDeck]);
 
-  const remainingCards = revisionDeck.reduce((acc, memory) => {
+  const remainingCards = revisionDeckCache.reduce((acc, memory) => {
     if (memory.firstTime) {
       return (
         acc +
@@ -253,21 +252,43 @@ function addToDeckWithIncrementalPosition(
   return deck;
 }
 
-function createRevisionDeck(memories: MemoryWithCardAndResource[]) {
-  return memories.map((memory) => {
-    const localMemory: MemoryBeingRevised = {
-      memory: memory,
-      memoryStatusBefore: memory.memoryStatus,
+export function createRevisionDeckFromResource(
+  resource: ResourceWithCardsAndMemory
+): MemoryBeingRevised[] {
+  const existingMemories: MemoryBeingRevised[] = resource.cards
+    .filter((card) => card.memories.length > 0)
+    .map((card) => ({
+      card: card,
+      memory: card.memories[0],
+      resource: resource,
+      memoryStatusBefore: card.memories[0].memoryStatus,
       firstTime:
-        memory.memoryStatus === "new"
+        card.memories[0].memoryStatus === "new"
           ? {
               goodInARow: 0,
               reviewCount: 0,
               failureCount: 0,
             }
           : undefined,
-    };
+    }));
 
-    return localMemory;
-  });
+  const newMemories: MemoryBeingRevised[] = resource.cards
+    .filter((card) => card.memories.length === 0)
+    .map((card) => ({
+      card: card,
+      memory: {
+        id: uuid(),
+        cardId: card.id,
+        memoryStatus: "new",
+      },
+      resource: resource,
+      memoryStatusBefore: "new",
+      firstTime: {
+        goodInARow: 0,
+        reviewCount: 0,
+        failureCount: 0,
+      },
+    }));
+
+  return [...existingMemories, ...newMemories];
 }

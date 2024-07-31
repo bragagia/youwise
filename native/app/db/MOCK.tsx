@@ -1,4 +1,4 @@
-import { MemoryWithCardAndResource, Resource } from "youwise-shared/api";
+import { Resource, ResourceWithCardsAndMemory } from "youwise-shared/api";
 import { uuid } from "../../lib/uuid";
 
 export const ressources: Resource[] = [
@@ -63,15 +63,12 @@ export const ressources: Resource[] = [
   },
 ];
 
-const resourceSF = ressources[2];
-const resourceGeo = ressources[3];
-
-export const memories: MemoryWithCardAndResource[] = [
-  {
-    id: uuid(),
-    cardId: uuid(),
-    card: {
-      resource: resourceSF,
+export const resourceDemo: ResourceWithCardsAndMemory = {
+  ...ressources[2],
+  cards: [
+    {
+      id: uuid(),
+      memories: [],
       variants: [
         {
           type: "classic",
@@ -83,15 +80,9 @@ export const memories: MemoryWithCardAndResource[] = [
         },
       ],
     },
-
-    memoryStatus: "new",
-  },
-
-  {
-    id: uuid(),
-    cardId: uuid(),
-    card: {
-      resource: resourceSF,
+    {
+      id: uuid(),
+      memories: [],
       variants: [
         {
           type: "classic",
@@ -106,15 +97,9 @@ export const memories: MemoryWithCardAndResource[] = [
         },
       ],
     },
-
-    memoryStatus: "review",
-  },
-
-  {
-    id: uuid(),
-    cardId: uuid(),
-    card: {
-      resource: resourceGeo,
+    {
+      id: uuid(),
+      memories: [],
       variants: [
         {
           type: "classic",
@@ -131,7 +116,5 @@ export const memories: MemoryWithCardAndResource[] = [
         },
       ],
     },
-
-    memoryStatus: "new",
-  },
-];
+  ],
+};

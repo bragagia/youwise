@@ -4,29 +4,31 @@ import Icons from "@/components/Icons";
 import { MyModal } from "@/components/MyModal";
 import { Spinner } from "@/components/Spinner";
 import { useAPI } from "@/lib/api/apiProvider";
-import { router, useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   Image,
   RefreshControl,
+  SafeAreaView,
   ScrollView,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Resource, ResourceBlock } from "youwise-shared/api";
+import { ResourceBlock, ResourceWithCardsAndMemory } from "youwise-shared/api";
 
 // Entry point for the app
-const RessourcePage = () => {
+const ResourcePage = () => {
   const { id } = useLocalSearchParams();
   if (typeof id !== "string") throw new Error("Invalid url");
 
   const insets = useSafeAreaInsets();
   const api = useAPI();
+  const router = useRouter();
 
   const [loading, setLoading] = useState(true);
-  const [ressource, setRessource] = useState<Resource>();
+  const [ressource, setRessource] = useState<ResourceWithCardsAndMemory>();
 
   const onRefresh = () => {
     setLoading(true);
@@ -55,9 +57,9 @@ const RessourcePage = () => {
 
   if (ressource === undefined || loading) {
     return (
-      <View>
-        <Spinner size={20} />
-      </View>
+      <SafeAreaView>
+        <Spinner size={32} />
+      </SafeAreaView>
     );
   }
 
@@ -128,7 +130,15 @@ const RessourcePage = () => {
             </View>
           ) : (
             <View className="flex flex-row justify-center items-center">
-              <TouchableOpacity className="bg-red-100 border-2 border-red-600 px-4 py-2 rounded-full flex flex-row items-center gap-2">
+              <TouchableOpacity
+                className="bg-red-100 border-2 border-red-600 px-4 py-2 rounded-full flex flex-row items-center gap-2"
+                onPress={() =>
+                  router.push({
+                    pathname: "/revision/[resourceId]",
+                    params: { resourceId: id },
+                  })
+                }
+              >
                 <Text className="text-red-800 font-[Avenir] font-bold">
                   <Text className="font-[GillSans]">ReWise</Text>
                 </Text>
@@ -233,4 +243,4 @@ const RessourcePage = () => {
   );
 };
 
-export default RessourcePage;
+export default ResourcePage;

@@ -5,14 +5,19 @@ import { SuccessResponse } from "@/lib/responses";
 import { Readability } from "@mozilla/readability";
 import { PrismaClient } from "@prisma/client";
 import { JSDOM } from "jsdom";
-import { VoidResponse, voidResponseSchema } from "youwise-shared/api";
+import {
+  userCreateRequestSchema,
+  VoidResponse,
+  voidResponseSchema,
+} from "youwise-shared/api";
 
 export async function POST(request: Request) {
   const { userId, tokenErrorResponse } = validateRequestAccessToken(request);
   if (tokenErrorResponse !== undefined) return tokenErrorResponse;
 
-  const url =
-    "https://review.firstround.com/unexpected-anti-patterns-for-engineering-leaders-lessons-from-stripe-uber-carta/";
+  const body = userCreateRequestSchema.parse(await request.json());
+
+  const url = body.url;
   const page = await fetch(url);
   const pageContent = await page.text();
   const dom = new JSDOM(pageContent, { url });
@@ -35,7 +40,7 @@ export async function POST(request: Request) {
     },
   });
 
-  const textContent = article.content;
+  const textContent = article.textContent;
 
   const basicQuestions = await GPTExtractQuestions(userId, textContent);
 
