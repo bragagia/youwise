@@ -8,6 +8,8 @@ const ressourceArraySchema = z.array(
   }),
 );
 
+export const userGetRecommendationsRequestSchema = z.object({});
+
 export const userResourcesResponseSchema = z.object({
   continue: ressourceArraySchema,
   saveForLater: ressourceArraySchema,
@@ -18,3 +20,5 @@ export const userResourcesResponseSchema = z.object({
 export const userCreateRequestSchema = z.object({
   url: z.string(),
 });
+
+export const userCreateResponseSchema = z.object({});

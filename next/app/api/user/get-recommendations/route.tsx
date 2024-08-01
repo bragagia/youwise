@@ -15,6 +15,9 @@ export async function POST(request: Request) {
     where: {
       ownerUserId: userId,
     },
+    orderBy: {
+      createdAt: "desc",
+    },
   });
 
   return SuccessResponse<UserResourcesResponse>(userResourcesResponseSchema, {

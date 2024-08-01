@@ -32,7 +32,7 @@ const HomeScreen = () => {
     if (!api.userStored) {
       setUserResources(undefined);
     } else {
-      api.user.getRecommendations().then((res) => {
+      api.user.getRecommendations({}).then((res) => {
         if (res.error !== undefined) {
           console.log(res.error);
           return;

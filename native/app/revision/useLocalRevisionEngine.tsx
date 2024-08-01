@@ -2,6 +2,7 @@ import {
   MemoryBeingRevised,
   MemoryBeingRevisedWithKey,
 } from "@/app/revision/MemoryBeingRevised";
+import { APIType } from "@/lib/api/apiProvider";
 import { useCallback, useEffect, useState } from "react";
 import {
   GOOD_REVIEW_IN_A_ROW_FOR_NEW_CARD,
@@ -252,9 +253,10 @@ function addToDeckWithIncrementalPosition(
   return deck;
 }
 
-export function createRevisionDeckFromResource(
+export async function createRevisionDeckFromResource(
+  api: APIType,
   resource: ResourceWithCardsAndMemory
-): MemoryBeingRevised[] {
+) {
   const existingMemories: MemoryBeingRevised[] = resource.cards
     .filter((card) => card.memories.length > 0)
     .map((card) => ({
@@ -279,6 +281,7 @@ export function createRevisionDeckFromResource(
       memory: {
         id: uuid(),
         cardId: card.id,
+        ownerUserId: api.userStored?.userId || "",
         memoryStatus: "new",
       },
       resource: resource,
@@ -290,5 +293,18 @@ export function createRevisionDeckFromResource(
       },
     }));
 
-  return [...existingMemories, ...newMemories];
+  const revisionDeck = [...existingMemories, ...newMemories]; // TODO: Shuffle the deck
+
+  if (newMemories.length === 0) {
+    return revisionDeck;
+  }
+
+  const { error: errorNewMemories } = await api.memories.new({
+    memories: newMemories.map((memory) => memory.memory),
+  });
+  if (errorNewMemories !== undefined) {
+    throw new Error("Error while creating new memories");
+  }
+
+  return revisionDeck;
 }

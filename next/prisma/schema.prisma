@@ -168,9 +168,9 @@ model Memory {
   resourceId  String?
 
   memoryStatus MemoryStatusEnum
-  interval     Int? // Nullable
-  easeFactor   Float
-  stepNumber   Int
+  // interval     Int? // Nullable
+  // easeFactor   Float
+  // stepNumber   Int
 
   @@map("memories")
 }

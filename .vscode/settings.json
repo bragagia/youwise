@@ -18,14 +18,14 @@
       ]
     }
   ],
-  "cSpell.words": ["dayjs", "inngest", "timeouted", "youwise"],
+  "cSpell.words": ["dayjs", "inngest", "rewised", "timeouted", "youwise"],
   "[prisma]": {
     "editor.defaultFormatter": "Prisma.prisma"
   },
   "files.exclude": {
     "native/android": true,
     "native/ios": true,
-    "native/*.ipa": true,
+    "native/*.ipa": true
   },
   "sqltools.connections": [
     {

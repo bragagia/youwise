@@ -5,6 +5,8 @@ export type Memory = {
 
   cardId: string;
 
+  ownerUserId: string;
+
   memoryStatus: "new" | "review" | "forgotten";
 
   // partsMemory?: {
@@ -16,3 +18,17 @@ export type Memory = {
 // export type MemoryWithCardAndResource = Memory & {
 //   card: CardWithResource;
 // };
+
+export type MemoriesNewRequest = {
+  memories: (Partial<Memory> & Omit<Memory, "id">)[];
+};
+
+export type MemoriesNewResponse = {
+  memories: Memory[];
+};
+
+export type MemoriesUpdateRequest = {
+  memories: (Pick<Memory, "id"> & Partial<Memory>)[];
+};
+
+export type MemoriesUpdateResponse = {};

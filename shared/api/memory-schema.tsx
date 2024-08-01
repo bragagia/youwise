@@ -4,9 +4,28 @@ import { z } from "zod";
 export const memorySchema = z.object({
   id: z.string(),
   cardId: z.string(),
+  ownerUserId: z.string(),
   memoryStatus: z.union([
     z.literal("new"),
     z.literal("review"),
     z.literal("forgotten"),
   ]),
 });
+
+export const memoriesNewRequestSchema = z.object({
+  memories: z.array(
+    memorySchema.partial().and(memorySchema.omit({ id: true })),
+  ),
+});
+
+export const memoriesNewResponseSchema = z.object({
+  memories: z.array(memorySchema),
+});
+
+export const memoriesUpdateRequestSchema = z.object({
+  memories: z.array(
+    memorySchema.pick({ id: true }).and(memorySchema.partial()),
+  ),
+});
+
+export const memoriesUpdateResponseSchema = z.object({});

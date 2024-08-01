@@ -8,11 +8,16 @@ import {
   authNewAccessTokenResponseSchema,
   AuthValidateOAuthRequest,
   authValidateOAuthResponseSchema,
+  MemoriesNewRequest,
+  memoriesNewResponseSchema,
+  MemoriesUpdateRequest,
+  memoriesUpdateResponseSchema,
   ResourceGetRequest,
   resourceGetResponseSchema,
   UserCreateRequest,
+  userCreateResponseSchema,
+  UserGetRecommendationsRequest,
   userResourcesResponseSchema,
-  voidResponseSchema,
 } from "youwise-shared/api";
 
 export function newAPI(apiContext: APIContextType) {
@@ -27,6 +32,16 @@ export function newAPI(apiContext: APIContextType) {
         "auth/new-access-token"
       ),
     },
+    memories: {
+      new: privateEndpointGen<MemoriesNewRequest>(apiContext)(
+        memoriesNewResponseSchema,
+        "memories/new"
+      ),
+      update: privateEndpointGen<MemoriesUpdateRequest>(apiContext)(
+        memoriesUpdateResponseSchema,
+        "memories/update"
+      ),
+    },
     resources: {
       get: privateEndpointGen<ResourceGetRequest>(apiContext)(
         resourceGetResponseSchema,
@@ -35,13 +50,12 @@ export function newAPI(apiContext: APIContextType) {
     },
     user: {
       create: privateEndpointGen<UserCreateRequest>(apiContext)(
-        voidResponseSchema,
+        userCreateResponseSchema,
         "user/create"
       ),
-      getRecommendations: privateEndpointGen<void>(apiContext)(
-        userResourcesResponseSchema,
-        "user/get-recommendations"
-      ),
+      getRecommendations: privateEndpointGen<UserGetRecommendationsRequest>(
+        apiContext
+      )(userResourcesResponseSchema, "user/get-recommendations"),
     },
   };
 }

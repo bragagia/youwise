@@ -3,6 +3,8 @@ type RessourceArray = {
   name: string;
 }[];
 
+export type UserGetRecommendationsRequest = {};
+
 export type UserResourcesResponse = {
   continue: RessourceArray;
   saveForLater: RessourceArray;
@@ -13,3 +15,5 @@ export type UserResourcesResponse = {
 export type UserCreateRequest = {
   url: string;
 };
+
+export type UserCreateResponse = {};

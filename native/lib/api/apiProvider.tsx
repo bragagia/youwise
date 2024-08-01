@@ -66,7 +66,7 @@ export function APIProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-type APIType = APIContextType & ReturnType<typeof newAPI>;
+export type APIType = APIContextType & ReturnType<typeof newAPI>;
 
 export function useAPI() {
   const apiContext = useContext(APIContext);

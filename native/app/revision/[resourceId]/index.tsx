@@ -22,13 +22,13 @@ const RevisionOfResourcePage = () => {
     if (!api.userStored) {
       setRevisionDeck(undefined);
     } else {
-      api.resources.get({ id: resourceId }).then((res) => {
+      api.resources.get({ id: resourceId }).then(async (res) => {
         if (res.error !== undefined) {
           console.log(res.error);
           return;
         }
 
-        setRevisionDeck(createRevisionDeckFromResource(res));
+        setRevisionDeck(await createRevisionDeckFromResource(api, res));
       });
     }
 

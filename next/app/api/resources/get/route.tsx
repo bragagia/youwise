@@ -1,49 +1,47 @@
-import { validateRequestAccessToken } from "@/lib/jwt";
-import { SuccessResponse } from "@/lib/responses";
+import { PrivateEndpointWrapper } from "@/lib/endpointWrapper";
 import { PrismaClient } from "@prisma/client";
 import {
   CardVariant,
+  ResourceGetRequest,
   resourceGetRequestSchema,
   ResourceGetResponse,
   resourceGetResponseSchema,
 } from "youwise-shared/api";
 
-export async function POST(request: Request) {
-  const { userId, tokenErrorResponse } = validateRequestAccessToken(request);
-  if (tokenErrorResponse) return tokenErrorResponse;
-
-  const body = resourceGetRequestSchema.parse(await request.json());
-
-  const prisma = new PrismaClient();
-  const resource = await prisma.resource.findUniqueOrThrow({
-    where: {
-      id: body.id,
-      ownerUserId: userId,
-    },
-    include: {
-      cards: {
-        include: {
-          //memories: true,
-          memories: {
-            where: {
-              ownerUserId: userId,
+export const POST = PrivateEndpointWrapper<
+  ResourceGetRequest,
+  ResourceGetResponse
+>(
+  resourceGetRequestSchema,
+  resourceGetResponseSchema,
+  async ({ body, userId }) => {
+    const prisma = new PrismaClient();
+    const resource = await prisma.resource.findUniqueOrThrow({
+      where: {
+        id: body.id,
+        ownerUserId: userId,
+      },
+      include: {
+        cards: {
+          include: {
+            memories: {
+              where: {
+                ownerUserId: userId,
+              },
             },
           },
         },
       },
-    },
-  });
+    });
 
-  const typedResource = {
-    ...resource,
-    cards: resource.cards.map((card) => ({
-      ...card,
-      variants: card.variants as CardVariant[],
-    })),
-  };
+    const typedResource = {
+      ...resource,
+      cards: resource.cards.map((card) => ({
+        ...card,
+        variants: card.variants as CardVariant[],
+      })),
+    };
 
-  return SuccessResponse<ResourceGetResponse>(
-    resourceGetResponseSchema,
-    typedResource
-  );
-}
+    return typedResource;
+  }
+);
