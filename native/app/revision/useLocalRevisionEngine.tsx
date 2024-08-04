@@ -1,25 +1,24 @@
 import {
-  MemoryBeingRevised,
-  MemoryBeingRevisedWithKey,
+  RevisingMemory,
+  RevisingMemoryWithKey,
 } from "@/app/revision/MemoryBeingRevised";
-import { APIType } from "@/lib/api/apiProvider";
+import { APIType, useAPI } from "@/lib/api/apiProvider";
+import { IsMemoryParamsLearned, ScheduleMemoryParams } from "@/lib/fsrsWrapper";
 import { useCallback, useEffect, useState } from "react";
-import {
-  GOOD_REVIEW_IN_A_ROW_FOR_NEW_CARD,
-  ResourceWithCardsAndMemory,
-  RevisionStats,
-} from "youwise-shared/api";
+import { ResourceWithCardsAndMemory, RevisionStats } from "youwise-shared/api";
 import { uuid } from "../../lib/uuid";
 
 type DisplayedMemories = {
-  prev: MemoryBeingRevisedWithKey | undefined;
-  current: MemoryBeingRevisedWithKey | undefined;
-  next: MemoryBeingRevisedWithKey | undefined; // Note: Next card allow to preload the next card to avoid lag when swiping
+  prev: RevisingMemoryWithKey | undefined;
+  current: RevisingMemoryWithKey | undefined;
+  next: RevisingMemoryWithKey | undefined; // Note: Next card allow to preload the next card to avoid lag when swiping
 };
 
-export function useLocalRevisionEngine(revisionDeck: MemoryBeingRevised[]) {
+export function useLocalRevisionEngine(revisionDeck: RevisingMemory[]) {
+  const api = useAPI();
+
   const [revisionDeckCache, setRevisionDeckCache] = useState(revisionDeck);
-  const [doneDeck, setDoneDeck] = useState<MemoryBeingRevised[]>([]);
+  const [doneDeck, setDoneDeck] = useState<RevisingMemory[]>([]);
   const [initialDeckSize] = useState(revisionDeckCache.length);
   const [startTime] = useState(Date.now());
 
@@ -31,25 +30,36 @@ export function useLocalRevisionEngine(revisionDeck: MemoryBeingRevised[]) {
   );
 
   const onCardSwiped = useCallback(
-    (direction: "left" | "right") => {
+    async (direction: "left" | "right") => {
       let newRevisionDeck = [...revisionDeckCache];
       let newDoneDeck = [...doneDeck];
 
       const swipedCard = newRevisionDeck.shift();
       if (!swipedCard) return; // Should never happen
 
+      let updatedCard: RevisingMemory;
       if (direction === "left") {
-        ({ newRevisionDeck, newDoneDeck } = handleSwipeLeft(
+        ({ newRevisionDeck, newDoneDeck, updatedCard } = handleSwipeLeft(
           newRevisionDeck,
           newDoneDeck,
           swipedCard
         )); // Put the card back at the end of the deck
       } else {
-        ({ newRevisionDeck, newDoneDeck } = handleSwipeRight(
+        ({ newRevisionDeck, newDoneDeck, updatedCard } = handleSwipeRight(
           newRevisionDeck,
           newDoneDeck,
           swipedCard
         ));
+      }
+
+      const ret = await api.memories.update({
+        memories: [
+          { ...updatedCard.memory, memoryParams: updatedCard.memoryParams }, // Note: We need to use the memoryParams of the revising object because it's the one that has been updated, and not the one in the memory object
+        ],
+      });
+      if (ret.error) {
+        console.log("Error while updating memory", ret.error);
+        throw new Error("Error while updating memory");
       }
 
       // Current memory is always the first element of the stack. We calculate its value here in case displayedMemories.next is undefined, which happen when there is only one card left in the deck
@@ -105,7 +115,7 @@ export function useLocalRevisionEngine(revisionDeck: MemoryBeingRevised[]) {
   useEffect(() => {
     if (revisionDeckCache.length === 0) {
       const newlyLearned = doneDeck.filter(
-        (memory) => memory.memory.memoryStatus === "new"
+        (revisingCard) => revisingCard.memory.memoryParams === undefined // The memoryParams inside the memory object stay at the state of the when the revision started so we can use it to know if the card was newly learned
       ).length;
       const revisedCards = doneDeck.length - newlyLearned;
       const timePerCard = (Date.now() - startTime) / doneDeck.length;
@@ -119,31 +129,11 @@ export function useLocalRevisionEngine(revisionDeck: MemoryBeingRevised[]) {
   }, [revisionDeckCache, doneDeck]);
 
   const remainingCards = revisionDeckCache.reduce((acc, memory) => {
-    if (memory.firstTime) {
-      return (
-        acc +
-        (memory.firstTime.reviewCount
-          ? Math.pow(
-              (GOOD_REVIEW_IN_A_ROW_FOR_NEW_CARD - 1) /
-                GOOD_REVIEW_IN_A_ROW_FOR_NEW_CARD,
-              memory.firstTime.reviewCount
-            )
-          : 1)
-      ); // This formula is based on reviewCount instead of goodInARow to ensure an always increasing progress
-    } else if (memory.forgotten) {
-      return (
-        acc +
-        (memory.forgotten.reviewCount
-          ? Math.pow(
-              (GOOD_REVIEW_IN_A_ROW_FOR_NEW_CARD - 1) /
-                GOOD_REVIEW_IN_A_ROW_FOR_NEW_CARD,
-              memory.forgotten.reviewCount
-            )
-          : 1)
-      );
-    } else {
+    if (IsMemoryParamsLearned(memory.memoryParams)) {
       return acc + 1;
     }
+
+    return acc + (memory.reviewCount ? Math.pow(0.5, memory.reviewCount) : 1); // This formula is based on reviewCount instead of goodInARow to ensure an always increasing progress
   }, 0);
   const progress = (initialDeckSize - remainingCards) / initialDeckSize;
 
@@ -158,23 +148,17 @@ export function useLocalRevisionEngine(revisionDeck: MemoryBeingRevised[]) {
 }
 
 function handleSwipeLeft(
-  newRevisionDeck: MemoryBeingRevised[],
-  newDoneDeck: MemoryBeingRevised[],
-  swipedCard: MemoryBeingRevised
+  newRevisionDeck: RevisingMemory[],
+  newDoneDeck: RevisingMemory[],
+  swipedCard: RevisingMemory
 ) {
-  if (swipedCard.firstTime) {
-    swipedCard.firstTime.failureCount++;
-    swipedCard.firstTime.goodInARow = 0;
-  } else if (swipedCard.forgotten) {
-    swipedCard.forgotten.failureCount++;
-    swipedCard.forgotten.goodInARow = 0;
-  } else {
-    swipedCard.forgotten = {
-      goodInARow: 0,
-      reviewCount: 0,
-      failureCount: 1,
-    };
-  }
+  swipedCard.reviewCount++;
+  swipedCard.goodReviewInARow = 0;
+
+  swipedCard.memoryParams = ScheduleMemoryParams(
+    swipedCard.memoryParams,
+    "Fail"
+  );
 
   newRevisionDeck = addToDeckWithIncrementalPosition(
     newRevisionDeck,
@@ -185,67 +169,54 @@ function handleSwipeLeft(
   return {
     newRevisionDeck,
     newDoneDeck,
+    updatedCard: swipedCard,
   };
 }
 
 function handleSwipeRight(
-  newRevisionDeck: MemoryBeingRevised[],
-  newDoneDeck: MemoryBeingRevised[],
-  swipedCard: MemoryBeingRevised
+  newRevisionDeck: RevisingMemory[],
+  newDoneDeck: RevisingMemory[],
+  swipedCard: RevisingMemory
 ) {
   // TODO: If only one card left, get a random card already memorized and put it back in the deck
 
-  let success: boolean;
-  let goodInARow = 0;
-  if (swipedCard.firstTime) {
-    swipedCard.firstTime.reviewCount++;
-    swipedCard.firstTime.goodInARow++;
+  swipedCard.reviewCount++;
+  swipedCard.goodReviewInARow++;
 
-    success =
-      swipedCard.firstTime.goodInARow >= GOOD_REVIEW_IN_A_ROW_FOR_NEW_CARD;
-    goodInARow = swipedCard.firstTime.goodInARow;
-  } else if (swipedCard.forgotten) {
-    swipedCard.forgotten.reviewCount++;
-    swipedCard.forgotten.goodInARow++;
+  swipedCard.memoryParams = ScheduleMemoryParams(
+    swipedCard.memoryParams,
+    "Good"
+  );
 
-    success =
-      swipedCard.forgotten.goodInARow >= GOOD_REVIEW_IN_A_ROW_FOR_NEW_CARD;
-    goodInARow = swipedCard.forgotten.goodInARow;
-  } else {
-    success = true;
-  }
-
-  if (success) {
+  if (IsMemoryParamsLearned(swipedCard.memoryParams)) {
     newDoneDeck.push(swipedCard);
   } else {
     newRevisionDeck = addToDeckWithIncrementalPosition(
       newRevisionDeck,
       swipedCard,
-      goodInARow
+      swipedCard.goodReviewInARow
     );
   }
 
   return {
     newRevisionDeck,
     newDoneDeck,
+    updatedCard: swipedCard,
   };
 }
 
 function addToDeckWithIncrementalPosition(
-  deck: MemoryBeingRevised[],
-  swipedCard: MemoryBeingRevised,
+  deck: RevisingMemory[],
+  swipedCard: RevisingMemory,
   goodInARow: number
 ) {
   let pos: number;
 
-  if (goodInARow === 0) {
-    pos = 3;
-  }
-  if (goodInARow === 1) {
-    pos = 8;
+  if (goodInARow == 0) {
+    pos = 2 + Math.floor(Math.random() * 3);
   } else {
-    // Not used currently with the current GOOD_REVIEW_IN_A_ROW_FOR_NEW_CARD value at 2
-    pos = 20;
+    // if (goodInARow == 1)
+    pos = 4 + Math.floor(Math.random() * 4);
   }
 
   deck.splice(pos, 0, swipedCard);
@@ -257,50 +228,41 @@ export async function createRevisionDeckFromResource(
   api: APIType,
   resource: ResourceWithCardsAndMemory
 ) {
-  const existingMemories: MemoryBeingRevised[] = resource.cards
-    .filter((card) => card.memories.length > 0)
+  const existingRevisingMemories: RevisingMemory[] = resource.cards
+    .filter((card) => card.memory !== undefined)
     .map((card) => ({
-      card: card,
-      memory: card.memories[0],
       resource: resource,
-      memoryStatusBefore: card.memories[0].memoryStatus,
-      firstTime:
-        card.memories[0].memoryStatus === "new"
-          ? {
-              goodInARow: 0,
-              reviewCount: 0,
-              failureCount: 0,
-            }
-          : undefined,
+      card: card,
+      memory: card.memory!,
+      memoryParams: card.memory!.memoryParams,
+      goodReviewInARow: 0,
+      reviewCount: 0,
     }));
 
-  const newMemories: MemoryBeingRevised[] = resource.cards
-    .filter((card) => card.memories.length === 0)
+  const newRevisingMemories: RevisingMemory[] = resource.cards
+    .filter((card) => card.memory === undefined)
     .map((card) => ({
+      resource: resource,
       card: card,
       memory: {
         id: uuid(),
         cardId: card.id,
         ownerUserId: api.userStored?.userId || "",
-        memoryStatus: "new",
+        memoryParams: undefined,
       },
-      resource: resource,
-      memoryStatusBefore: "new",
-      firstTime: {
-        goodInARow: 0,
-        reviewCount: 0,
-        failureCount: 0,
-      },
+      memoryParams: undefined,
+      goodReviewInARow: 0,
+      reviewCount: 0,
     }));
 
-  const revisionDeck = [...existingMemories, ...newMemories]; // TODO: Shuffle the deck
+  const revisionDeck = [...existingRevisingMemories, ...newRevisingMemories]; // TODO: Shuffle the deck
 
-  if (newMemories.length === 0) {
+  if (newRevisingMemories.length === 0) {
     return revisionDeck;
   }
 
   const { error: errorNewMemories } = await api.memories.new({
-    memories: newMemories.map((memory) => memory.memory),
+    memories: newRevisingMemories.map((memory) => memory.memory),
   });
   if (errorNewMemories !== undefined) {
     throw new Error("Error while creating new memories");

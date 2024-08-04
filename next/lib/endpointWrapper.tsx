@@ -1,5 +1,5 @@
 import { validateRequestAccessToken } from "@/lib/jwt";
-import { SuccessResponse } from "@/lib/responses";
+import { ErrorResponse, SuccessResponse } from "@/lib/responses";
 import { Schema } from "zod";
 
 // PrivateEndpointWrapper is a wrapper that:
@@ -23,7 +23,18 @@ export function PrivateEndpointWrapper<ReqT, ResT>(
     const { userId, tokenErrorResponse } = validateRequestAccessToken(request);
     if (tokenErrorResponse) return tokenErrorResponse;
 
-    const body = reqSchema.parse(await request.json());
+    let bodyJson: any;
+    let body: ReqT;
+    try {
+      bodyJson = await request.json();
+      body = reqSchema.parse(bodyJson);
+    } catch (err) {
+      if (bodyJson) {
+        console.log("bodyJson", JSON.stringify(bodyJson, null, 2));
+      }
+
+      return ErrorResponse(err, 400);
+    }
 
     const res = await fn({ request, body, userId });
 

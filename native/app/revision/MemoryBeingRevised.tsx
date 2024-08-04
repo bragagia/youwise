@@ -1,22 +1,14 @@
-import { Card, Memory, ResourceHeader } from "youwise-shared/api";
+import { Card, Memory, MemoryParams, ResourceHeader } from "youwise-shared/api";
 
-export type MemoryBeingRevised = {
+export type RevisingMemory = {
   card: Card;
   memory: Memory;
   resource: ResourceHeader;
-  memoryStatusBefore: Memory["memoryStatus"];
-  firstTime?: {
-    goodInARow: number;
-    reviewCount: number;
-    failureCount: number;
-  };
-  forgotten?: {
-    goodInARow: number;
-    reviewCount: number;
-    failureCount: number;
-  };
+  reviewCount: number;
+  goodReviewInARow: number;
+  memoryParams: MemoryParams;
 };
 
-export type MemoryBeingRevisedWithKey = MemoryBeingRevised & {
+export type RevisingMemoryWithKey = RevisingMemory & {
   key: string; // That unique random key allow to force the component to render correctly, it identify the pass of the memory, not the memory itself
 };

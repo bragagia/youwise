@@ -68,7 +68,6 @@ export const resourceDemo: ResourceWithCardsAndMemory = {
   cards: [
     {
       id: uuid(),
-      memories: [],
       variants: [
         {
           type: "classic",
@@ -82,7 +81,6 @@ export const resourceDemo: ResourceWithCardsAndMemory = {
     },
     {
       id: uuid(),
-      memories: [],
       variants: [
         {
           type: "classic",
@@ -99,7 +97,6 @@ export const resourceDemo: ResourceWithCardsAndMemory = {
     },
     {
       id: uuid(),
-      memories: [],
       variants: [
         {
           type: "classic",

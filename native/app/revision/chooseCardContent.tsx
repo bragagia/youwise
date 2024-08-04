@@ -1,17 +1,21 @@
-import { MemoryBeingRevised } from "@/app/revision/MemoryBeingRevised";
+import { RevisingMemory } from "@/app/revision/MemoryBeingRevised";
 import {
-  CardVariant,
-  GOOD_REVIEW_IN_A_ROW_FOR_NEW_CARD,
-} from "youwise-shared/api";
+  IsMemoryParamsFirstReview,
+  WasMemoryParamsForgotten,
+} from "@/lib/fsrsWrapper";
+import { CardVariant } from "youwise-shared/api";
 import { CardChoosenContent } from "./CardChoosenContent";
 
 export function chooseCardContent(
-  memoryBeingRevised: MemoryBeingRevised
+  revisingMemory: RevisingMemory
 ): CardChoosenContent {
-  const variants = memoryBeingRevised.card.variants;
+  const variants = revisingMemory.card.variants;
+
+  const isFirstReview = IsMemoryParamsFirstReview(revisingMemory.memoryParams);
+  const wasForgotten = WasMemoryParamsForgotten(revisingMemory.memoryParams);
 
   let randomVariantChoice: CardVariant;
-  if (memoryBeingRevised.firstTime) {
+  if (isFirstReview) {
     randomVariantChoice = variants[0];
 
     // We always use first variant for new cards
@@ -25,18 +29,11 @@ export function chooseCardContent(
     if (!randomVariantChoice.fakeAnswers) {
       shouldUseQuiz = false;
     } else if (
-      memoryBeingRevised.firstTime &&
-      memoryBeingRevised.firstTime.goodInARow <
-        GOOD_REVIEW_IN_A_ROW_FOR_NEW_CARD - 1
+      (isFirstReview || wasForgotten) &&
+      revisingMemory.goodReviewInARow === 0
     ) {
       shouldUseQuiz = true;
-    } else if (
-      memoryBeingRevised.forgotten &&
-      memoryBeingRevised.forgotten.goodInARow <
-        GOOD_REVIEW_IN_A_ROW_FOR_NEW_CARD - 1
-    ) {
-      shouldUseQuiz = true;
-    } else if (memoryBeingRevised.firstTime || memoryBeingRevised.forgotten) {
+    } else if (isFirstReview || wasForgotten) {
       // We never use quiz for the last review of new and forgotten cards (to make sure the user knows the answer)
       shouldUseQuiz = false;
     } else {

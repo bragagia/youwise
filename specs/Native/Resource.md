@@ -7,6 +7,6 @@ Shows individual resource content
 - If resource isn't memorized, display the ReWise button
   - On click, start a ReWise session with the resource cards
     - When the session starts, add the cards to the user's memories
-    - **[TODO]**: After each memorized card, update the card in the backend
+    - After each memorized card, update the card in the backend
 - If resource is memorized, display the Saved button
   - **[TODO]**: On click, allow to remove from memorized

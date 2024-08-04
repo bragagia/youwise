@@ -104,8 +104,7 @@ model Resource {
   content     String
 
   //highlights Highlight[]
-  cards    Card[]
-  memories Memory[]
+  cards Card[]
 
   @@map("resources")
 }
@@ -149,10 +148,29 @@ model Card {
   @@map("cards")
 }
 
-enum MemoryStatusEnum {
-  new
-  review
-  forgotten
+enum FsrsStateEnum {
+  Learning
+  Review
+  Relearning
+}
+
+model MemoryParams {
+  memoryId String @id
+  memory   Memory @relation(fields: [memoryId], references: [id])
+
+  dueEasy   DateTime
+  dueNormal DateTime
+  dueHard   DateTime
+  dueHarder DateTime
+
+  fsrs_state          FsrsStateEnum
+  fsrs_stability      Float
+  fsrs_difficulty     Float
+  fsrs_elapsed_days   Int
+  fsrs_scheduled_days Int
+  fsrs_reps           Int
+  fsrs_lapses         Int
+  fsrs_last_review    DateTime?
 }
 
 model Memory {
@@ -160,17 +178,13 @@ model Memory {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  ownerUser   User      @relation(fields: [ownerUserId], references: [id])
+  ownerUser   User   @relation(fields: [ownerUserId], references: [id])
   ownerUserId String
-  card        Card      @relation(fields: [cardId], references: [id])
+  card        Card   @relation(fields: [cardId], references: [id])
   cardId      String
-  Resource    Resource? @relation(fields: [resourceId], references: [id])
-  resourceId  String?
 
-  memoryStatus MemoryStatusEnum
-  // interval     Int? // Nullable
-  // easeFactor   Float
-  // stepNumber   Int
+  MemoryParams MemoryParams[]
 
+  @@unique([ownerUserId, cardId])
   @@map("memories")
 }

@@ -1,6 +1,6 @@
 import { CardChoosenContent } from "@/app/revision/CardChoosenContent";
 import { FlashcardAnswerBlurComponent } from "@/app/revision/FlashcardAnswerBlurComponent";
-import { MemoryBeingRevised } from "@/app/revision/MemoryBeingRevised";
+import { RevisingMemory } from "@/app/revision/MemoryBeingRevised";
 import { RevisionActionButton } from "@/app/revision/RevisionActionButton";
 import Icons from "@/components/Icons";
 import { useHaptics } from "@/lib/haptics";
@@ -18,11 +18,11 @@ import { chooseCardContent } from "./chooseCardContent";
 import { FlashcardContentComponent } from "./FlashcardContentComponent";
 
 export function FlashcardComponent({
-  memoryBeingRevised,
+  revisingMemory,
   isVisible,
   onCardSwiped,
 }: {
-  memoryBeingRevised: MemoryBeingRevised;
+  revisingMemory: RevisingMemory;
   isVisible: boolean;
   onCardSwiped: (direction: "left" | "right") => void;
 }) {
@@ -30,7 +30,7 @@ export function FlashcardComponent({
   const scale = useRef(new Animated.Value(1)).current; // We actually start at 1 instead of zero to allow correct calculation of blur position
 
   const [cardChoosedContent] = useState(() => {
-    return chooseCardContent(memoryBeingRevised);
+    return chooseCardContent(revisingMemory);
   });
 
   const [blurHeight, setBlurHeight] = useState<number | null>(null);
@@ -280,7 +280,7 @@ export function FlashcardComponent({
               <FlashcardContentComponent
                 onDisplayBlur={setBlurHeight}
                 cardChoosedContent={cardChoosedContent}
-                ressource={memoryBeingRevised.resource}
+                ressource={revisingMemory.resource}
                 onCardAnswered={handleCardAnswered}
               />
             </View>

@@ -1,13 +1,12 @@
-const fs = require("fs");
-
-const directoryPath = "./api";
-
-// Use fs.readdirSync to read the contents of the directory synchronously
-const fileList = fs.readdirSync(directoryPath);
-
-const files = fileList.filter(
-  (file) => !file.includes("-schema.tsx") && !file.includes("index.tsx")
-);
+const files = [
+  "void.tsx",
+  "auth.tsx",
+  "revisionStats.tsx",
+  "memory.tsx",
+  "card.tsx",
+  "ressource.tsx",
+  "user.tsx",
+];
 
 /**
  * ts-to-zod configuration.

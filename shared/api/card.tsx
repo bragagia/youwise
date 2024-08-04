@@ -1,7 +1,7 @@
 import { Memory } from "./memory";
 
 export type CardWithMemory = Card & {
-  memories: Memory[];
+  memory?: Memory;
 };
 
 export type Card = {

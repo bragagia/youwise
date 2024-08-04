@@ -1,4 +1,4 @@
-import { MemoryBeingRevised } from "@/app/revision/MemoryBeingRevised";
+import { RevisingMemory } from "@/app/revision/MemoryBeingRevised";
 import Icons from "@/components/Icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
@@ -18,7 +18,7 @@ import { useLocalRevisionEngine } from "./useLocalRevisionEngine";
 const RevisionComponent = ({
   revisionDeck,
 }: {
-  revisionDeck: MemoryBeingRevised[];
+  revisionDeck: RevisingMemory[];
 }) => {
   const insets = useSafeAreaInsets();
 
@@ -58,8 +58,8 @@ const RevisionComponent = ({
   }, [progress]);
 
   const onCardSwiped = (direction: "left" | "right") => {
-    setTimeout(() => {
-      swipeCard(direction);
+    setTimeout(async () => {
+      await swipeCard(direction);
 
       if (direction === "right") {
         circleScale.setValue(0);
@@ -209,7 +209,7 @@ const RevisionComponent = ({
           <FlashcardComponent
             key={prevMemory.key}
             onCardSwiped={onCardSwiped}
-            memoryBeingRevised={prevMemory}
+            revisingMemory={prevMemory}
             isVisible={true}
           />
         ) : null}
@@ -218,7 +218,7 @@ const RevisionComponent = ({
           <FlashcardComponent
             key={currentMemory.key}
             onCardSwiped={onCardSwiped}
-            memoryBeingRevised={currentMemory}
+            revisingMemory={currentMemory}
             isVisible={loading}
           />
         ) : null}
@@ -227,7 +227,7 @@ const RevisionComponent = ({
           <FlashcardComponent
             key={nextMemory.key}
             onCardSwiped={onCardSwiped}
-            memoryBeingRevised={nextMemory}
+            revisingMemory={nextMemory}
             isVisible={false}
           />
         ) : null}

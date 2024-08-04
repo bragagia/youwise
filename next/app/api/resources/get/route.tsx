@@ -34,14 +34,13 @@ export const POST = PrivateEndpointWrapper<
       },
     });
 
-    const typedResource = {
+    return {
       ...resource,
       cards: resource.cards.map((card) => ({
         ...card,
         variants: card.variants as CardVariant[],
+        memory: card.memories[0],
       })),
     };
-
-    return typedResource;
   }
 );

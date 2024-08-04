@@ -1,5 +1,5 @@
 import { PrivateEndpointWrapper } from "@/lib/endpointWrapper";
-import { PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 import {
   MemoriesUpdateRequest,
   MemoriesUpdateResponse,
@@ -21,12 +21,31 @@ export const POST = PrivateEndpointWrapper<
     }
 
     for (let memory of body.memories) {
+      const memoryParamsReq: Prisma.MemoryParamsUpdateManyWithoutMemoryNestedInput =
+        memory.memoryParams
+          ? {
+              upsert: {
+                where: {
+                  memoryId: memory.id,
+                },
+                create: memory.memoryParams,
+                update: memory.memoryParams,
+              },
+            }
+          : {
+              delete: {
+                memoryId: memory.id,
+              },
+            };
+
       await prisma.memory.update({
         where: {
           id: memory.id,
           ownerUserId: userId,
         },
-        data: memory,
+        data: {
+          MemoryParams: memoryParamsReq,
+        },
       });
     }
 

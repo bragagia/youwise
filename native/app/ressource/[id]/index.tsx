@@ -39,6 +39,7 @@ const ResourcePage = () => {
       api.resources.get({ id: id }).then((res) => {
         if (res.error !== undefined) {
           console.log(res.error);
+          router.back();
           return;
         }
 
