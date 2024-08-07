@@ -24,13 +24,13 @@ export function chooseCardContent(
   }
 
   if (randomVariantChoice.type === "classic") {
-    let shouldUseQuiz = false; // Use quiz only for first review of forgotten and new cards, never for their last review. Use quiz random for known cards
+    let shouldUseQuiz = false; // Use quiz only for first review of forgotten and new cards, never for following reviews. Use quiz randomly for already known cards
 
     if (!randomVariantChoice.fakeAnswers) {
       shouldUseQuiz = false;
     } else if (
       (isFirstReview || wasForgotten) &&
-      revisingMemory.goodReviewInARow === 0
+      revisingMemory.reviewCount === 0
     ) {
       shouldUseQuiz = true;
     } else if (isFirstReview || wasForgotten) {

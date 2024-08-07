@@ -1,16 +1,11 @@
 import { PrivateEndpointWrapper } from "@/lib/endpointWrapper";
-import { Prisma, PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import {
-  MemoriesUpdateRequest,
-  MemoriesUpdateResponse,
   memoriesUpdateRequestSchema,
   memoriesUpdateResponseSchema,
 } from "youwise-shared/api";
 
-export const POST = PrivateEndpointWrapper<
-  MemoriesUpdateRequest,
-  MemoriesUpdateResponse
->(
+export const POST = PrivateEndpointWrapper(
   memoriesUpdateRequestSchema,
   memoriesUpdateResponseSchema,
   async ({ body, userId }) => {
@@ -21,22 +16,21 @@ export const POST = PrivateEndpointWrapper<
     }
 
     for (let memory of body.memories) {
-      const memoryParamsReq: Prisma.MemoryParamsUpdateManyWithoutMemoryNestedInput =
-        memory.memoryParams
-          ? {
-              upsert: {
-                where: {
-                  memoryId: memory.id,
-                },
-                create: memory.memoryParams,
-                update: memory.memoryParams,
-              },
-            }
-          : {
-              delete: {
+      const memoryParamsReq = memory.memoryParams
+        ? {
+            upsert: {
+              where: {
                 memoryId: memory.id,
               },
-            };
+              create: memory.memoryParams,
+              update: memory.memoryParams,
+            },
+          }
+        : {
+            delete: {
+              memoryId: memory.id,
+            },
+          };
 
       await prisma.memory.update({
         where: {
@@ -44,7 +38,7 @@ export const POST = PrivateEndpointWrapper<
           ownerUserId: userId,
         },
         data: {
-          MemoryParams: memoryParamsReq,
+          memoryParams: memoryParamsReq,
         },
       });
     }

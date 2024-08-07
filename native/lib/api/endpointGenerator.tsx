@@ -1,12 +1,13 @@
 import { APIContextType } from "@/lib/api/apiProvider";
 import {
-  AuthNewAccessTokenRequest,
+  authNewAccessTokenRequestSchema,
   authNewAccessTokenResponseSchema,
 } from "youwise-shared/api";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL!;
 
-const newAccessTokenEndpoint = publicEndpointGen<AuthNewAccessTokenRequest>()(
+const newAccessTokenEndpoint = publicEndpointGen(
+  authNewAccessTokenRequestSchema,
   authNewAccessTokenResponseSchema,
   "auth/new-access-token"
 );
@@ -15,82 +16,84 @@ export type EndpointReturnType<T extends Zod.Schema<any, any, any>> =
   | ({ error: undefined; code: undefined } & Zod.infer<T>)
   | { error: string; code: number };
 
-export function publicEndpointGen<ReqT>() {
-  return function <ResST extends Zod.Schema<any, any, any>>(
-    responseSchema: ResST,
-    uri: string
-  ) {
-    return _endpointGeneratorInternal<ReqT, ResST>(responseSchema, uri);
-  };
+export function publicEndpointGen<
+  ReqST extends Zod.Schema<any, any, any>,
+  ResST extends Zod.Schema<any, any, any>
+>(requestSchema: ReqST, responseSchema: ResST, uri: string) {
+  return _endpointGeneratorInternal<Zod.infer<ReqST>, ResST>(
+    responseSchema,
+    uri
+  );
 }
 
-export function privateEndpointGen<ReqT>(apiContext: APIContextType) {
-  return function <ResST extends Zod.Schema<any, any, any>>(
-    responseSchema: ResST,
-    uri: string
-  ) {
-    // We create an new endpoint wrapping the internal one that will add the authorization header, refreshing the token if needed
-    return async (data: ReqT): Promise<EndpointReturnType<ResST>> => {
-      if (!apiContext.userStored) {
-        return {
-          error: "User not logged in",
-          code: 401,
-        };
-      }
+export function privateEndpointGen<
+  ReqST extends Zod.Schema<any, any, any>,
+  ResST extends Zod.Schema<any, any, any>
+>(
+  apiContext: APIContextType,
+  requestSchema: ReqST,
+  responseSchema: ResST,
+  uri: string
+) {
+  // We create an new endpoint wrapping the internal one that will add the authorization header, refreshing the token if needed
+  return async (data: Zod.infer<ReqST>): Promise<EndpointReturnType<ResST>> => {
+    if (!apiContext.userStored) {
+      return {
+        error: "User not logged in",
+        code: 401,
+      };
+    }
 
-      let accessToken = apiContext._internal.accessToken;
-      if (accessToken) {
-        const firstInternalEndpoint = _endpointGeneratorInternal<ReqT, ResST>(
-          responseSchema,
-          uri,
-          {
-            Authorization: `Bearer ${accessToken}`,
-          }
-        );
-
-        const firstRes = await firstInternalEndpoint(data);
-
-        // We need to cast as any because, as ResST is a generic, TS can't know that the error field exists or has been overwritten by ResST
-        const firstResForceCast = firstRes as
-          | { error: string; code: number }
-          | { error: undefined; code: undefined };
-
-        if (firstResForceCast.code !== 400 && firstResForceCast.code !== 401) {
-          return firstRes;
-        }
-      }
-
-      // get new access token
-      const res = await newAccessTokenEndpoint({
-        refreshToken: apiContext.userStored.refreshToken,
+    let accessToken = apiContext._internal.accessToken;
+    if (accessToken) {
+      const firstInternalEndpoint = _endpointGeneratorInternal<
+        Zod.infer<ReqST>,
+        ResST
+      >(responseSchema, uri, {
+        Authorization: `Bearer ${accessToken}`,
       });
-      if (res.error !== undefined) {
-        apiContext._internal.removeUser();
 
-        if (res.code === 400) {
-          console.log("Refresh token expired, logging user out");
-        } else {
-          console.log("Error refreshing token: ", res.error);
-        }
+      const firstRes = await firstInternalEndpoint(data);
 
-        return {
-          error: res.error,
-          code: res.code,
-        };
+      // We need to cast as any because, as ResST is a generic, TS can't know that the error field exists or has been overwritten by ResST
+      const firstResForceCast = firstRes as
+        | { error: string; code: number }
+        | { error: undefined; code: undefined };
+
+      if (firstResForceCast.code !== 400 && firstResForceCast.code !== 401) {
+        return firstRes;
+      }
+    }
+
+    // get new access token
+    const res = await newAccessTokenEndpoint({
+      refreshToken: apiContext.userStored.refreshToken,
+    });
+    if (res.error !== undefined) {
+      apiContext._internal.removeUser();
+
+      if (res.code === 400) {
+        console.log("Refresh token expired, logging user out");
+      } else {
+        console.log("Error refreshing token: ", res.error);
       }
 
-      accessToken = res.accessToken;
-      await apiContext._internal.updateAccessToken(res.accessToken);
+      return {
+        error: res.error,
+        code: res.code,
+      };
+    }
 
-      const secondInternalEndpoint = _endpointGeneratorInternal<ReqT, ResST>(
-        responseSchema,
-        uri,
-        {
-          Authorization: `Bearer ${accessToken}`,
-        }
-      );
-      return await secondInternalEndpoint(data);
-    };
+    accessToken = res.accessToken;
+    await apiContext._internal.updateAccessToken(res.accessToken);
+
+    const secondInternalEndpoint = _endpointGeneratorInternal<
+      Zod.infer<ReqST>,
+      ResST
+    >(responseSchema, uri, {
+      Authorization: `Bearer ${accessToken}`,
+    });
+    return await secondInternalEndpoint(data);
   };
 }
 

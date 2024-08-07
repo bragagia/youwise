@@ -47,3 +47,9 @@ export type ResourceGetRequest = {
 };
 
 export type ResourceGetResponse = ResourceWithCardsAndMemory;
+
+export type ResourcesCreateRequest = {
+  url: string;
+};
+
+export type ResourcesCreateResponse = {};

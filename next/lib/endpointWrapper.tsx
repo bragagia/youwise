@@ -1,30 +1,32 @@
 import { validateRequestAccessToken } from "@/lib/jwt";
 import { ErrorResponse, SuccessResponse } from "@/lib/responses";
-import { Schema } from "zod";
 
 // PrivateEndpointWrapper is a wrapper that:
 // - Validate auth
 // - Validate request body format
 // - Validate and clean response to respect format
-export function PrivateEndpointWrapper<ReqT, ResT>(
-  reqSchema: Schema,
-  resSchema: Schema,
+export function PrivateEndpointWrapper<
+  ReqT extends Zod.Schema<any, any, any>,
+  ResT extends Zod.Schema<any, any, any>
+>(
+  reqSchema: ReqT,
+  resSchema: ResT,
   fn: ({
     request,
     body,
     userId,
   }: {
     request: Request;
-    body: ReqT;
+    body: Zod.infer<ReqT>;
     userId: string;
-  }) => Promise<ResT> | ResT
+  }) => Promise<Zod.infer<ResT>> | Zod.infer<ResT>
 ) {
   return async (request: Request) => {
     const { userId, tokenErrorResponse } = validateRequestAccessToken(request);
     if (tokenErrorResponse) return tokenErrorResponse;
 
     let bodyJson: any;
-    let body: ReqT;
+    let body: Zod.infer<ReqT>;
     try {
       bodyJson = await request.json();
       body = reqSchema.parse(bodyJson);
@@ -38,6 +40,6 @@ export function PrivateEndpointWrapper<ReqT, ResT>(
 
     const res = await fn({ request, body, userId });
 
-    return SuccessResponse<ResT>(resSchema, res);
+    return SuccessResponse<Zod.infer<ResT>>(resSchema, res);
   };
 }

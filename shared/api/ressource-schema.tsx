@@ -47,3 +47,9 @@ export const resourceGetRequestSchema = z.object({
 });
 
 export const resourceGetResponseSchema = resourceWithCardsAndMemorySchema;
+
+export const resourcesCreateRequestSchema = z.object({
+  url: z.string(),
+});
+
+export const resourcesCreateResponseSchema = z.object({});

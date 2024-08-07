@@ -56,7 +56,7 @@ export function FlashcardContentComponent({
   return (
     <View className="flex flex-col gap-6 self-stretch">
       <Text
-        className="mx-10 font-[Avenir] font-medium text-xs"
+        className="mx-10 font-[Avenir] font-medium text-sm"
         style={{
           color: `hsl(${ressource.tint}, 90%, 50%)`,
         }}

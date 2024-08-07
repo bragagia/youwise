@@ -17,7 +17,7 @@ const CreatePage = () => {
     if (urlInput) {
       setImportLoading(true);
 
-      await api.user.create({
+      await api.resources.create({
         url: urlInput,
       });
 

@@ -7,9 +7,8 @@ export const memoryParamsStateSchema = z.union([
   z.literal("Relearning"),
 ]);
 
-export const memoryParamsSchema = z.union([
-  z.undefined(),
-  z.object({
+export const memoryParamsSchema = z
+  .object({
     dueEasy: z.string().datetime(),
     dueNormal: z.string().datetime(),
     dueHard: z.string().datetime(),
@@ -21,24 +20,22 @@ export const memoryParamsSchema = z.union([
     fsrs_scheduled_days: z.number(),
     fsrs_reps: z.number(),
     fsrs_lapses: z.number(),
-    fsrs_last_review: z.string().datetime().optional(),
-  }),
-]);
+    fsrs_last_review: z.string().datetime().nullable(),
+  })
+  .nullable();
 
 export const memorySchema = z.object({
   id: z.string(),
   cardId: z.string(),
   ownerUserId: z.string(),
-  memoryParams: memoryParamsSchema.optional(),
+  memoryParams: memoryParamsSchema,
 });
 
 export const memoryUpdateSchema = memorySchema
   .pick({ id: true })
   .and(memorySchema.partial());
 
-export const memoryInsertSchema = memorySchema
-  .partial()
-  .and(memorySchema.omit({ id: true }));
+export const memoryInsertSchema = memorySchema;
 
 export const memoriesNewResponseSchema = z.object({
   memories: z.array(memorySchema),

@@ -9,7 +9,7 @@
         },
         {
           "name": "expo",
-          "commands": ["cd native", " npx expo start --clear"]
+          "commands": ["cd native", "npx expo start --clear"]
         },
         {
           "name": "cmd",

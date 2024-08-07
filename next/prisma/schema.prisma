@@ -27,11 +27,12 @@ model User {
 
   // courses         Course[]
   // resourcesGroups ResourceGroup[]
-  resources Resource[]
+  resources      Resource[]
   //highlights Highlight[]
-  cards     Card[]
-  memories  Memory[]
-  aiUsages  AIUsage[]
+  cards          Card[]
+  memories       Memory[]
+  aiUsages       AIUsage[]
+  dailyRevisions DailyRevisions[]
 
   @@map("users")
 }
@@ -171,6 +172,8 @@ model MemoryParams {
   fsrs_reps           Int
   fsrs_lapses         Int
   fsrs_last_review    DateTime?
+
+  @@map("memory_params")
 }
 
 model Memory {
@@ -183,8 +186,34 @@ model Memory {
   card        Card   @relation(fields: [cardId], references: [id])
   cardId      String
 
-  MemoryParams MemoryParams[]
+  memoryParams   MemoryParams?
+  dailyRevisions MemoriesOnDailyRevisions[]
 
   @@unique([ownerUserId, cardId])
   @@map("memories")
+}
+
+model MemoriesOnDailyRevisions {
+  memory   Memory @relation(fields: [memoryId], references: [id], onDelete: Cascade)
+  memoryId String
+
+  dailyRevisions   DailyRevisions @relation(fields: [dailyRevisionsId], references: [id], onDelete: Cascade)
+  dailyRevisionsId String
+
+  @@id([memoryId, dailyRevisionsId])
+  @@map("memories_on_daily_revisions")
+}
+
+model DailyRevisions {
+  id String @id @default(uuid())
+
+  ownerUser   User   @relation(fields: [ownerUserId], references: [id])
+  ownerUserId String
+
+  date DateTime @db.Date
+
+  memories MemoriesOnDailyRevisions[]
+
+  @@unique([ownerUserId, date])
+  @@map("daily_revisions")
 }

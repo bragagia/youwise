@@ -16,9 +16,3 @@ export const userResourcesResponseSchema = z.object({
   library: ressourceArraySchema,
   explore: ressourceArraySchema,
 });
-
-export const userCreateRequestSchema = z.object({
-  url: z.string(),
-});
-
-export const userCreateResponseSchema = z.object({});

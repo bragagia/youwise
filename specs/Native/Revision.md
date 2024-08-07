@@ -14,6 +14,11 @@ The Revision screen implement a spaced repetition system for efficient learning.
   - Cards are presented one at a time, with the next card preloaded for smooth transitions
   - The background color changes dynamically based on the current card resource tint color
 
+- The cards used for the session are selected based on cards memories due dates
+
+  - Every cards due today are selected
+  - Today's card are a quarter of the cards due in the next 4 days, this allow to smooth the number of cards to review each day
+
 - The algorithm used is a custom local algorithm, not to be confused with the long term retention algorithm used to decide the next card review. This algorithm take the list of card that should be reviewed today and helps the user learn them
   - New cards are introduced gradually to prevent overwhelming the user
   - Each new or forgotten card must be answer correctly two times before being considered learned

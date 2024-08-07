@@ -46,6 +46,6 @@ export const cardSchema = z.object({
 
 export const cardWithMemorySchema = cardSchema.and(
   z.object({
-    memory: memorySchema.optional(),
+    memory: memorySchema.nullable(),
   }),
 );

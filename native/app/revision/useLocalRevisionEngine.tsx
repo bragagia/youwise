@@ -5,7 +5,12 @@ import {
 import { APIType, useAPI } from "@/lib/api/apiProvider";
 import { IsMemoryParamsLearned, ScheduleMemoryParams } from "@/lib/fsrsWrapper";
 import { useCallback, useEffect, useState } from "react";
-import { ResourceWithCardsAndMemory, RevisionStats } from "youwise-shared/api";
+import { shuffleArray } from "youwise-shared";
+import {
+  CardWithMemoryAndResourceHeader,
+  ResourceWithCardsAndMemory,
+  RevisionStats,
+} from "youwise-shared/api";
 import { uuid } from "../../lib/uuid";
 
 type DisplayedMemories = {
@@ -228,10 +233,25 @@ export async function createRevisionDeckFromResource(
   api: APIType,
   resource: ResourceWithCardsAndMemory
 ) {
-  const existingRevisingMemories: RevisingMemory[] = resource.cards
-    .filter((card) => card.memory !== undefined)
+  return await createRevisionDeckFromCards(
+    api,
+    resource.cards
+      .filter(
+        (card) =>
+          !card.memory || !IsMemoryParamsLearned(card.memory.memoryParams)
+      )
+      .map((card) => ({ ...card, resourceHeader: resource }))
+  );
+}
+
+export async function createRevisionDeckFromCards(
+  api: APIType,
+  cards: CardWithMemoryAndResourceHeader[]
+) {
+  const existingRevisingMemories: RevisingMemory[] = cards
+    .filter((card) => card.memory !== null)
     .map((card) => ({
-      resource: resource,
+      resource: card.resourceHeader,
       card: card,
       memory: card.memory!,
       memoryParams: card.memory!.memoryParams,
@@ -239,34 +259,37 @@ export async function createRevisionDeckFromResource(
       reviewCount: 0,
     }));
 
-  const newRevisingMemories: RevisingMemory[] = resource.cards
-    .filter((card) => card.memory === undefined)
+  const newRevisingMemories: RevisingMemory[] = cards
+    .filter((card) => card.memory === null)
     .map((card) => ({
-      resource: resource,
+      resource: card.resourceHeader,
       card: card,
       memory: {
         id: uuid(),
         cardId: card.id,
         ownerUserId: api.userStored?.userId || "",
-        memoryParams: undefined,
+        memoryParams: null,
       },
-      memoryParams: undefined,
+      memoryParams: null,
       goodReviewInARow: 0,
       reviewCount: 0,
     }));
 
-  const revisionDeck = [...existingRevisingMemories, ...newRevisingMemories]; // TODO: Shuffle the deck
+  const revisionDeck = shuffleArray([
+    ...existingRevisingMemories,
+    ...newRevisingMemories,
+  ]);
 
   if (newRevisingMemories.length === 0) {
-    return revisionDeck;
+    return { revisionDeck };
   }
 
   const { error: errorNewMemories } = await api.memories.new({
     memories: newRevisingMemories.map((memory) => memory.memory),
   });
   if (errorNewMemories !== undefined) {
-    throw new Error("Error while creating new memories");
+    return { error: new Error("Error while creating new memories") };
   }
 
-  return revisionDeck;
+  return { revisionDeck };
 }

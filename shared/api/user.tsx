@@ -11,9 +11,3 @@ export type UserResourcesResponse = {
   library: RessourceArray;
   explore: RessourceArray;
 };
-
-export type UserCreateRequest = {
-  url: string;
-};
-
-export type UserCreateResponse = {};

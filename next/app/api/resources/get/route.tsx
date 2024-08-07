@@ -1,17 +1,13 @@
 import { PrivateEndpointWrapper } from "@/lib/endpointWrapper";
+import { memoryWrapper } from "@/lib/objectsWrapper";
 import { PrismaClient } from "@prisma/client";
 import {
   CardVariant,
-  ResourceGetRequest,
   resourceGetRequestSchema,
-  ResourceGetResponse,
   resourceGetResponseSchema,
 } from "youwise-shared/api";
 
-export const POST = PrivateEndpointWrapper<
-  ResourceGetRequest,
-  ResourceGetResponse
->(
+export const POST = PrivateEndpointWrapper(
   resourceGetRequestSchema,
   resourceGetResponseSchema,
   async ({ body, userId }) => {
@@ -28,6 +24,9 @@ export const POST = PrivateEndpointWrapper<
               where: {
                 ownerUserId: userId,
               },
+              include: {
+                memoryParams: true,
+              },
             },
           },
         },
@@ -39,7 +38,7 @@ export const POST = PrivateEndpointWrapper<
       cards: resource.cards.map((card) => ({
         ...card,
         variants: card.variants as CardVariant[],
-        memory: card.memories[0],
+        memory: memoryWrapper(card.memories[0]),
       })),
     };
   }

@@ -30,7 +30,16 @@ const RevisionOfResourcePage = () => {
           return;
         }
 
-        setRevisionDeck(await createRevisionDeckFromResource(api, res));
+        createRevisionDeckFromResource(api, res).then(
+          ({ error, revisionDeck }) => {
+            if (error) {
+              console.log("Error while creating revision deck", error);
+              return;
+            }
+
+            setRevisionDeck(revisionDeck);
+          }
+        );
       });
     }
 

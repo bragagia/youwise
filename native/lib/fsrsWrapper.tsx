@@ -89,7 +89,7 @@ function fsrsCardToMemoryParams(
   }
 ): MemoryParams {
   if (card.state === 0) {
-    return undefined;
+    return null;
   }
 
   return {
@@ -104,7 +104,7 @@ function fsrsCardToMemoryParams(
     fsrs_scheduled_days: card.scheduled_days,
     fsrs_reps: card.reps,
     fsrs_lapses: card.lapses,
-    fsrs_last_review: card.last_review?.toISOString(),
+    fsrs_last_review: card.last_review?.toISOString() || null,
   };
 }
 

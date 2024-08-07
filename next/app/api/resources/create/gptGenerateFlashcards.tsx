@@ -1,4 +1,4 @@
-import { BasicQuestion } from "@/app/api/user/create/gptExtractBasicQuestions";
+import { BasicQuestion } from "@/app/api/resources/create/gptExtractBasicQuestions";
 import { newOpenAI } from "@/lib/openai";
 import { PrismaClient } from "@prisma/client";
 import { ChatModel } from "openai/resources/index.mjs";
@@ -183,7 +183,7 @@ export type ClassicCardVariant = {
   question: CardBlocks; // Eg: "What is the capital of France?"
   answer: CardBlocks; // Eg: "Paris"
 
-  fakeAnswers?: CardBlocks[]; // eg: ["London", "Lyon", "Marseille", "Berlin", "Madrid"] -> The fakeAnswers field can only be used when the actual answer field is short (max 5 words). This field should be used whenever possible to allow the card to be sometimes presented as a quiz. If the field is used, there should be 3 fake answers, ideally 6 to change them every time the card is presented. The fake answers should be plausible and not too easy to guess. If the answer is yes or no, there can be only 1 fake answer.
+  fakeAnswers?: CardBlocks[]; // eg: ["London", "Lyon", "Marseille", "Berlin", "Madrid"] -> This field should be used whenever possible to allow the card to be sometimes presented as a quiz. If the field is used, there should be at least 3 fake answers, ideally 6 to change them every time the card is presented. The fake answers should be plausible, similar in length and format to the true answer, and not too easy to guess. If the answer is yes or no, there can be only 1 fake answer.
 };
 
 // * TextCardVariant are used to memorize long texts or quote by heart. The text is cut in parts.

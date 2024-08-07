@@ -1,16 +1,13 @@
 import { PrivateEndpointWrapper } from "@/lib/endpointWrapper";
+import { memoryWrapper } from "@/lib/objectsWrapper";
 import { PrismaClient } from "@prisma/client";
 import {
-  MemoriesNewRequest,
-  MemoriesNewResponse,
   memoriesNewRequestSchema,
+  MemoriesNewResponse,
   memoriesNewResponseSchema,
 } from "youwise-shared/api";
 
-export const POST = PrivateEndpointWrapper<
-  MemoriesNewRequest,
-  MemoriesNewResponse
->(
+export const POST = PrivateEndpointWrapper(
   memoriesNewRequestSchema,
   memoriesNewResponseSchema,
   async ({ body, userId }) => {
@@ -26,11 +23,29 @@ export const POST = PrivateEndpointWrapper<
       throw new Error("Invalid owner user id");
     }
 
-    const memories = await prisma.memory.createManyAndReturn({
-      data: body.memories,
-    });
+    let ret: MemoriesNewResponse = {
+      memories: [],
+    };
+    for (let memory of body.memories) {
+      const createdMemory = memoryWrapper(
+        await prisma.memory.create({
+          data: {
+            ...memory,
+            memoryParams: memory.memoryParams
+              ? {
+                  create: memory.memoryParams,
+                }
+              : undefined,
+          },
+          include: {
+            memoryParams: true,
+          },
+        })
+      );
 
-    //return typedResource;
-    return { memories: memories };
+      if (createdMemory) ret.memories.push(createdMemory);
+    }
+
+    return ret;
   }
 );
