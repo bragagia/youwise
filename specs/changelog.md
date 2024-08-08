@@ -1,3 +1,7 @@
+# 2024/08/08
+
+- Added progress indicator on resource ReWise button
+
 # 2024/08/06
 
 - Added changelog and roadmap files

@@ -1,4 +1,5 @@
 import { YoutubePlayerComponent } from "@/app/ressource/[id]/YoutubePlayerComponent";
+import CircularProgressView from "@/components/CircularProgress";
 import { ExternalLink } from "@/components/ExternalLink";
 import Icons from "@/components/Icons";
 import { MyModal } from "@/components/MyModal";
@@ -17,6 +18,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ResourceBlock, ResourceWithCardsAndMemory } from "youwise-shared/api";
+import { IsMemoryParamsLearned } from "../../../lib/fsrsWrapper";
 
 // Entry point for the app
 const ResourcePage = () => {
@@ -28,13 +30,13 @@ const ResourcePage = () => {
   const router = useRouter();
 
   const [loading, setLoading] = useState(true);
-  const [ressource, setRessource] = useState<ResourceWithCardsAndMemory>();
+  const [resource, setResource] = useState<ResourceWithCardsAndMemory>();
 
   const onRefresh = () => {
     setLoading(true);
 
     if (!api.userStored) {
-      setRessource(undefined);
+      setResource(undefined);
     } else {
       api.resources.get({ id: id }).then((res) => {
         if (res.error !== undefined) {
@@ -43,7 +45,7 @@ const ResourcePage = () => {
           return;
         }
 
-        setRessource(res);
+        setResource(res);
       });
     }
 
@@ -54,9 +56,9 @@ const ResourcePage = () => {
     onRefresh();
   }, [api.userStored]);
 
-  const [savedModalOpen, setSavedModalOpen] = useState(false);
+  const [learnedModalOpen, setLearnedModalOpen] = useState(false);
 
-  if (ressource === undefined || loading) {
+  if (resource === undefined || loading) {
     return (
       <SafeAreaView>
         <Spinner size={32} />
@@ -64,9 +66,19 @@ const ResourcePage = () => {
     );
   }
 
-  const isRessourceLearned = false; // TODO:
+  const resourceHasCards = resource.cards.length > 0;
 
-  const ressourceBlocks: ResourceBlock[] = ressource.content
+  const cardsCount = resource.cards.length;
+  const cardsLearnedCount = resource.cards.reduce((acc, card) => {
+    return IsMemoryParamsLearned(card.memory?.memoryParams || null)
+      ? acc + 1
+      : acc;
+  }, 0);
+  const learningProgress =
+    cardsCount === 0 ? 0 : cardsLearnedCount / cardsCount;
+  const isRessourceLearned = cardsLearnedCount === cardsCount;
+
+  const ressourceBlocks: ResourceBlock[] = resource.content
     .split("\n")
     .map((line) => ({
       type: "paragraph",
@@ -75,19 +87,19 @@ const ResourcePage = () => {
 
   return (
     <View className="bg-white min-h-full">
-      <MyModal open={savedModalOpen}>
+      <MyModal open={learnedModalOpen}>
         <View className="flex flex-col gap-4">
           <View className="flex flex-row items-center gap-2">
             <Icons.Checkmark width={16} height={16} color="black" />
 
-            <Text className="font-[Avenir] text-2xl font-bold">Saved</Text>
+            <Text className="font-[Avenir] text-2xl font-bold">Learned</Text>
           </View>
 
           <Text className="font-[Avenir] text-lg">
             You will be quized on this ressource in your next ReWise.
           </Text>
 
-          <TouchableOpacity onPress={() => setSavedModalOpen(false)}>
+          <TouchableOpacity onPress={() => setLearnedModalOpen(false)}>
             <View className="bg-red-100 border-2 border-red-600 px-4 py-2 rounded-full flex flex-row items-center justify-center gap-2">
               <Text className="text-red-800 font-[Avenir] font-bold">
                 <Text className="font-[GillSans]">ReWise now</Text>
@@ -115,40 +127,55 @@ const ResourcePage = () => {
           </TouchableOpacity>
         </View>
 
-        <View className="flex flex-row items-center gap-4 text-gray-600">
-          {isRessourceLearned ? (
-            <View className="flex flex-row justify-center items-center">
-              <TouchableOpacity
-                className="border-2 border-black px-4 py-2 rounded-full flex flex-row items-center gap-2"
-                onPress={() => setSavedModalOpen(true)}
-              >
-                <Text className="text-black font-[Avenir] font-bold">
-                  <Text className="font-[GillSans]">Saved</Text>
-                </Text>
+        {resourceHasCards ? (
+          <View className="flex flex-row items-center gap-4 text-gray-600">
+            {isRessourceLearned ? (
+              <View className="flex flex-row justify-center items-center">
+                <TouchableOpacity
+                  className="border-2 border-black px-4 py-2 rounded-full flex flex-row items-center gap-2"
+                  onPress={() => setLearnedModalOpen(true)}
+                >
+                  <Text className="text-black font-[Avenir] font-bold">
+                    <Text className="font-[GillSans]">Learned</Text>
+                  </Text>
 
-                <Icons.Checkmark width={12} height={12} color="black" />
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <View className="flex flex-row justify-center items-center">
-              <TouchableOpacity
-                className="bg-red-100 border-2 border-red-600 px-4 py-2 rounded-full flex flex-row items-center gap-2"
-                onPress={() =>
-                  router.push({
-                    pathname: "/revision/[resourceId]",
-                    params: { resourceId: id },
-                  })
-                }
-              >
-                <Text className="text-red-800 font-[Avenir] font-bold">
-                  <Text className="font-[GillSans]">ReWise</Text>
-                </Text>
+                  <Icons.Checkmark width={12} height={12} color="black" />
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <View className="flex flex-row justify-center items-center gap-2">
+                <TouchableOpacity
+                  className="bg-red-100 border-2 border-red-600  px-4 py-2 rounded-full flex flex-row items-center gap-2"
+                  onPress={() =>
+                    router.push({
+                      pathname: "/revision/[resourceId]",
+                      params: { resourceId: id },
+                    })
+                  }
+                >
+                  <Text className="text-red-800 font-bold font-[GillSans]">
+                    ReWise
+                  </Text>
 
-                <Icons.PlayFill width={12} height={12} color="#991b1b" />
-              </TouchableOpacity>
-            </View>
-          )}
-        </View>
+                  <Icons.PlayFill width={12} height={12} color="#991b1b" />
+                </TouchableOpacity>
+
+                <View className="flex flex-col items-center justify-center gap-[2px] mt-1">
+                  <CircularProgressView
+                    progress={learningProgress}
+                    backgroundColor="#fecaca" // red-200
+                    doneColor="#991b1b"
+                    size={12}
+                  />
+
+                  <Text className="text-red-800 font-bold text-xs font-[GillSans]">
+                    {Math.ceil(learningProgress * 100)}%
+                  </Text>
+                </View>
+              </View>
+            )}
+          </View>
+        ) : null}
       </View>
 
       <ScrollView
@@ -156,9 +183,9 @@ const ResourcePage = () => {
           <RefreshControl refreshing={loading} onRefresh={onRefresh} />
         }
       >
-        {ressource.originalUrl ? (
+        {resource.originalUrl ? (
           <View className="px-4 mt-3">
-            <ExternalLink href={ressource.originalUrl}>
+            <ExternalLink href={resource.originalUrl}>
               <View className="flex flex-row gap-1 items-center">
                 <Text className="font-[AmericanTypewriter] text-sm ">
                   Original page
@@ -172,7 +199,7 @@ const ResourcePage = () => {
 
         <View className="px-4 mt-3 mb-3">
           <Text className="font-[AmericanTypewriter-Bold] text-5xl font-bold">
-            {ressource.name}
+            {resource.name}
           </Text>
         </View>
 
