@@ -5,11 +5,11 @@
       "splitTerminals": [
         {
           "name": "next",
-          "commands": ["cd next", "npm run dev"]
+          "commands": ["cd api", "npm run dev"]
         },
         {
           "name": "expo",
-          "commands": ["cd native", "npx expo start --clear"]
+          "commands": ["cd mobile", "npx expo start --clear"]
         },
         {
           "name": "cmd",
@@ -19,28 +19,15 @@
     }
   ],
   "cSpell.words": ["dayjs", "inngest", "rewised", "timeouted", "youwise"],
-  "[prisma]": {
-    "editor.defaultFormatter": "Prisma.prisma"
-  },
   "files.exclude": {
     "native/android": true,
     "native/ios": true,
     "native/*.ipa": true
   },
-  "sqltools.connections": [
-    {
-      "previewLimit": 50,
-      "server": "localhost",
-      "port": 5433,
-      "driver": "PostgreSQL",
-      "name": "Local",
-      "database": "youwise",
-      "username": "postgres",
-      "password": "postgres"
-    }
-  ],
-  "svg.preview.background": "editor",
-  "explorer.fileNesting.patterns": {
-    "*.tsx": "$(capture)-schema.tsx" // Use in youwise-shared for auto generated content
+  /* Added by expo by default: */
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit",
+    "source.organizeImports": "explicit",
+    "source.sortMembers": "explicit"
   }
 }
