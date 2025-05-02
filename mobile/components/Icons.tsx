@@ -1,8 +1,5 @@
 import React from "react";
 
-const LoudlyCryingFace = require("@/assets/images/loudly-crying-face.png");
-const Tada = require("@/assets/images/tada.png");
-
 import Svg, {
   Circle,
   ClipPath,
@@ -14,6 +11,9 @@ import Svg, {
   Rect,
   Stop,
 } from "react-native-svg";
+
+const LoudlyCryingFace = require("@/assets/images/loudly-crying-face.png");
+const Tada = require("@/assets/images/tada.png");
 
 const ArrowArcLeft: React.FC<{
   color?: string;
@@ -58,7 +58,8 @@ const ArrowArcRight: React.FC<{
 const ArrowUTurnLeft: React.FC<{
   color?: string;
   size?: number;
-}> = ({ color = "currentColor", size = 24, ...props }) => {
+  strokeWidth?: number;
+}> = ({ color = "currentColor", size = 24, strokeWidth = 1.5, ...props }) => {
   return (
     <Svg
       fill="none"
@@ -214,12 +215,19 @@ const ChevronLeft: React.FC<{
 const ChevronRight: React.FC<{
   color?: string;
   size?: number;
-}> = ({ color = "currentColor", size = 18, ...props }) => {
+  strokeWidth?: number;
+}> = ({ color = "currentColor", size = 18, strokeWidth = 1.5, ...props }) => {
   const aspectRatio = 11.6895 / 16.9629;
   const width = typeof size === "number" ? size * aspectRatio : size;
   const height = typeof size === "number" ? size : undefined;
   return (
-    <Svg viewBox="0 0 11.6895 16.9629" width={width} height={height} {...props}>
+    <Svg
+      viewBox="0 0 11.6895 16.9629"
+      width={width}
+      height={height}
+      strokeWidth={strokeWidth}
+      {...props}
+    >
       <G>
         <Rect height="16.9629" opacity={0} width="11.6895" x={0} y={0} />
         <Path

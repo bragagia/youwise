@@ -260,8 +260,7 @@ const HomeScreen = () => {
                       {category === "Your library" &&
                         userResources?.library.map((resource, i) => (
                           <Link key={i} href={"/"}>
-                            {" "}
-                            // "/ressource/" + resource.id
+                            {/* "/ressource/" + resource.id */}
                             <View className="w-40 flex flex-col">
                               <View
                                 className="rounded-lg bg-white"
@@ -355,8 +354,7 @@ const HomeScreen = () => {
             paddingBottom: revisionButtonMarginBottom,
           }}
         >
-          <Link asChild href="/">
-            {/* /revision */}
+          <Link asChild href="/revision">
             <TouchableOpacity className="rounded-full overflow-hidden">
               <LinearGradient
                 colors={[

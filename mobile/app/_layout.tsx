@@ -14,6 +14,20 @@ export default function RootLayout() {
               headerShown: false,
             }}
           />
+
+          <Stack.Screen
+            name="revision/index"
+            options={{
+              headerShown: false,
+            }}
+          />
+
+          <Stack.Screen
+            name="revision/[resourceId]/index"
+            options={{
+              headerShown: false,
+            }}
+          />
         </Stack>
       </GestureHandlerRootView>
     </SafeAreaProvider>
