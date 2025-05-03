@@ -1,6 +1,7 @@
 {
   "name": "youwise",
   "version": "1.0.0",
+  "packageManager": "yarn@1.22.22",
   "main": "index.js",
   "repository": "git@github.com:bragagia/youwise.git",
   "author": "Mathias Bragagia <mathias.bragagia@gmail.com>",

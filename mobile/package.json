@@ -1,6 +1,7 @@
 {
-  "name": "youwise",
+  "name": "youwise-mobile",
   "main": "expo-router/entry",
+  "packageManager": "yarn@1.22.22",
   "version": "1.0.0",
   "scripts": {
     "start": "expo start",

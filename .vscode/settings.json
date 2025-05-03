@@ -20,9 +20,7 @@
   ],
   "cSpell.words": ["dayjs", "inngest", "rewised", "timeouted", "youwise"],
   "files.exclude": {
-    "native/android": true,
-    "native/ios": true,
-    "native/*.ipa": true
+    "api/build": true
   },
   /* Added by expo by default: */
   "editor.codeActionsOnSave": {
