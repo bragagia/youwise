@@ -10,8 +10,11 @@ Build:
 ```
 nvm use --lts
 cd mobile
+// Without cache
 eas build --platform ios --profile ios-simulator
-// or, to better see the logs
+// With cache
+eas build:dev --platform ios --profile ios-simulator
+// Local build
 eas build --platform ios --profile ios-simulator --local
 ```
 

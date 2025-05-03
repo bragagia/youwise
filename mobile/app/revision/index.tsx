@@ -1,15 +1,13 @@
 import RevisionComponent from "@/components/revision/RevisionComponent";
 import { Spinner } from "@/components/Spinner";
 import { RevisingMemory } from "@/lib/revision/memoryBeingRevised";
+import { createRevisionDeckFromCards } from "@/lib/revision/useLocalRevisionEngine";
+import { mockResourceDemo } from "@/lib/types/MOCK";
 //import { useAPI } from "@/lib/api/apiProvider";
-import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native";
 
 const RevisionPage = () => {
-  //const api = useAPI();
-  const router = useRouter();
-
   const [revisionDeck, setRevisionDeck] = useState<RevisingMemory[]>();
 
   // useEffect(() => {
@@ -40,6 +38,20 @@ const RevisionPage = () => {
   //       console.log(res);
   //     });
   // }, []);
+
+  useEffect(() => {
+    // const currentDate = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+
+    //  api.dailyRevisions.generate (date: currentDate)
+
+    const cards = mockResourceDemo.cards.map((card) => ({
+      ...card,
+      resourceHeader: mockResourceDemo,
+    }));
+
+    const { revisionDeck } = createRevisionDeckFromCards(cards);
+    setRevisionDeck(revisionDeck);
+  }, []);
 
   if (!revisionDeck) {
     return (

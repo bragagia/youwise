@@ -1,6 +1,6 @@
 import Icons from "@/components/Icons";
 import { Link, router } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Image,
   Pressable,
@@ -14,7 +14,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import "./global.css";
 
-//import { useAPI } from "@/lib/api/apiProvider";
+import { mockRessources } from "@/lib/types/MOCK";
 import { LinearGradient } from "expo-linear-gradient";
 
 export function SignedInOnly({ children }: { children?: React.ReactNode }) {
@@ -38,35 +38,30 @@ type UserResourcesResponse = {
 };
 
 const HomeScreen = () => {
-  //const api = useAPI();
   const insets = useSafeAreaInsets();
 
   const [loading, setLoading] = useState(true);
 
   const [userResources, setUserResources] = useState<UserResourcesResponse>();
 
-  // const onRefresh = () => {
-  //   setLoading(true);
+  const onRefresh = () => {
+    setLoading(true);
 
-  //   if (!api.userStored) {
-  //     setUserResources(undefined);
-  //   } else {
-  //     api.user.getRecommendations({}).then((res) => {
-  //       if (res.error !== undefined) {
-  //         console.log(res.error);
-  //         return;
-  //       }
+    // api.user.getRecommendations({})
 
-  //       setUserResources(res);
-  //     });
-  //   }
+    setUserResources({
+      library: mockRessources,
+      explore: [],
+      continue: [],
+      saveForLater: [],
+    });
 
-  //   setLoading(false);
-  // };
+    setLoading(false);
+  };
 
-  // useEffect(() => {
-  //   onRefresh();
-  // }, [api.userStored]);
+  useEffect(() => {
+    onRefresh();
+  }, []);
 
   const revisionButtonMarginBottom = Math.max(insets.bottom, 8);
 

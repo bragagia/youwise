@@ -1,8 +1,8 @@
 import { shuffleArray } from "@/lib/arrays";
 import { IsMemoryParamsLearned, ScheduleMemoryParams } from "@/lib/fsrsWrapper";
 import {
-  RevisingMemoryWithKey,
   RevisingMemory,
+  RevisingMemoryWithKey,
 } from "@/lib/revision/memoryBeingRevised";
 import { CardWithMemoryAndResourceHeader } from "@/lib/types/dailyRevisions";
 import { ResourceWithCardsAndMemory } from "@/lib/types/ressource";
@@ -224,11 +224,11 @@ function addToDeckWithIncrementalPosition(
   return deck;
 }
 
-export async function createRevisionDeckFromResource(
+export function createRevisionDeckFromResource(
   //api: APIType,
   resource: ResourceWithCardsAndMemory
 ) {
-  return await createRevisionDeckFromCards(
+  return createRevisionDeckFromCards(
     //api,
     resource.cards
       .filter(
@@ -239,7 +239,7 @@ export async function createRevisionDeckFromResource(
   );
 }
 
-export async function createRevisionDeckFromCards(
+export function createRevisionDeckFromCards(
   //api: APIType,
   cards: CardWithMemoryAndResourceHeader[]
 ) {

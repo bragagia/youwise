@@ -1,48 +1,31 @@
 import RevisionComponent from "@/components/revision/RevisionComponent";
 import { Spinner } from "@/components/Spinner";
 import { RevisingMemory } from "@/lib/revision/memoryBeingRevised";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useState } from "react";
+import { createRevisionDeckFromResource } from "@/lib/revision/useLocalRevisionEngine";
+import { mockResourceDemo } from "@/lib/types/MOCK";
+import { useLocalSearchParams } from "expo-router";
+import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native";
 
 const RevisionOfResourcePage = () => {
   const { resourceId } = useLocalSearchParams();
   if (typeof resourceId !== "string") throw new Error("Invalid url");
 
-  //const api = useAPI();
-  const router = useRouter();
-
   const [loading, setLoading] = useState(true);
   const [revisionDeck, setRevisionDeck] = useState<RevisingMemory[]>();
 
-  // useEffect(() => {
-  //   setLoading(true);
+  useEffect(() => {
+    setLoading(true);
 
-  //   if (!api.userStored) {
-  //     setRevisionDeck(undefined);
-  //   } else {
-  //     api.resources.get({ id: resourceId }).then(async (res) => {
-  //       if (res.error !== undefined) {
-  //         console.log(res.error);
-  //         router.back();
-  //         return;
-  //       }
+    //  api.resources.get
 
-  //       createRevisionDeckFromResource(api, res).then(
-  //         ({ error, revisionDeck }) => {
-  //           if (error) {
-  //             console.log("Error while creating revision deck", error);
-  //             return;
-  //           }
+    const ressources = mockResourceDemo;
 
-  //           setRevisionDeck(revisionDeck);
-  //         }
-  //       );
-  //     });
-  //   }
+    const { revisionDeck } = createRevisionDeckFromResource(ressources);
+    setRevisionDeck(revisionDeck);
 
-  //   setLoading(false);
-  // }, [api.userStored, resourceId]);
+    setLoading(false);
+  }, [resourceId]);
 
   if (loading || !revisionDeck) {
     return (
