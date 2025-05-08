@@ -1,3 +1,4 @@
+import { TrpcProvider } from "@/components/providers/TrpcProvider";
 import { Stack } from "expo-router";
 import React from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -7,28 +8,30 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <GestureHandlerRootView style={{ flex: 1 }}>
-        <Stack>
-          <Stack.Screen
-            name="index"
-            options={{
-              headerShown: false,
-            }}
-          />
+        <TrpcProvider>
+          <Stack>
+            <Stack.Screen
+              name="index"
+              options={{
+                headerShown: false,
+              }}
+            />
 
-          <Stack.Screen
-            name="revision/index"
-            options={{
-              headerShown: false,
-            }}
-          />
+            <Stack.Screen
+              name="revision/index"
+              options={{
+                headerShown: false,
+              }}
+            />
 
-          <Stack.Screen
-            name="revision/[resourceId]/index"
-            options={{
-              headerShown: false,
-            }}
-          />
-        </Stack>
+            <Stack.Screen
+              name="revision/[resourceId]/index"
+              options={{
+                headerShown: false,
+              }}
+            />
+          </Stack>
+        </TrpcProvider>
       </GestureHandlerRootView>
     </SafeAreaProvider>
   );

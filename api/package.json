@@ -1,5 +1,5 @@
 {
-  "name": "@spec-central/api",
+  "name": "@youwise/api",
   "version": "1.0.0",
   "packageManager": "yarn@1.22.22",
   "main": "main/index.ts",

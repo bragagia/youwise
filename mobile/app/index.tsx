@@ -40,6 +40,8 @@ type UserResourcesResponse = {
 const HomeScreen = () => {
   const insets = useSafeAreaInsets();
 
+  // const { data } = useQuery(trpc.users.getById.queryOptions("123"));
+
   const [loading, setLoading] = useState(true);
 
   const [userResources, setUserResources] = useState<UserResourcesResponse>();
