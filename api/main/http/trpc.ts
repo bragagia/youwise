@@ -8,4 +8,17 @@ export const t = initTRPC.context<TrpcContext>().create({
     serialize: (data) => data,
     deserialize: (data) => data,
   },
+  // errorFormatter(opts) {
+  //   const { shape, error } = opts;
+  //   return {
+  //     ...shape,
+  //     data: {
+  //       ...shape.data,
+  //       zodError:
+  //         error.code === "BAD_REQUEST" && error.cause instanceof ZodError
+  //           ? error.cause.flatten()
+  //           : null,
+  //     },
+  //   };
+  // },
 });

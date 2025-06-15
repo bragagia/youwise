@@ -14,56 +14,42 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import "./global.css";
 
+import {
+  SignedInOnly,
+  SignedOutOnly,
+} from "@/components/providers/authProvider";
 import { mockRessources } from "@/lib/types/MOCK";
 import { LinearGradient } from "expo-linear-gradient";
-
-export function SignedInOnly({ children }: { children?: React.ReactNode }) {
-  return <>{children}</>;
-}
-
-export function SignedOutOnly({ children }: { children?: React.ReactNode }) {
-  return <></>;
-}
 
 type RessourceArray = {
   id: string;
   name: string;
 }[];
 
-type UserResourcesResponse = {
-  continue: RessourceArray;
-  saveForLater: RessourceArray;
+type HomePageData = {
+  userStats: {};
   library: RessourceArray;
-  explore: RessourceArray;
+  discover: [];
 };
 
 const HomeScreen = () => {
   const insets = useSafeAreaInsets();
 
-  // const { data } = useQuery(trpc.users.getById.queryOptions("123"));
+  // const trpc = useTrpc();
+
+  // const { data, error } = useQuery(trpc.users.getById.queryOptions("123"));
 
   const [loading, setLoading] = useState(true);
 
-  const [userResources, setUserResources] = useState<UserResourcesResponse>();
-
-  const onRefresh = () => {
-    setLoading(true);
-
-    // api.user.getRecommendations({})
-
-    setUserResources({
-      library: mockRessources,
-      explore: [],
-      continue: [],
-      saveForLater: [],
-    });
-
-    setLoading(false);
-  };
-
   useEffect(() => {
-    onRefresh();
+    setTimeout(() => setLoading(false), 1000);
   }, []);
+
+  const homePageData: HomePageData = {
+    userStats: {},
+    library: mockRessources,
+    discover: [],
+  };
 
   const revisionButtonMarginBottom = Math.max(insets.bottom, 8);
 
@@ -148,7 +134,7 @@ const HomeScreen = () => {
             <SignedInOnly>
               <Pressable
                 className="flex-row justify-center items-center active:opacity-30 transition-opacity"
-                onPress={() => router.push("/")} // /account
+                onPress={() => router.push("/account")}
               >
                 <Icons.PersonCropCircleFill size={20} />
               </Pressable>
@@ -173,7 +159,7 @@ const HomeScreen = () => {
             <SignedOutOnly>
               <Pressable
                 className="flex-row gap-2 justify-center items-center border-2 border-neutral-800 py-1 pl-1 pr-2 rounded-full active:opacity-30 transition-opacity"
-                onPress={() => router.push("/")} // /login
+                onPress={() => router.push("/login")}
               >
                 <Icons.PersonCropCircleFill size={20} />
 
@@ -255,7 +241,7 @@ const HomeScreen = () => {
                   <ScrollView horizontal className="">
                     <View className="flex flex-row pt-2 px-4 gap-3 mb-3">
                       {category === "Your library" &&
-                        userResources?.library.map((resource, i) => (
+                        homePageData?.library.map((resource, i) => (
                           <Link key={i} href={"/"}>
                             {/* "/ressource/" + resource.id */}
                             <View className="w-40 flex flex-col">

@@ -1,3 +1,4 @@
+import { AuthProvider } from "@/components/providers/authProvider";
 import { TrpcProvider } from "@/components/providers/TrpcProvider";
 import { Stack } from "expo-router";
 import React from "react";
@@ -8,30 +9,48 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <GestureHandlerRootView style={{ flex: 1 }}>
-        <TrpcProvider>
-          <Stack>
-            <Stack.Screen
-              name="index"
-              options={{
-                headerShown: false,
-              }}
-            />
+        <AuthProvider>
+          <TrpcProvider>
+            <Stack>
+              <Stack.Screen
+                name="index"
+                options={{
+                  headerShown: false,
+                }}
+              />
 
-            <Stack.Screen
-              name="revision/index"
-              options={{
-                headerShown: false,
-              }}
-            />
+              <Stack.Screen
+                name="revision/index"
+                options={{
+                  headerShown: false,
+                }}
+              />
 
-            <Stack.Screen
-              name="revision/[resourceId]/index"
-              options={{
-                headerShown: false,
-              }}
-            />
-          </Stack>
-        </TrpcProvider>
+              <Stack.Screen
+                name="revision/[resourceId]/index"
+                options={{
+                  headerShown: false,
+                }}
+              />
+
+              <Stack.Screen
+                name="login/index"
+                options={{
+                  headerShown: false,
+                  presentation: "modal",
+                }}
+              />
+
+              <Stack.Screen
+                name="account/index"
+                options={{
+                  headerShown: false,
+                  presentation: "modal",
+                }}
+              />
+            </Stack>
+          </TrpcProvider>
+        </AuthProvider>
       </GestureHandlerRootView>
     </SafeAreaProvider>
   );

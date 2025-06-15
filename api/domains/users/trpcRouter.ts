@@ -1,5 +1,7 @@
 import { z } from "zod";
 import { t } from "../../main/http/trpc.js";
+import { UnauthorizedError } from "../../utils/errors.js";
+import { getUserById } from "./users.js";
 
 export const usersTrpcRouter = t.router({
   users: {
@@ -12,16 +14,10 @@ export const usersTrpcRouter = t.router({
           givenName: z.string(),
         })
       )
-      .query(async (opts) => {
-        const user = await opts.ctx.srv.db
-          .selectFrom("users")
-          .selectAll()
-          .where("id", "=", opts.input)
-          .executeTakeFirst();
+      .query(async ({ ctx, input }) => {
+        if (ctx.auth.authed === false) throw new UnauthorizedError();
 
-        if (!user) {
-          throw new Error("User not found");
-        }
+        const user = await getUserById(ctx.srv, ctx.auth, input);
 
         return {
           id: user.id,
@@ -30,25 +26,24 @@ export const usersTrpcRouter = t.router({
         };
       }),
 
-    create: t.procedure
-      .input(
-        z.object({
-          name: z.string().min(3),
-          email: z.string(),
-          givenName: z.string(),
-        })
-      )
-      .mutation(async (opts) => {
-        const id = Date.now().toString();
+    // create: t.procedure
+    //   .input(
+    //     z.object({
+    //       email: z.string(),
+    //       givenName: z.string(),
+    //     })
+    //   )
+    //   .mutation(async ({ ctx, input }) => {
+    //     const userId = await createUser(ctx.srv, {
+    //       email: input.email,
+    //       givenName: input.givenName,
+    //     });
 
-        await opts.ctx.srv.db
-          .insertInto("users")
-          .values({
-            id,
-            email: opts.input.email,
-            given_name: opts.input.givenName,
-          })
-          .executeTakeFirstOrThrow();
-      }),
+    //     return {
+    //       id: userId,
+    //       email: input.email,
+    //       givenName: input.givenName,
+    //     };
+    //   }),
   },
 });
