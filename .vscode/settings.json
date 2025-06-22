@@ -2,18 +2,41 @@
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "restoreTerminals.terminals": [
     {
+      "name": "web",
       "splitTerminals": [
         {
           "name": "next",
-          "commands": ["cd api", "npm run dev"]
+          "commands": ["cd web", "yarn dev"]
         },
+        {
+          "name": "cmd",
+          "commands": ["cd web"]
+        }
+      ]
+    },
+    {
+      "name": "mobile",
+      "splitTerminals": [
         {
           "name": "expo",
           "commands": ["cd mobile", "npx expo start --clear"]
         },
         {
           "name": "cmd",
-          "commands": []
+          "commands": ["cd mobile"]
+        }
+      ]
+    },
+    {
+      "name": "api",
+      "splitTerminals": [
+        {
+          "name": "api",
+          "commands": ["cd api", "yarn dev"]
+        },
+        {
+          "name": "cmd",
+          "commands": ["cd api"]
         }
       ]
     }
