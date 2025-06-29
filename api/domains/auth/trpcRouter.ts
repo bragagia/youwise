@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "zod/v4";
 import { t } from "../../main/http/trpc.js";
 import { BadRequestError } from "../../utils/errors.js";
 import { newAuthAccessToken } from "./newAuthAccessToken.js";

@@ -40,7 +40,7 @@ export function TrpcProvider({ children }: { children: ReactNode }) {
       createTRPCClient<MainRouter>({
         links: [
           httpBatchLink({
-            url: "http://localhost:3000/trpc", // TODO: Env
+            url: "http://localhost:3001/trpc", // TODO: Env
             transformer: {
               serialize: (data) => data,
               deserialize: (data) => data,

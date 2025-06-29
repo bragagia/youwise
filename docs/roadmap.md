@@ -1,0 +1,14 @@
+- commit
+- Make it so that database.ts is gathered from api
+- Put db call in code directly
+- Put prompts in md files
+- user page should fetch actual users
+- Check if there is any value in edit prompt
+- Make web/app/api into server actions file
+- Make a loading page component (see web/app/resources/[id]/edit/page.tsx)
+- The page web/app/resources/[id]/edit/page.tsx should be refactoed
+- The regenerate server action should use same code and prompt as generate, only the save should be separate
+- Add tee to service outputs
+- Indicate to claude that web use npm instead of yarn due to workspace issues
+- Add eslint to Fastify
+- Add some claude commands

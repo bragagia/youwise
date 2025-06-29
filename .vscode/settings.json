@@ -2,7 +2,6 @@
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "restoreTerminals.terminals": [
     {
-      "name": "web",
       "splitTerminals": [
         {
           "name": "next",
@@ -15,7 +14,6 @@
       ]
     },
     {
-      "name": "mobile",
       "splitTerminals": [
         {
           "name": "expo",
@@ -28,7 +26,6 @@
       ]
     },
     {
-      "name": "api",
       "splitTerminals": [
         {
           "name": "api",
@@ -37,6 +34,18 @@
         {
           "name": "cmd",
           "commands": ["cd api"]
+        }
+      ]
+    },
+    {
+      "splitTerminals": [
+        {
+          "name": "claude",
+          "commands": ["claude"]
+        },
+        {
+          "name": "cmd",
+          "commands": []
         }
       ]
     }

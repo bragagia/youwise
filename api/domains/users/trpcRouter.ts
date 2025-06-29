@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "zod/v4";
 import { t } from "../../main/http/trpc.js";
 import { UnauthorizedError } from "../../utils/errors.js";
 import { getUserById } from "./users.js";
