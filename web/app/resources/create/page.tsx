@@ -2,6 +2,7 @@
 
 import type React from "react";
 
+import { generateResourceAction } from "@/app/resources/create/actions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -73,13 +74,11 @@ export default function CreateResourcePage() {
     fd.append("prompt", prompt);
 
     try {
-      const res = await fetch("/api/generate-resource", {
-        method: "POST",
-        body: fd,
-      });
-      if (!res.ok)
-        throw new Error((await res.json()).error || "LLM generation failed");
-      setResource(await res.json());
+      const result = await generateResourceAction(fd);
+      if (!result.success) {
+        throw new Error(result.error || "LLM generation failed");
+      }
+      setResource(result.data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Generation failed");
     } finally {
@@ -91,8 +90,9 @@ export default function CreateResourcePage() {
     if (!resource) return;
     setIsSaving(true);
     try {
-      const saved = await saveResource(resource);
-      router.push(`/resources/${saved.id}`);
+      const newResource = await saveResource(resource);
+
+      router.push(`/resources/${newResource.id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Save failed");
     } finally {
