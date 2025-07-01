@@ -2,32 +2,10 @@ import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
+import { getUsers } from "@/lib/db/users"
 
-// Mock data - replace with actual database queries
-const mockUsers = [
-  {
-    id: "1",
-    given_name: "John",
-    family_name: "Doe",
-    email: "john.doe@example.com",
-    google_uid: "google_123",
-    apple_uid: null,
-    created_at: new Date("2024-01-15"),
-    updated_at: new Date("2024-01-15"),
-  },
-  {
-    id: "2",
-    given_name: "Jane",
-    family_name: "Smith",
-    email: "jane.smith@example.com",
-    google_uid: null,
-    apple_uid: "apple_456",
-    created_at: new Date("2024-02-10"),
-    updated_at: new Date("2024-02-10"),
-  },
-]
-
-export default function UsersPage() {
+export default async function UsersPage() {
+  const users = await getUsers()
   return (
     <SidebarInset>
       <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
@@ -50,19 +28,27 @@ export default function UsersPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {mockUsers.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell className="font-medium">
-                      {user.given_name} {user.family_name}
+                {users.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={4} className="text-center text-muted-foreground">
+                      No users found
                     </TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>
-                      {user.google_uid && <Badge variant="outline">Google</Badge>}
-                      {user.apple_uid && <Badge variant="outline">Apple</Badge>}
-                    </TableCell>
-                    <TableCell>{user.created_at.toLocaleDateString()}</TableCell>
                   </TableRow>
-                ))}
+                ) : (
+                  users.map((user) => (
+                    <TableRow key={user.id}>
+                      <TableCell className="font-medium">
+                        {user.given_name} {user.family_name}
+                      </TableCell>
+                      <TableCell>{user.email}</TableCell>
+                      <TableCell>
+                        {user.google_uid && <Badge variant="outline">Google</Badge>}
+                        {user.apple_uid && <Badge variant="outline">Apple</Badge>}
+                      </TableCell>
+                      <TableCell>{new Date(user.created_at).toLocaleDateString()}</TableCell>
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
           </CardContent>

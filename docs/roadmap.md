@@ -1,5 +1,4 @@
 - Make it so that database.ts is gathered from api
-- user page should fetch actual users
 - Check if there is any value in edit prompt
 - Make web/app/api into server actions file
 - Make a loading page component (see web/app/resources/[id]/edit/page.tsx)
