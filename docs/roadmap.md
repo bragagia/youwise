@@ -1,7 +1,4 @@
-- commit
 - Make it so that database.ts is gathered from api
-- Put db call in code directly
-- Put prompts in md files
 - user page should fetch actual users
 - Check if there is any value in edit prompt
 - Make web/app/api into server actions file

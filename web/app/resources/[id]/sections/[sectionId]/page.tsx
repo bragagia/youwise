@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
-import { getResourceSectionById } from "@/lib/database";
+import { getResourceSectionById } from "@/lib/db/resources";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Markdown from "react-markdown";

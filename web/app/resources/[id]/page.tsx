@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
-import { getResourceById } from "@/lib/database";
+import { getResourceById } from "@/lib/db/resources";
 import { ArrowLeft, ChevronRight, Edit } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";

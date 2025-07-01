@@ -1,4 +1,4 @@
-import { getResourceSectionById } from "@/lib/database";
+import { getResourceSectionById } from "@/lib/db/resources";
 import { NextResponse } from "next/server";
 
 export async function GET(

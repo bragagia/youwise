@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { Textarea } from "@/components/ui/textarea";
-import { saveResource } from "@/lib/database";
+import { saveResource } from "@/lib/db/resources";
 import type { GeneratedResource } from "@/lib/schemas";
 import { ArrowLeft, Save, Upload, Wand2 } from "lucide-react";
 import Link from "next/link";

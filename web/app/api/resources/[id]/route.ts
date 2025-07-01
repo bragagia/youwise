@@ -1,4 +1,4 @@
-import { getResourceById, updateResource } from "@/lib/database";
+import { getResourceById, updateResource } from "@/lib/db/resources";
 import { NextResponse } from "next/server";
 
 export async function GET(

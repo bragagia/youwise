@@ -121,7 +121,6 @@ The rest of the user flow will be about the authenticated experience.
   - react-markdown
   - lucide-icons: Icon library
 - api: Backend used by both web and mobile
-
   - Fastify
   - tRPC: Provides a type-safe API layer for both web and mobile clients
   - Kysely
