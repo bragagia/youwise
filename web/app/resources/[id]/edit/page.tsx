@@ -22,6 +22,8 @@ interface Resource {
   id: string;
   name: string;
   description: string;
+  intro: string;
+  short_description: string;
   cover: string;
   tint: number;
   created_at: Date;
@@ -177,6 +179,37 @@ export default function EditResourcePage({ params }: EditResourcePageProps) {
                       updateResourceField("name", e.target.value)
                     }
                     className="mt-1"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="short_description">Short Description</Label>
+                  <Input
+                    id="short_description"
+                    name="short_description"
+                    value={resource.short_description}
+                    onChange={(e) =>
+                      updateResourceField("short_description", e.target.value)
+                    }
+                    className="mt-1"
+                    placeholder="A concise one-sentence hook for lists and previews"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="intro">Introduction</Label>
+                  <Textarea
+                    id="intro"
+                    name="intro"
+                    value={resource.intro}
+                    onChange={(e) =>
+                      updateResourceField("intro", e.target.value)
+                    }
+                    rows={3}
+                    className="mt-1"
+                    placeholder="Prepare the reader for the content structure and approach"
                     required
                   />
                 </div>

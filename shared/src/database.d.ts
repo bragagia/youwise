@@ -82,7 +82,9 @@ export interface Resources {
   created_at: Generated<Timestamp>;
   description: string;
   id: Generated<string>;
+  intro: Generated<string>;
   name: string;
+  short_description: Generated<string>;
   tint: Generated<number>;
   updated_at: Generated<Timestamp>;
 }

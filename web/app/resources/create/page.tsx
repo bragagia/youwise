@@ -205,6 +205,25 @@ export default function CreateResourcePage() {
                   />
                 </div>
                 <div>
+                  <Label>Short Description</Label>
+                  <Input
+                    value={resource.short_description}
+                    onChange={(e) => editResField("short_description", e.target.value)}
+                    placeholder="A concise one-sentence hook for lists and previews"
+                  />
+                </div>
+                <div>
+                  <Label>Introduction</Label>
+                  <Textarea
+                    rows={3}
+                    value={resource.intro}
+                    onChange={(e) =>
+                      editResField("intro", e.target.value)
+                    }
+                    placeholder="Prepare the reader for the content structure and approach"
+                  />
+                </div>
+                <div>
                   <Label>Description</Label>
                   <Textarea
                     rows={3}

@@ -1,4 +1,3 @@
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
@@ -34,23 +33,23 @@ export default async function ResourcesPage() {
                     <div className="flex items-start gap-4">
                       <Image
                         src={resource.cover || "/placeholder.svg"}
-                        alt={resource.name}
+                        alt={""}
                         width={150}
                         height={200}
                         className="w-16 h-20 object-cover rounded"
                       />
-                      <div className="flex-1">
+
+                      <div className="flex-1 space-y-2">
                         <CardTitle className="flex items-center gap-2">
                           {resource.name}
-                          <Badge variant="secondary">
-                            Tint {resource.tint}
-                          </Badge>
                         </CardTitle>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {resource.description}
+
+                        <p className="text-sm text-muted-foreground">
+                          {resource.short_description}
                         </p>
-                        <p className="text-xs text-muted-foreground mt-2">
-                          Created: {resource.created_at.toLocaleDateString()}
+
+                        <p className="text-xs text-muted-foreground">
+                          {resource.created_at.toLocaleDateString()}
                         </p>
                       </div>
                     </div>

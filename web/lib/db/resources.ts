@@ -74,6 +74,8 @@ export async function getResourceSectionById(sectionId: string) {
 export async function saveResource(resource: {
   name: string;
   description: string;
+  intro: string;
+  short_description: string;
   sections: {
     title: string;
     content: string;
@@ -88,6 +90,8 @@ export async function saveResource(resource: {
       .values({
         name: resource.name,
         description: resource.description,
+        intro: resource.intro,
+        short_description: resource.short_description,
         cover: "/placeholder.svg?height=200&width=150", // Will be handled later
         tint: Math.floor(Math.random() * 10) + 1, // Random tint for now
       })
@@ -118,6 +122,8 @@ export async function saveResource(resource: {
 export type UpdateResource = {
   name: string;
   description: string;
+  intro: string;
+  short_description: string;
   cover?: string;
   tint?: number;
 };
@@ -132,6 +138,8 @@ export async function updateResource(
     .set({
       name: resource.name,
       description: resource.description,
+      intro: resource.intro,
+      short_description: resource.short_description,
       cover: resource.cover,
       tint: resource.tint,
       updated_at: new Date(),

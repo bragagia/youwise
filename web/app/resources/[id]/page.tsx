@@ -7,6 +7,7 @@ import { ArrowLeft, ChevronRight, Edit } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import Markdown from "react-markdown";
 
 interface ResourcePageProps {
   params: Promise<{
@@ -51,7 +52,7 @@ export default async function ResourcePage({ params }: ResourcePageProps) {
             <div className="flex items-start gap-4">
               <Image
                 src={resource.cover || "/placeholder.svg"}
-                alt={resource.name}
+                alt={""}
                 width={150}
                 height={200}
                 className="w-20 h-28 object-cover rounded"
@@ -62,6 +63,15 @@ export default async function ResourcePage({ params }: ResourcePageProps) {
                   <Badge variant="secondary">Tint {resource.tint}</Badge>
                 </CardTitle>
                 <p className="text-sm text-muted-foreground mt-1">
+                  <span className="font-medium text-gray-700">
+                    Short description:{" "}
+                  </span>
+                  {resource.short_description}
+                </p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  <span className="font-medium text-gray-700">
+                    Full description:{" "}
+                  </span>
                   {resource.description}
                 </p>
                 <p className="text-xs text-muted-foreground mt-2">
@@ -70,6 +80,15 @@ export default async function ResourcePage({ params }: ResourcePageProps) {
               </div>
             </div>
           </CardHeader>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Introduction</CardTitle>
+          </CardHeader>
+          <CardContent className="prose prose-sm">
+            <Markdown>{resource.intro}</Markdown>
+          </CardContent>
         </Card>
 
         {/* Sections List */}
