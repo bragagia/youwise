@@ -1,5 +1,3 @@
-import { GenerateCardsButton } from "@/components/GenerateCardsButton";
-import { UnifiedCardList } from "@/components/cards/unified-card-list";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
@@ -8,6 +6,7 @@ import { Edit } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Markdown from "react-markdown";
+import { SectionCardsClient } from "./SectionCardsClient";
 
 interface SectionPageProps {
   params: Promise<{
@@ -80,13 +79,11 @@ export default async function SectionPage({ params }: SectionPageProps) {
           </CardContent>
         </Card>
 
-        {/* Cards */}
-        <div className="flex items-center justify-between">
-          <h2>Cards ({section.cards.length})</h2>
-          <GenerateCardsButton sectionId={sectionId} resourceId={id} />
-        </div>
-
-        <UnifiedCardList cards={section.cards} />
+        <SectionCardsClient
+          initialCards={section.cards}
+          sectionId={sectionId}
+          resourceId={id}
+        />
       </div>
     </SidebarInset>
   );

@@ -1,6 +1,5 @@
 "use client";
 
-import { UnifiedCardList } from "@/components/cards/unified-card-list";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,15 +7,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { Textarea } from "@/components/ui/textarea";
-import { CardModelUnsaved, CardVariant } from "@youwise/shared";
 import { Save } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
-  createCardAction,
   getResourceSectionByIdAction,
   redirectToSection,
-  updateCardAction,
   updateSectionAction,
 } from "./actions";
 
@@ -43,13 +39,6 @@ interface SectionWithDetails {
     cover: string;
     tint: number;
   } | null;
-  cards?: Array<{
-    id: string;
-    resource_section_id: string;
-    variants: unknown;
-    created_at: Date;
-    updated_at: Date;
-  }> | null;
 }
 
 export default function SectionEditPage({ params }: SectionEditPageProps) {
@@ -59,13 +48,6 @@ export default function SectionEditPage({ params }: SectionEditPageProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [cards, setCards] = useState<
-    Array<{
-      id: string;
-      variants: CardVariant[];
-      level: "core_concept" | "knowledge" | "example";
-    }>
-  >([]);
 
   useEffect(() => {
     const loadSection = async () => {
@@ -81,8 +63,6 @@ export default function SectionEditPage({ params }: SectionEditPageProps) {
         }
 
         setSection(sectionData.section);
-
-        setCards(sectionData.section.cards);
       } catch (err) {
         console.error("Failed to load section:", err);
         setError("Failed to load section");
@@ -102,15 +82,12 @@ export default function SectionEditPage({ params }: SectionEditPageProps) {
 
     try {
       // Save section data
-      const result = await updateSectionAction(resourceId, sectionId, formData);
+      const result = await updateSectionAction(sectionId, formData);
 
       if (!result.success) {
         setError(result.error || "Failed to save section");
         return;
       }
-
-      // Save all card changes
-      await saveAllCardChanges();
 
       // Redirect on success
       await redirectToSection(resourceId, sectionId);
@@ -127,70 +104,6 @@ export default function SectionEditPage({ params }: SectionEditPageProps) {
       ...section,
       [field]: value,
     });
-  };
-
-  // Card management functions - local state only, save on form submit
-  const handleCardsUpdate = (
-    updatedCards: Array<{
-      id?: string;
-      variants: CardVariant[];
-      level: "core_concept" | "knowledge" | "example";
-    }>
-  ) => {
-    // Just update local state - actual database updates happen on form save
-    const newCards = updatedCards.map((updatedCard, index) => ({
-      id: cards[index]?.id || `temp-${Date.now()}-${index}`, // Use existing ID or temp ID for new cards
-      variants: updatedCard.variants,
-      level: updatedCard.level,
-    }));
-    setCards(newCards);
-  };
-
-  // Save all card changes when form is saved
-  const saveAllCardChanges = async () => {
-    try {
-      const processedCards = [];
-
-      for (let i = 0; i < cards.length; i++) {
-        const card = cards[i];
-
-        if (card.id.startsWith("temp-")) {
-          // New card - create it
-          const newCardData: CardModelUnsaved = {
-            variants: card.variants,
-            level: card.level,
-          };
-          const result = await createCardAction(sectionId, newCardData);
-
-          if (result.success && result.card) {
-            processedCards.push({
-              id: result.card.id,
-              variants: card.variants,
-              level: card.level,
-            });
-          } else {
-            throw new Error(result.error || "Failed to create card");
-          }
-        } else {
-          // Existing card - update it
-          const updateCardData: CardModelUnsaved = {
-            variants: card.variants,
-            level: card.level,
-          };
-          const result = await updateCardAction(card.id, updateCardData);
-
-          if (result.success) {
-            processedCards.push(card);
-          } else {
-            throw new Error(result.error || "Failed to update card");
-          }
-        }
-      }
-
-      setCards(processedCards);
-    } catch (error) {
-      throw error; // Re-throw to be handled by form save
-    }
   };
 
   if (isLoading) {
@@ -335,21 +248,6 @@ export default function SectionEditPage({ params }: SectionEditPageProps) {
                 </div>
               </CardContent>
             </Card>
-
-            {/* Cards Section */}
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold">Cards ({cards.length})</h2>
-            </div>
-
-            <UnifiedCardList
-              cards={cards.map((card) => ({
-                variants: card.variants,
-                level: card.level,
-              }))}
-              mode="edit"
-              onCardsUpdate={handleCardsUpdate}
-              emptyMessage="No cards found for this section"
-            />
           </form>
         )}
       </div>

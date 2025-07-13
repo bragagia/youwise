@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CardBlockPrimitive } from "@youwise/shared";
-import { Plus, X } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 
 interface UnifiedPrimitiveProps {
   value: CardBlockPrimitive;
@@ -73,7 +73,7 @@ export function UnifiedPrimitive({
                 onClick={() => handleRemovePart(index)}
                 className="px-2"
               >
-                <X className="h-3 w-3" />
+                <Trash2 className="h-3 w-3" />
               </Button>
             )}
           </div>

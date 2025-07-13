@@ -150,3 +150,29 @@ export async function updateResource(
 
   return updatedResource;
 }
+
+export async function updateResourceSection(
+  sectionId: string,
+  section: {
+    title: string;
+    content: string;
+    more_content?: string | null;
+    position: number;
+  }
+) {
+  const database = getDatabase();
+  const updatedSection = await database
+    .updateTable("resource_sections")
+    .set({
+      title: section.title,
+      content: section.content,
+      more_content: section.more_content || null,
+      position: section.position,
+      updated_at: new Date(),
+    })
+    .where("id", "=", sectionId)
+    .returningAll()
+    .executeTakeFirstOrThrow();
+
+  return updatedSection;
+}

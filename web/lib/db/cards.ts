@@ -1,51 +1,84 @@
 import { getDatabase } from "@/lib/database";
-import { UpdatableCardModel } from "@youwise/shared";
-import console from "console";
-import { v4 as uuidv4 } from "uuid";
+import {
+  CardModelUnsaved,
+  CardVariantArraySchema,
+  fromCardModelToCardWithVariants,
+  UpdatableCardModel,
+} from "@youwise/shared";
 
 export async function saveGeneratedCards(
   sectionId: string,
   cards: UpdatableCardModel[]
 ) {
-  console.log(
-    `[DB Cards] Saving ${cards.length} cards for section: ${sectionId}`
-  );
-
   const database = getDatabase();
 
-  try {
-    const savedCards = await database.transaction().execute(async (trx) => {
-      const results = await Promise.all(
-        cards.map(async (card) => {
-          const cardId = uuidv4();
+  // Ensure we save valid variants for each card
+  cards.forEach((card) => {
+    CardVariantArraySchema.parse(card.variants);
+  });
 
-          console.log(
-            `[DB Cards] Saving card ${cardId} with ${card.variants.length} variants`
-          );
-
-          return await trx
-            .insertInto("cards")
-            .values({
-              id: cardId,
-              resource_section_id: sectionId,
-              variants: JSON.stringify(card.variants),
-              level: card.level,
-            })
-            .returningAll()
-            .executeTakeFirstOrThrow();
-        })
-      );
-
-      return results;
-    });
-
-    console.log(`[DB Cards] Successfully saved ${savedCards.length} cards`);
-    return savedCards;
-  } catch (error) {
-    console.error(
-      `[DB Cards] Error saving cards for section ${sectionId}:`,
-      error
+  const savedCards = await database.transaction().execute(async (trx) => {
+    const results = await Promise.all(
+      cards.map(async (card) => {
+        return await trx
+          .insertInto("cards")
+          .values({
+            resource_section_id: sectionId,
+            variants: JSON.stringify(card.variants),
+            level: card.level,
+          })
+          .returningAll()
+          .executeTakeFirstOrThrow();
+      })
     );
-    throw error;
-  }
+
+    return results;
+  });
+
+  return savedCards;
+}
+
+export async function createCard(sectionId: string, card: CardModelUnsaved) {
+  const database = getDatabase();
+
+  // Ensure we save valid variants
+  CardVariantArraySchema.parse(card.variants);
+
+  const newCard = await database
+    .insertInto("cards")
+    .values({
+      resource_section_id: sectionId,
+      variants: JSON.stringify(card.variants),
+      level: card.level,
+    })
+    .returningAll()
+    .executeTakeFirstOrThrow();
+
+  return fromCardModelToCardWithVariants(newCard);
+}
+
+export async function updateCard(cardId: string, card: CardModelUnsaved) {
+  const database = getDatabase();
+
+  // Ensure we save valid variants
+  CardVariantArraySchema.parse(card.variants);
+
+  const updatedCard = await database
+    .updateTable("cards")
+    .set({
+      variants: JSON.stringify(card.variants),
+      level: card.level,
+      updated_at: new Date(),
+    })
+    .where("id", "=", cardId)
+    .returningAll()
+    .executeTakeFirstOrThrow();
+
+  return fromCardModelToCardWithVariants(updatedCard);
+}
+
+export async function deleteCard(cardId: string) {
+  const database = getDatabase();
+
+  await database.deleteFrom("cards").where("id", "=", cardId).execute();
 }

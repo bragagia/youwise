@@ -7,39 +7,22 @@ import { useState } from "react";
 import { UnifiedCard } from "./unified-card";
 
 interface UnifiedCardListProps {
-  cards: CardModel[] | CardModelUnsaved[];
-  mode?: "display" | "edit";
-  onCardsUpdate?: (cards: CardModel[] | CardModelUnsaved[]) => void;
-  emptyMessage?: string;
+  cards: CardModel[];
+  onCreateCard?: (card: CardModelUnsaved) => Promise<void>;
+  onUpdateCard?: (cardId: string, card: CardModelUnsaved) => Promise<void>;
+  onDeleteCard?: (cardId: string) => Promise<void>;
 }
 
 export function UnifiedCardList({
   cards,
-  mode = "display",
-  onCardsUpdate,
-  emptyMessage = "No cards found for this section",
+  onCreateCard,
+  onUpdateCard,
+  onDeleteCard,
 }: UnifiedCardListProps) {
-  const [localCards, setLocalCards] =
-    useState<(CardModel | CardModelUnsaved)[]>(cards);
-
-  const handleCardUpdate = (
-    index: number,
-    updatedCard: CardModel | CardModelUnsaved
-  ) => {
-    const newCards = [...localCards];
-    newCards[index] = updatedCard;
-    setLocalCards(newCards);
-    onCardsUpdate?.(newCards);
-  };
-
-  const handleCardDelete = (index: number) => {
-    const newCards = localCards.filter((_, i) => i !== index);
-    setLocalCards(newCards);
-    onCardsUpdate?.(newCards);
-  };
+  const [newCard, setNewCard] = useState<CardModelUnsaved | null>(null);
 
   const handleAddCard = () => {
-    const newCard: CardModelUnsaved = {
+    const defaultCard: CardModelUnsaved = {
       level: "knowledge",
       variants: [
         {
@@ -50,16 +33,36 @@ export function UnifiedCardList({
       ],
     };
 
-    const newCards = [...localCards, newCard];
-    setLocalCards(newCards);
-    onCardsUpdate?.(newCards);
+    setNewCard(defaultCard);
   };
 
-  if (localCards.length === 0) {
+  const handleCreateCard = async (newCard: CardModelUnsaved) => {
+    if (onCreateCard) {
+      try {
+        console.log(newCard);
+        await onCreateCard(newCard);
+
+        setNewCard(null);
+      } catch {
+        alert("Failed to save card. Please try again.");
+      }
+    }
+  };
+
+  const handleCancelNewCard = () => {
+    setNewCard(null);
+  };
+
+  // Check if we should show empty state
+  const hasCards = cards.length > 0 || newCard !== null;
+
+  if (!hasCards) {
     return (
       <div className="space-y-4">
-        <p className="text-muted-foreground text-center py-4">{emptyMessage}</p>
-        {onCardsUpdate && (
+        <p className="text-muted-foreground text-center py-4">
+          No cards yet. Click &apos;Add New Card&apos; to get started.
+        </p>
+        {onCreateCard && (
           <div className="flex justify-center">
             <Button
               variant="outline"
@@ -77,26 +80,29 @@ export function UnifiedCardList({
 
   return (
     <div className="space-y-6">
-      {localCards.map((card, index) => (
+      {cards.map((card, index) => (
         <UnifiedCard
-          key={
-            "id" in card
-              ? card.id
-              : `card-${index}-${card.variants.length}-${card.level}`
-          }
+          key={card.id}
           card={card}
           position={index + 1}
-          mode={mode}
-          onUpdate={
-            onCardsUpdate
-              ? (updatedCard) => handleCardUpdate(index, updatedCard)
-              : undefined
-          }
-          onDelete={onCardsUpdate ? () => handleCardDelete(index) : undefined}
+          onUpdate={onUpdateCard}
+          onDelete={onDeleteCard}
         />
       ))}
 
-      {onCardsUpdate && (
+      {newCard && (
+        <UnifiedCard
+          key="new-card"
+          card={newCard}
+          position={cards.length + 1}
+          isNewCard={true}
+          onUpdate={async (_, updatedCard) => setNewCard(updatedCard)}
+          onCreate={handleCreateCard}
+          onCancel={handleCancelNewCard}
+        />
+      )}
+
+      {onCreateCard && !newCard && (
         <div className="flex justify-center">
           <Button variant="outline" onClick={handleAddCard} className="text-sm">
             <Plus className="h-4 w-4 mr-1" />
