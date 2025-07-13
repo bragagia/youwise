@@ -1,17 +1,15 @@
 "use server";
 
-import {
-  getResourceById,
-  UpdateResource,
-  updateResource,
-} from "@/lib/db/resources";
+import { getServices } from "@/lib/database";
+import { UpdateResource } from "@/lib/db/resources";
 
 export async function updateResourceAction(
   resourceId: string,
   resource: UpdateResource
 ) {
   try {
-    const updatedResource = await updateResource(resourceId, resource);
+    const { db } = await getServices();
+    const updatedResource = await db.resources.updateResource(resourceId, resource);
 
     return { success: true, resource: updatedResource };
   } catch (error) {
@@ -26,7 +24,8 @@ export async function updateResourceAction(
 
 export async function getResourceByIdAction(resourceId: string) {
   try {
-    const resource = await getResourceById(resourceId);
+    const { db } = await getServices();
+    const resource = await db.resources.getResourceById(resourceId);
 
     return { success: true as const, resource };
   } catch (error) {

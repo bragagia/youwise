@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
-import { getResourceSectionById } from "@/lib/db/resources";
+import { getServices } from "@/lib/database";
 import { Edit } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -17,7 +17,8 @@ interface SectionPageProps {
 
 export default async function SectionPage({ params }: SectionPageProps) {
   const { id, sectionId } = await params;
-  const section = await getResourceSectionById(sectionId);
+  const { db } = await getServices();
+  const section = await db.resources.getResourceSectionById(sectionId);
 
   if (!section) {
     notFound();

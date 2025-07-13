@@ -1,13 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
-import { getResources } from "@/lib/db/resources";
+import { getServices } from "@/lib/database";
 import { ChevronRight, Plus } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
 export default async function ResourcesPage() {
-  const resources = await getResources();
+  const { db } = await getServices();
+  const resources = await db.resources.getResources();
 
   return (
     <SidebarInset>

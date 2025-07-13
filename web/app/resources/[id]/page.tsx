@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
-import { getResourceById } from "@/lib/db/resources";
+import { getServices } from "@/lib/database";
 import { ArrowLeft, ChevronRight, Edit } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -17,7 +17,8 @@ interface ResourcePageProps {
 
 export default async function ResourcePage({ params }: ResourcePageProps) {
   const { id } = await params;
-  const resource = await getResourceById(id);
+  const { db } = await getServices();
+  const resource = await db.resources.getResourceById(id);
 
   if (!resource) {
     notFound();

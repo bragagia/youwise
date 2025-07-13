@@ -2,10 +2,11 @@ import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { getUsers } from "@/lib/db/users"
+import { getServices } from "@/lib/database"
 
 export default async function UsersPage() {
-  const users = await getUsers()
+  const { db } = await getServices()
+  const users = await db.users.getUsers()
   return (
     <SidebarInset>
       <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">

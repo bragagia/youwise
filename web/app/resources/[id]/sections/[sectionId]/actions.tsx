@@ -1,6 +1,6 @@
 "use server";
 
-import { createCard, deleteCard, updateCard } from "@/lib/db/cards";
+import { getServices } from "@/lib/database";
 import { CardModelUnsaved } from "@youwise/shared";
 
 export async function createCardAction(
@@ -8,7 +8,8 @@ export async function createCardAction(
   card: CardModelUnsaved
 ) {
   try {
-    const newCard = await createCard(sectionId, card);
+    const { db } = await getServices();
+    const newCard = await db.cards.createCard(sectionId, card);
     return { success: true as const, card: newCard };
   } catch (error) {
     console.error("Error creating card:", error);
@@ -21,7 +22,8 @@ export async function createCardAction(
 
 export async function updateCardAction(cardId: string, card: CardModelUnsaved) {
   try {
-    const updatedCard = await updateCard(cardId, card);
+    const { db } = await getServices();
+    const updatedCard = await db.cards.updateCard(cardId, card);
     return { success: true as const, card: updatedCard };
   } catch (error) {
     console.error("Error updating card:", error);
@@ -34,7 +36,8 @@ export async function updateCardAction(cardId: string, card: CardModelUnsaved) {
 
 export async function deleteCardAction(cardId: string) {
   try {
-    await deleteCard(cardId);
+    const { db } = await getServices();
+    await db.cards.deleteCard(cardId);
     return { success: true as const };
   } catch (error) {
     console.error("Error deleting card:", error);
@@ -47,8 +50,8 @@ export async function deleteCardAction(cardId: string) {
 
 export async function getResourceSectionByIdAction(sectionId: string) {
   try {
-    const { getResourceSectionById } = await import("@/lib/db/resources");
-    const section = await getResourceSectionById(sectionId);
+    const { db } = await getServices();
+    const section = await db.resources.getResourceSectionById(sectionId);
 
     return { success: true as const, section };
   } catch (error) {

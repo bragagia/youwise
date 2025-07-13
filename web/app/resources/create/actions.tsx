@@ -1,6 +1,6 @@
 "use server";
 
-import { saveResource } from "@/lib/db/resources";
+import { getServices } from "@/lib/database";
 import { GeneratedResource, GeneratedResourceSchema } from "@/lib/schemas";
 import { getDefaultAiProvider } from "@/services/ai-provider/types";
 
@@ -46,7 +46,8 @@ export async function generateResourceAction(formData: FormData) {
 
 export async function saveResourceAction(resource: GeneratedResource) {
   try {
-    const createdResource = await saveResource(resource);
+    const { db } = await getServices();
+    const createdResource = await db.resources.saveResource(resource);
 
     return { success: true as const, createdResource };
   } catch (error) {

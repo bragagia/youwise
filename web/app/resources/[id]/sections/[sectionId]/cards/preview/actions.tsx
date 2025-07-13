@@ -1,7 +1,6 @@
 "use server";
 
-import { saveGeneratedCards } from "@/lib/db/cards";
-import { getResourceById } from "@/lib/db/resources";
+import { getServices } from "@/lib/database";
 import {
   ExtractCardsFromSection,
   extractQAFromSection,
@@ -14,7 +13,8 @@ export async function extractQAFromSectionAction(
   sectionId: string
 ) {
   try {
-    const resource = await getResourceById(resourceId);
+    const { db } = await getServices();
+    const resource = await db.resources.getResourceById(resourceId);
     if (!resource) {
       throw new Error(`Resource not found: ${resourceId}`);
     }
@@ -45,7 +45,8 @@ export async function extractCardFromSectionAction(
   qaMarkdown: string
 ) {
   try {
-    const resource = await getResourceById(resourceId);
+    const { db } = await getServices();
+    const resource = await db.resources.getResourceById(resourceId);
     if (!resource) {
       throw new Error(`Resource not found: ${resourceId}`);
     }
@@ -79,7 +80,8 @@ export async function saveCardsAction(
   cards: CardModelUnsaved[]
 ) {
   try {
-    await saveGeneratedCards(sectionId, cards);
+    const { db } = await getServices();
+    await db.cards.saveGeneratedCards(sectionId, cards);
   } catch (error) {
     console.error(
       `[Server Action] Error saving cards for section ${sectionId}:`,

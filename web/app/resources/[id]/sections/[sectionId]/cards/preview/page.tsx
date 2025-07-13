@@ -1,7 +1,7 @@
 import { CardsPreviewClient } from "@/app/resources/[id]/sections/[sectionId]/cards/preview/CardsPreviewClient";
 import { Button } from "@/components/ui/button";
 import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
-import { getResourceSectionById } from "@/lib/db/resources";
+import { getServices } from "@/lib/database";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -17,7 +17,8 @@ export default async function CardsPreviewPage({
 }: CardsPreviewPageProps) {
   const { id, sectionId } = await params;
 
-  const section = await getResourceSectionById(sectionId);
+  const { db } = await getServices();
+  const section = await db.resources.getResourceSectionById(sectionId);
 
   if (!section) {
     notFound();

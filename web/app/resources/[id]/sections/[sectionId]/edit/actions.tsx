@@ -1,9 +1,6 @@
 "use server";
 
-import {
-  getResourceSectionById,
-  updateResourceSection,
-} from "@/lib/db/resources";
+import { getServices } from "@/lib/database";
 import { redirect } from "next/navigation";
 import { z } from "zod/v4";
 
@@ -28,7 +25,8 @@ export async function updateSectionAction(
 
     const validatedData = updateSectionSchema.parse(rawData);
 
-    const updatedSection = await updateResourceSection(sectionId, {
+    const { db } = await getServices();
+    const updatedSection = await db.resources.updateResourceSection(sectionId, {
       title: validatedData.title,
       content: validatedData.content,
       more_content: validatedData.more_content || null,
@@ -52,7 +50,8 @@ export async function redirectToSection(resourceId: string, sectionId: string) {
 
 export async function getResourceSectionByIdAction(sectionId: string) {
   try {
-    const section = await getResourceSectionById(sectionId);
+    const { db } = await getServices();
+    const section = await db.resources.getResourceSectionById(sectionId);
 
     return { success: true as const, section };
   } catch (error) {
