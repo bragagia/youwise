@@ -1,4 +1,4 @@
-import { DB } from "@/database.d";
+import { DB } from "@youwise/shared";
 import { Kysely, PostgresDialect } from "kysely";
 import { Pool } from "pg";
 

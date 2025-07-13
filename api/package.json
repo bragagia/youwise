@@ -8,10 +8,11 @@
     "dev": "yarn migrate-all && yarn codegen && tsx watch --watch-preserve-output main/index.ts",
     "build": "tsc -p tsconfig.json",
     "start": "node ./build/index.js",
-    "codegen": "kysely-codegen --out-file ./database.d.ts",
+    "codegen": "kysely-codegen --out-file ../shared/src/database.d.ts",
     "migrate-all": "yarn kysely migrate:latest"
   },
   "dependencies": {
+    "@youwise/shared": "1.0.0",
     "@fastify/cors": "^11.0.1",
     "@trpc/server": "^11.0.1",
     "common-js": "^0.3.8",
@@ -20,7 +21,7 @@
     "jsonwebtoken": "^9.0.2",
     "kysely": "^0.28.2",
     "pg": "^8.14.1",
-    "zod": "^3.24.2"
+    "zod": "^3.25.67"
   },
   "devDependencies": {
     "@types/jsonwebtoken": "^9.0.9",

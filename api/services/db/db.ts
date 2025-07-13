@@ -1,7 +1,7 @@
 import { Kysely, PostgresDialect } from "kysely";
 import pg from "pg";
 
-import type { DB } from "../../database.d.ts"; // this is the Database interface we defined earlier
+import type { DB } from "@youwise/shared"; // this is the Database interface we defined earlier
 
 export type Database = Kysely<DB>;
 

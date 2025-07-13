@@ -5,6 +5,8 @@
 
 import type { ColumnType } from "kysely";
 
+export type CardLevel = "core_concept" | "example" | "knowledge";
+
 export type Fsrsstateenum = "Learning" | "Relearning" | "Review";
 
 export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
@@ -28,6 +30,7 @@ export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 export interface Cards {
   created_at: Generated<Timestamp>;
   id: Generated<string>;
+  level: Generated<CardLevel>;
   resource_section_id: string;
   updated_at: Generated<Timestamp>;
   variants: Json;

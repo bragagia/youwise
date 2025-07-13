@@ -6,13 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { Textarea } from "@/components/ui/textarea";
-import { getResourceById, updateResource } from "@/lib/db/resources";
-import type { GeneratedResource } from "@/lib/schemas";
-import { ResourceSection, ResourceWithSections } from "@/types/resources";
 import { ArrowLeft, Save } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { getResourceByIdAction, updateResourceAction } from "./actions";
 
 interface EditResourcePageProps {
   params: Promise<{
@@ -20,28 +18,38 @@ interface EditResourcePageProps {
   }>;
 }
 
+interface Resource {
+  id: string;
+  name: string;
+  description: string;
+  cover: string;
+  tint: number;
+  created_at: Date;
+  updated_at: Date;
+}
+
 export default function EditResourcePage({ params }: EditResourcePageProps) {
-  const router = useRouter();
-  const [resource, setResource] = useState<ResourceWithSections | null>(null);
+  const [resource, setResource] = useState<Resource | null>(null);
   const [resourceId, setResourceId] = useState<string>("");
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const router = useRouter();
+
   useEffect(() => {
     const loadResource = async () => {
       try {
         const { id } = await params;
-
         setResourceId(id);
 
-        const resource = await getResourceById(id);
-        if (!resource) {
-          setError("Resource not found");
+        const resourceData = await getResourceByIdAction(id);
+        if (!resourceData.success) {
+          setError("Resource not found: " + resourceData.error);
           return;
         }
 
-        setResource(resource);
+        setResource(resourceData.resource);
       } catch (err) {
         console.error("Failed to load resource:", err);
         setError("Failed to load resource");
@@ -59,56 +67,22 @@ export default function EditResourcePage({ params }: EditResourcePageProps) {
     setIsSaving(true);
     setError(null);
 
-    try {
-      const resourceToSave: GeneratedResource = {
-        name: resource.name,
-        description: resource.description,
-        intro: "",
-        short_description: "",
-        sections: resource.sections.map((section: ResourceSection) => ({
-          title: section.title,
-          content: section.content,
-          more_content: section.more_content,
-          position: section.position,
-        })),
-      };
+    const result = await updateResourceAction(resourceId, resource);
 
-      const updatedResource = await updateResource(resourceId, resourceToSave);
-
-      if (!updatedResource) {
-        throw new Error("Failed to save resource");
-      }
-
+    if (result.success) {
       router.push(`/resources/${resourceId}`);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save resource");
-    } finally {
-      setIsSaving(false);
+    } else {
+      setError(result.error || "Failed to save resource");
     }
+
+    setIsSaving(false);
   };
 
-  const updateResourceField = (field: string, value: string) => {
+  const updateResourceField = (field: string, value: string | number) => {
     if (!resource) return;
     setResource({
       ...resource,
       [field]: value,
-    });
-  };
-
-  const updateSectionField = (
-    sectionIndex: number,
-    field: string,
-    value: string
-  ) => {
-    if (!resource) return;
-    const updatedSections = [...resource.sections];
-    updatedSections[sectionIndex] = {
-      ...updatedSections[sectionIndex],
-      [field]: value,
-    };
-    setResource({
-      ...resource,
-      sections: updatedSections,
     });
   };
 
@@ -144,6 +118,12 @@ export default function EditResourcePage({ params }: EditResourcePageProps) {
     <SidebarInset>
       <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
         <SidebarTrigger className="-ml-1" />
+        <Link href="/resources">
+          <Button variant="ghost" size="sm">
+            Resources
+          </Button>
+        </Link>
+        <span className="text-muted-foreground">/</span>
         <Link href={`/resources/${resourceId}`}>
           <Button variant="ghost" size="sm" className="gap-2">
             <ArrowLeft className="h-4 w-4" />
@@ -151,7 +131,7 @@ export default function EditResourcePage({ params }: EditResourcePageProps) {
           </Button>
         </Link>
         <span className="text-muted-foreground">/</span>
-        <h1 className="text-xl font-semibold">Edit</h1>
+        <h1 className="text-sm font-semibold">Edit</h1>
       </header>
 
       <div className="flex flex-1 flex-col gap-6 p-4">
@@ -171,6 +151,7 @@ export default function EditResourcePage({ params }: EditResourcePageProps) {
               <h2 className="text-2xl font-bold">Edit Resource</h2>
               <Button
                 onClick={handleSave}
+                type="submit"
                 disabled={isSaving}
                 className="gap-2"
               >
@@ -179,117 +160,71 @@ export default function EditResourcePage({ params }: EditResourcePageProps) {
               </Button>
             </div>
 
-            {/* Resource Info */}
+            {/* Resource Information */}
             <Card>
               <CardHeader>
                 <CardTitle>Resource Information</CardTitle>
               </CardHeader>
+
               <CardContent className="space-y-4">
                 <div>
-                  <Label htmlFor="resource-name">Name</Label>
+                  <Label htmlFor="name">Name</Label>
                   <Input
-                    id="resource-name"
+                    id="name"
+                    name="name"
                     value={resource.name}
                     onChange={(e) =>
                       updateResourceField("name", e.target.value)
                     }
                     className="mt-1"
+                    required
                   />
                 </div>
+
                 <div>
-                  <Label htmlFor="resource-description">Description</Label>
+                  <Label htmlFor="description">Description</Label>
                   <Textarea
-                    id="resource-description"
+                    id="description"
+                    name="description"
                     value={resource.description}
                     onChange={(e) =>
                       updateResourceField("description", e.target.value)
                     }
-                    rows={3}
+                    rows={4}
                     className="mt-1"
+                    required
                   />
                 </div>
-              </CardContent>
-            </Card>
 
-            {/* Sections */}
-            <Card>
-              <CardHeader>
-                <CardTitle>
-                  Sections ({resource.sections?.length || 0})
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  {resource.sections?.map(
-                    (section: ResourceSection, index: number) => (
-                      <div
-                        key={section.id || index}
-                        className="border rounded-lg p-4"
-                      >
-                        <div className="space-y-4">
-                          <div>
-                            <Label htmlFor={`section-${index}-title`}>
-                              Title
-                            </Label>
-                            <Input
-                              id={`section-${index}-title`}
-                              value={section.title}
-                              onChange={(e) =>
-                                updateSectionField(
-                                  index,
-                                  "title",
-                                  e.target.value
-                                )
-                              }
-                              className="mt-1"
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor={`section-${index}-content`}>
-                              Content
-                            </Label>
-                            <Textarea
-                              id={`section-${index}-content`}
-                              value={section.content}
-                              onChange={(e) =>
-                                updateSectionField(
-                                  index,
-                                  "content",
-                                  e.target.value
-                                )
-                              }
-                              rows={6}
-                              className="mt-1"
-                            />
-                          </div>
-                          {section.more_content && (
-                            <div>
-                              <Label htmlFor={`section-${index}-more-content`}>
-                                Additional Content
-                              </Label>
-                              <Textarea
-                                id={`section-${index}-more-content`}
-                                value={section.more_content || ""}
-                                onChange={(e) =>
-                                  updateSectionField(
-                                    index,
-                                    "more_content",
-                                    e.target.value
-                                  )
-                                }
-                                rows={4}
-                                className="mt-1"
-                              />
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    )
-                  ) || (
-                    <p className="text-muted-foreground text-center py-4">
-                      No sections found
-                    </p>
-                  )}
+                <div>
+                  <Label htmlFor="cover">Cover Image URL (Optional)</Label>
+                  <Input
+                    id="cover"
+                    name="cover"
+                    type="url"
+                    value={resource.cover}
+                    onChange={(e) =>
+                      updateResourceField("cover", e.target.value)
+                    }
+                    className="mt-1"
+                    placeholder="https://example.com/image.jpg"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="tint">Color Tint (1-10)</Label>
+                  <Input
+                    id="tint"
+                    name="tint"
+                    type="number"
+                    min="1"
+                    max="10"
+                    value={resource.tint}
+                    onChange={(e) =>
+                      updateResourceField("tint", parseInt(e.target.value))
+                    }
+                    className="mt-1"
+                  />
                 </div>
               </CardContent>
             </Card>

@@ -12,6 +12,7 @@
     "lint": "expo lint"
   },
   "dependencies": {
+    "@youwise/shared": "1.0.0",
     "@expo/vector-icons": "^14.1.0",
     "@react-native-google-signin/google-signin": "^14.0.1",
     "@react-navigation/bottom-tabs": "^7.3.10",
@@ -54,7 +55,8 @@
     "react-native-webview": "13.13.5",
     "tailwindcss": "^3.4.17",
     "ts-fsrs": "^4.7.1",
-    "uuid": "^11.1.0"
+    "uuid": "^11.1.0",
+    "zod": "^3.25.67"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

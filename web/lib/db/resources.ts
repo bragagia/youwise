@@ -1,6 +1,5 @@
-"use server";
-
 import { getDatabase } from "@/lib/database";
+import { fromCardModelToCardWithVariants } from "@youwise/shared";
 import { jsonArrayFrom, jsonObjectFrom } from "kysely/helpers/postgres";
 
 export async function getResources() {
@@ -11,6 +10,10 @@ export async function getResources() {
     .orderBy("created_at", "desc")
     .execute();
 }
+
+export type ResourceWithSections = NonNullable<
+  Awaited<ReturnType<typeof getResourceById>>
+>;
 export async function getResourceById(resourceId: string) {
   const database = getDatabase();
   return await database
@@ -26,11 +29,15 @@ export async function getResourceById(resourceId: string) {
           .orderBy("resource_sections.position", "asc")
       ).as("sections"),
     ])
-    .executeTakeFirst();
+    .executeTakeFirstOrThrow();
 }
+
+const levelsRanking = ["example", "knowledge", "core_concept"];
+
 export async function getResourceSectionById(sectionId: string) {
   const database = getDatabase();
-  return await database
+
+  const dbSection = await database
     .selectFrom("resource_sections")
     .selectAll()
     .where("resource_sections.id", "=", sectionId)
@@ -49,8 +56,21 @@ export async function getResourceSectionById(sectionId: string) {
           .orderBy("cards.created_at", "desc")
       ).as("cards"),
     ])
-    .executeTakeFirst();
+    .executeTakeFirstOrThrow();
+
+  const section = {
+    ...dbSection,
+    cards: dbSection.cards
+      .map((card) => fromCardModelToCardWithVariants(card))
+      .sort(
+        (a, b) =>
+          levelsRanking.indexOf(b.level) - levelsRanking.indexOf(a.level)
+      ),
+  };
+
+  return section;
 }
+
 export async function saveResource(resource: {
   name: string;
   description: string;
@@ -94,56 +114,31 @@ export async function saveResource(resource: {
   });
   return savedResource;
 }
+
+export type UpdateResource = {
+  name: string;
+  description: string;
+  cover?: string;
+  tint?: number;
+};
+
 export async function updateResource(
   resourceId: string,
-  resource: {
-    name: string;
-    description: string;
-    sections: {
-      title: string;
-      content: string;
-      more_content?: string | null;
-      position: number;
-    }[];
-  }
+  resource: UpdateResource
 ) {
   const database = getDatabase();
-  const updatedResource = await database.transaction().execute(async (trx) => {
-    const updated = await trx
-      .updateTable("resources")
-      .set({
-        name: resource.name,
-        description: resource.description,
-        updated_at: new Date(),
-      })
-      .where("id", "=", resourceId)
-      .returningAll()
-      .executeTakeFirstOrThrow();
+  const updatedResource = await database
+    .updateTable("resources")
+    .set({
+      name: resource.name,
+      description: resource.description,
+      cover: resource.cover,
+      tint: resource.tint,
+      updated_at: new Date(),
+    })
+    .where("id", "=", resourceId)
+    .returningAll()
+    .executeTakeFirstOrThrow();
 
-    // Delete existing sections
-    await trx
-      .deleteFrom("resource_sections")
-      .where("resource_id", "=", resourceId)
-      .execute();
-
-    // Insert new sections
-    const sections = await Promise.all(
-      resource.sections.map((section) =>
-        trx
-          .insertInto("resource_sections")
-          .values({
-            resource_id: resourceId,
-            title: section.title,
-            content: section.content,
-            more_content: section.more_content || null,
-            position: section.position,
-          })
-          .returningAll()
-          .executeTakeFirstOrThrow()
-      )
-    );
-
-    return { ...updated, sections };
-  });
   return updatedResource;
 }

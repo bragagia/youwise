@@ -43,6 +43,7 @@ export default async function ResourcePage({ params }: ResourcePageProps) {
           </Button>
         </Link>
       </header>
+
       <div className="flex flex-1 flex-col gap-4 p-4">
         {/* Resource Info */}
         <Card>
@@ -74,11 +75,17 @@ export default async function ResourcePage({ params }: ResourcePageProps) {
         {/* Sections List */}
         <Card>
           <CardHeader>
-            <CardTitle>Sections ({resource.sections?.length || 0})</CardTitle>
+            <CardTitle>Sections</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-2">
-              {resource.sections?.map((section) => (
+            <div className="flex flex-col space-y-2">
+              {resource.sections.length === 0 && (
+                <p className="text-muted-foreground text-center py-4">
+                  No sections
+                </p>
+              )}
+
+              {resource.sections.map((section) => (
                 <Link
                   key={section.id}
                   href={`/resources/${id}/sections/${section.id}`}
@@ -96,11 +103,7 @@ export default async function ResourcePage({ params }: ResourcePageProps) {
                     <ChevronRight className="h-5 w-5 text-muted-foreground" />
                   </div>
                 </Link>
-              )) || (
-                <p className="text-muted-foreground text-center py-4">
-                  No sections found
-                </p>
-              )}
+              ))}
             </div>
           </CardContent>
         </Card>

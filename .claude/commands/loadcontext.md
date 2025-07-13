@@ -5,3 +5,5 @@ find . -type f -not -path "*/node_modules/*" -not -path "./api/build/*" -not -pa
 
 git status
 ```
+
+Just say "I am ready" once you're done.

@@ -1,5 +1,6 @@
 "use server";
 
+import { saveResource } from "@/lib/db/resources";
 import { GeneratedResource, GeneratedResourceSchema } from "@/lib/schemas";
 import { getDefaultAiProvider } from "@/services/ai-provider/types";
 
@@ -21,12 +22,8 @@ export async function generateResourceAction(formData: FormData) {
 
     const response = (await aiProvider({
       queryId: "generate-resource",
-      systemPrompt:
-        "You are an educational content extractor. You will receive an EPUB file and extract educational content according to the user's prompt.",
+      systemPrompt: prompt,
       input: [
-        {
-          text: prompt,
-        },
         {
           file: epub,
         },
@@ -43,6 +40,21 @@ export async function generateResourceAction(formData: FormData) {
       success: false as const,
       error:
         error instanceof Error ? error.message : "Failed to generate resource",
+    };
+  }
+}
+
+export async function saveResourceAction(resource: GeneratedResource) {
+  try {
+    const createdResource = await saveResource(resource);
+
+    return { success: true as const, createdResource };
+  } catch (error) {
+    console.error("Error creating resource:", error);
+    return {
+      success: false as const,
+      error:
+        error instanceof Error ? error.message : "Failed to create resource",
     };
   }
 }

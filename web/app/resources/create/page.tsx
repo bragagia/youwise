@@ -2,14 +2,16 @@
 
 import type React from "react";
 
-import { generateResourceAction } from "@/app/resources/create/actions";
+import {
+  generateResourceAction,
+  saveResourceAction,
+} from "@/app/resources/create/actions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { Textarea } from "@/components/ui/textarea";
-import { saveResource } from "@/lib/db/resources";
 import type { GeneratedResource } from "@/lib/schemas";
 import { ArrowLeft, Save, Upload, Wand2 } from "lucide-react";
 import Link from "next/link";
@@ -42,7 +44,6 @@ Finally, write a short description of the book, which should be a one-sentence h
 export default function CreateResourcePage() {
   const router = useRouter();
 
-  /* local state ---------------------------------------------------------- */
   const [file, setFile] = useState<File | null>(null);
   const [prompt, setPrompt] = useState(DEFAULT_PROMPT);
   const [resource, setResource] = useState<GeneratedResource | null>(null);
@@ -50,7 +51,6 @@ export default function CreateResourcePage() {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  /* helpers -------------------------------------------------------------- */
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
     if (f) {
@@ -90,9 +90,12 @@ export default function CreateResourcePage() {
     if (!resource) return;
     setIsSaving(true);
     try {
-      const newResource = await saveResource(resource);
+      const result = await saveResourceAction(resource);
+      if (!result.success) {
+        throw new Error(result.error || "Failed to save resource");
+      }
 
-      router.push(`/resources/${newResource.id}`);
+      router.push(`/resources/${result.createdResource.id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Save failed");
     } finally {
