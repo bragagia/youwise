@@ -13,7 +13,14 @@ export default function RootLayout() {
           <TrpcProvider>
             <Stack>
               <Stack.Screen
-                name="index"
+                name="index" // = login page
+                options={{
+                  headerShown: false,
+                }}
+              />
+
+              <Stack.Screen
+                name="homepage/index"
                 options={{
                   headerShown: false,
                 }}
@@ -30,14 +37,6 @@ export default function RootLayout() {
                 name="revision/[resourceId]/index"
                 options={{
                   headerShown: false,
-                }}
-              />
-
-              <Stack.Screen
-                name="login/index"
-                options={{
-                  headerShown: false,
-                  presentation: "modal",
                 }}
               />
 

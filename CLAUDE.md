@@ -55,28 +55,46 @@ The rest of the user flow will be about the authenticated experience.
 
 **Main mobile flow**:
 
+db: resource_progress → resource_id, user_id, last_opened_section_id, last_opened_at, finished_at
+db: resource_saved_for_later → resource_id, user_id, order (float) (? Might allow the user to reorder saved resources)
+-> Separated because you might start reading a resource just to check it out but not want to actually consume it
+
+- If need to sort by last opened, left join with resource_progress
+- Should they be deleted when the user finishes the resource?
+
+- Login page (index)
+  - If not logged in, user is presented a login page with Google and Apple sign-in buttons (also act as a sign up)
+  - Once logged in, user is redirected to the homepage
 - Homepage
-  - See progress charts to motivate user to learn more and be consistent with its memorization
-  - List of in progress resources (that are partially read) [TODO: need a reading state in db]
+  - [TODO] See progress charts to motivate user to learn more and be consistent with its memorization
+  - [TODO: need a reading state in db] List of in progress resources (in progress = partially read)
+    - sorted by the most recently opened
+    - horizontal scroll, most recent on the left
+    - The last opened resource should appear bigger
+  - [TODO] List of saved for later resources
+    - sorted by manual order, but by default by the most recently saved
   - List of the full youwise library
     - Short description must be visible for each resource
     - Can click on a resource to see its details
-      - See resource page, featuring description, cover, and list of sections
-      - Button "next page" to start reading the resource
-        - Reading section by section
-        - At the end of the book, button to add the book to the memorization library
-          - Possibility to choose the section to memorize
-            - Each section should have a dense list of the flashcards from that section
   - Have a prominent "Start daily ReWise" action button
-    - User see one card at a time, swipe left to fail, right to succeed.
-    - New cards are displayed in quizz mode (using fake answers)
-      - User must succeed at least 2 times in a row to have the card considered memorized
-    - Card already known use a random variant every time
-    - At the end of the session, user see its progress and can choose to continue or stop
+    - Redirect to ReWise page
   - Account management
-    - Profile page with name, email, and profile picture
-    - Settings page to manage account preferences
+    - [TODO] Profile page with name, email, and profile picture
+    - [TODO] Settings page to manage account preferences
     - Sign out button
+- Resource Page
+  - See resource page, featuring description, cover, and list of sections
+  - Button "next page" to start reading the resource
+    - Reading section by section
+    - At the end of the book, button to add the book to the memorization library
+      - Possibility to choose the section to memorize
+        - Each section should have a dense list of the flashcards from that section
+- ReWise page
+  - User see one card at a time, swipe left to fail, right to succeed.
+  - New cards are displayed in quizz mode (using fake answers)
+    - User must succeed at least 2 times in a row to have the card considered memorized
+  - Card already known use a random variant every time
+  - At the end of the session, user see its progress and can choose to continue or stop
 
 ### As an admin (web dashboard)
 

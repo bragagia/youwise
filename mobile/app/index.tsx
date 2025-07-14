@@ -1,389 +1,235 @@
-import Icons from "@/components/Icons";
-import { Link, router } from "expo-router";
-import React, { useEffect, useState } from "react";
-import {
-  Image,
-  Pressable,
-  RefreshControl,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-
 import "./global.css";
 
+import Icons from "@/components/Icons";
+import { useAuth } from "@/components/providers/authProvider";
+import { useTrpcRaw } from "@/components/providers/TrpcProvider";
 import {
-  SignedInOnly,
-  SignedOutOnly,
-} from "@/components/providers/authProvider";
-import { useTrpc } from "@/components/providers/TrpcProvider";
-import { mockRessources } from "@/lib/types/MOCK";
-import { useQuery } from "@tanstack/react-query";
-import { LinearGradient } from "expo-linear-gradient";
+  GoogleSignin,
+  statusCodes,
+} from "@react-native-google-signin/google-signin";
+import * as AppleAuthentication from "expo-apple-authentication";
+import { Redirect, router } from "expo-router";
+import { useState } from "react";
+import { Pressable, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-type RessourceArray = {
-  id: string;
-  name: string;
-}[];
+GoogleSignin.configure({
+  iosClientId:
+    "835524820983-nlqq9pme2t88rtjft5v2tu2c3j99d52o.apps.googleusercontent.com",
+  scopes: [],
+});
 
-type HomePageData = {
-  userStats: {};
-  library: RessourceArray;
-  discover: [];
-};
+// Rewriting this as it was deleted from the free version of google-signin lib
+function isErrorWithCode(error: any): error is { code: string } {
+  return error && typeof error.code === "string";
+}
 
-const HomeScreen = () => {
+const LoginPage = () => {
+  const { accessToken, refreshToken, setAuth, removeAuth } = useAuth();
   const insets = useSafeAreaInsets();
 
-  const trpc = useTrpc();
+  const trpcRaw = useTrpcRaw();
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const resourcesQuery = useQuery(trpc.resources.getList.queryOptions());
+  const handleGoogleSignIn = async () => {
+    try {
+      setLoading(true);
 
-  const onRefresh = () => {
-    resourcesQuery.refetch();
+      await removeAuth();
+
+      await GoogleSignin.hasPlayServices();
+      const userInfo = await GoogleSignin.signIn();
+
+      if (!userInfo.data?.idToken) {
+        throw new Error("No idToken or full name found");
+      }
+
+      trpcRaw.auth.validateOAuth
+        .query({
+          type: "google",
+          googleToken: userInfo.data.idToken,
+        })
+        .then(async (res) => {
+          if (!res.accessToken || !res.refreshToken || !res.userId) {
+            throw new Error("Invalid response from server");
+          }
+
+          await setAuth(
+            {
+              refreshToken: res.refreshToken,
+              userId: res.userId,
+            },
+            res.accessToken
+          );
+
+          setLoading(false);
+          router.back();
+        })
+        .catch((error) => {
+          console.error("Error validating OAuth:", error);
+          setErrorMessage(error.message || "Failed to validate OAuth");
+          setLoading(false);
+        });
+    } catch (error) {
+      console.log(error);
+      if (isErrorWithCode(error)) {
+        switch (error.code) {
+          case statusCodes.SIGN_IN_CANCELLED:
+            setLoading(false);
+            break;
+          case statusCodes.IN_PROGRESS:
+            // operation (eg. sign in) already in progress
+            break;
+          case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
+            setErrorMessage("Play services not available or outdated");
+            setLoading(false);
+            break;
+          default:
+            setErrorMessage("Something went wrong");
+            setLoading(false);
+        }
+      } else {
+        setErrorMessage("Something went wrong");
+        setLoading(false);
+      }
+    }
   };
 
-  const [loading, setLoading] = useState(true);
+  const handleAppleSignIn = async () => {
+    try {
+      setLoading(true);
+      console.log("Starting Apple Sign In...");
 
-  useEffect(() => {
-    setTimeout(() => setLoading(false), 1000);
-  }, []);
+      // await AppleAuthentication.signOutAsync({
+      //   // This is necessary to ensure that the user can sign in again
+      //   // if they have already signed in before.
+      //   // It will not remove the user's Apple ID from the device.
+      //   // It will only remove the cached credentials for this app.
+      //   user: "mathias.bragagia@gmail.com",
+      // });
+      const credentials = await AppleAuthentication.signInAsync({
+        requestedScopes: [
+          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+          AppleAuthentication.AppleAuthenticationScope.EMAIL,
+        ],
+      });
 
-  const homePageData: HomePageData = {
-    userStats: {},
-    library: mockRessources,
-    discover: [],
+      console.log("CREDS:", credentials.identityToken);
+
+      trpcRaw.auth.validateOAuth
+        .query({
+          type: "apple",
+          appleToken: credentials.identityToken || "",
+        })
+        .then(async (res) => {
+          if (!res.accessToken || !res.refreshToken || !res.userId) {
+            throw new Error("Invalid response from server");
+          }
+
+          await setAuth(
+            {
+              refreshToken: res.refreshToken,
+              userId: res.userId,
+            },
+            res.accessToken
+          );
+
+          setLoading(false);
+          router.back();
+        })
+        .catch((error) => {
+          console.error("Error validating OAuth:", error);
+          setErrorMessage(error.message || "Failed to validate OAuth");
+          setLoading(false);
+        });
+      // signed in
+    } catch (e: any) {
+      if (e.code === "ERR_REQUEST_CANCELED") {
+        console.log("Apple Sign In Error:", e);
+        setLoading(false);
+        // handle that the user canceled the sign-in flow
+      } else {
+        console.log("Apple Sign In Error:", e);
+        setLoading(false);
+        // handle other errors
+      }
+    }
   };
 
-  const revisionButtonMarginBottom = Math.max(insets.bottom, 8);
+  if (refreshToken) {
+    return <Redirect href="/homepage" />;
+  }
 
-  const lineDataMemorized = [
-    { value: 0 },
-    { value: 0 },
-    { value: 0 },
-    { value: 5 },
-    { value: 10 },
-    { value: 15 },
-    { value: 20 },
-    { value: 25 },
-    { value: 25 },
-    { value: 25 },
-    { value: 35 },
-    { value: 40 },
-    { value: 45 },
-    { value: 50 },
-    { value: 50 },
-    { value: 55 },
-    { value: 60 },
-    { value: 65 },
-    { value: 70 },
-    { value: 75 },
-    { value: 75 },
-    { value: 80 },
-    { value: 85 },
-    { value: 90 },
-    { value: 95 },
-    { value: 100 },
-    { value: 100 },
-    { value: 105 },
-    { value: 110 },
-    { value: 115 },
-  ];
-
-  const lineDataAdded = [
-    { value: 50 },
-    { value: 55 },
-    { value: 60 },
-    { value: 70 },
-    { value: 80 },
-    { value: 90 },
-    { value: 100 },
-    { value: 110 },
-    { value: 120 },
-    { value: 130 },
-    { value: 135 },
-    { value: 140 },
-    { value: 145 },
-    { value: 150 },
-    { value: 155 },
-    { value: 160 },
-    { value: 165 },
-    { value: 170 },
-    { value: 175 },
-    { value: 180 },
-    { value: 185 },
-    { value: 190 },
-    { value: 195 },
-    { value: 200 },
-    { value: 200 },
-    { value: 200 },
-    { value: 200 },
-    { value: 200 },
-    { value: 200 },
-    { value: 200 },
-  ];
+  console.log("Access Token:", accessToken, " Refresh Token:", refreshToken);
 
   return (
-    <View className="flex-1 bg-white">
-      <View
-        style={{
-          paddingTop: Math.max(6, insets.top),
-          paddingLeft: Math.max(12, insets.left),
-          paddingRight: Math.max(12, insets.right),
-          paddingBottom: 6,
-        }}
-      >
-        <View className="flex-row justify-between items-center">
-          <View className="flex-1 flex flex-row">
-            <SignedInOnly>
-              <Pressable
-                className="flex-row justify-center items-center active:opacity-30 transition-opacity"
-                onPress={() => router.push("/account")}
-              >
-                <Icons.PersonCropCircleFill size={20} />
-              </Pressable>
-            </SignedInOnly>
-          </View>
+    <View
+      className="bg-red-400 min-h-full"
+      style={{
+        paddingTop: 6,
+        paddingLeft: Math.max(6, insets.left),
+        paddingRight: Math.max(6, insets.right),
+      }}
+    >
+      <View className="flex flex-col justify-between h-full items-center gap-20">
+        <View className="flex flex-row justify-end w-full p-5"></View>
 
-          <Text className="text-3xl font-bold font-[GillSans-SemiBold]">
-            {/* Optima-ExtraBlack */}
+        <View className="flex flex-col gap-5">
+          <Icons.IconBare size={120} color="black" />
+
+          <Text className="text-center text-4xl font-bold font-[GillSans]">
             YouWise
           </Text>
-
-          <View className="flex-1 flex flex-row justify-end">
-            <SignedInOnly>
-              <Pressable
-                className="active:opacity-30 transition-opacity"
-                onPress={() => router.push("/")} // /create
-              >
-                <Icons.SquareAndPencil size={24} />
-              </Pressable>
-            </SignedInOnly>
-
-            <SignedOutOnly>
-              <Pressable
-                className="flex-row gap-2 justify-center items-center border-2 border-neutral-800 py-1 pl-1 pr-2 rounded-full active:opacity-30 transition-opacity"
-                onPress={() => router.push("/login")}
-              >
-                <Icons.PersonCropCircleFill size={20} />
-
-                <Text className="text-sm font-medium">Sign in</Text>
-              </Pressable>
-            </SignedOutOnly>
-          </View>
         </View>
-      </View>
 
-      <ScrollView
-        refreshControl={
-          <RefreshControl refreshing={loading} onRefresh={onRefresh} />
-        }
-      >
-        {!loading ? (
-          <View
-            style={{
-              paddingBottom: revisionButtonMarginBottom + 64,
-            }}
-          >
-            {/* <View className="mt-16 mb-6 flex-col gap-3">
-              <Text className="pl-2 text-md font-light text-neutral-500 absolute">
-                Last month progress
-              </Text>
-
-              <View className="w-full flex flex-row justify-start">
-                <View className="w-full">
-                  <LineChart
-                    data={lineDataAdded}
-                    data2={lineDataMemorized}
-                    // Size
-                    maxValue={Math.max(
-                      ...lineDataAdded.map((d) => d.value),
-                      20
-                    )}
-                    height={100}
-                    initialSpacing={0}
-                    endSpacing={0}
-                    adjustToWidth
-                    // Appearance
-                    areaChart
-                    curved
-                    thickness1={3}
-                    thickness2={3}
-                    color1="rgb(230 230 230)"
-                    color2="rgb(250 173 51)"
-                    startFillColor1="rgb(230 230 230)"
-                    startFillColor2="rgb(250 173 51)"
-                    startOpacity={0.15}
-                    endOpacity={0}
-                    // Remove useless features
-                    hideAxesAndRules
-                    hideYAxisText
-                    yAxisThickness={0}
-                    yAxisLabelWidth={0}
-                    hideRules
-                    hideDataPoints
-                    disableScroll
-                  />
-                </View>
-              </View>
-            </View> */}
-
-            {["Continue", "Saved for later", "Your library", "Explore"].map(
-              (category) => (
-                <View
-                  key={category}
-                  className="pt-3 border-b border-neutral-200"
-                >
-                  <View className="flex-row justify-between px-6">
-                    <Text className="text-lg font-medium">{category}</Text>
-
-                    {category === "Your library" && (
-                      <Text className="text-sm">View all</Text>
-                    )}
-                  </View>
-
-                  <ScrollView horizontal className="">
-                    <View className="flex flex-row pt-2 px-4 gap-3 mb-3">
-                      {category === "Your library" &&
-                        resourcesQuery.data?.map((resource, i) => (
-                          <Link key={i} href={"/"}>
-                            {/* "/ressource/" + resource.id */}
-                            <View className="w-40 flex flex-col">
-                              <View
-                                className="rounded-lg bg-white"
-                                style={{
-                                  shadowColor: "#000",
-                                  shadowOffset: {
-                                    width: 2,
-                                    height: 4,
-                                  },
-                                  shadowOpacity: 0.3,
-                                  shadowRadius: 5,
-                                  elevation: 5, // Android only
-                                }}
-                              >
-                                <Image
-                                  source={require("./../assets/images/homeImage.jpg")}
-                                  className="rounded-lg"
-                                  style={{
-                                    height: 112,
-                                    width: "100%",
-                                  }}
-                                  alt="Resource image"
-                                />
-                              </View>
-
-                              <View className="flex flex-row justify-between gap-1 mt-2 px-1">
-                                <Text
-                                  className="text-sm flex-1"
-                                  numberOfLines={2}
-                                >
-                                  {resource.name}
-                                </Text>
-
-                                <View className="pt-[2px]">
-                                  {/* <CircularProgressView progress={0.5} /> */}
-                                </View>
-                              </View>
-                            </View>
-                          </Link>
-                        ))}
-                    </View>
-                  </ScrollView>
-                </View>
-              )
-            )}
-
-            {/* <View className="border-t border-neutral-200">
-              <Text className="mt-8 mb-4 mx-6 text-2xl font-medium">
-                Discover
-              </Text>
-
-              {userResources.map((resource, i) => (
-                <View key={i} className="w-full flex flex-col mt-4">
-                  <View>
-                    <Image
-                      source={require("./../assets/images/homeImage.jpg")}
-                      className="w-full h-48"
-                      alt="Resource image"
-                    />
-                  </View>
-
-                  <View className="flex flex-col justify-between gap-1 m-2">
-                    <Text className="text-lg flex-1" numberOfLines={2}>
-                      {resource.name}
-                    </Text>
-
-                    <Text
-                      className="text-md flex-1 text-neutral-500"
-                      numberOfLines={2}
-                    >
-                      1k learned
-                    </Text>
-                  </View>
-                </View>
-              ))}
-            </View> */}
+        {loading ? (
+          <View>
+            <Text>Loading...</Text>
           </View>
-        ) : null}
-      </ScrollView>
+        ) : (
+          <View className="flex flex-col items-center gap-3 mb-24">
+            {errorMessage ? (
+              <Text className="text-black font-bold text-lg">
+                {errorMessage}
+              </Text>
+            ) : null}
 
-      <View className="absolute bottom-0 w-full z-10 border-white flex flex-col">
-        <LinearGradient
-          colors={[
-            "rgba(255,255,255,0)",
-            "rgba(255,255,255,1)",
-            "rgba(255,255,255,1)",
-          ]}
-          style={{
-            paddingRight: insets.right + 12,
-            paddingLeft: insets.left + 12,
-            paddingBottom: revisionButtonMarginBottom,
-          }}
-        >
-          <Link asChild href="/revision">
-            <TouchableOpacity className="rounded-full overflow-hidden">
-              <LinearGradient
-                colors={[
-                  // "rgb(229, 48, 24)",
-                  // "rgb(229, 48, 24)",
-                  "rgb(255, 149, 0)", // Orange
-                  "rgb(255, 204, 0)", // Yellow
-                  "rgb(255, 204, 0)", // Yellow
-                  "rgb(255, 204, 0)", // Yellow
-                  "rgb(52, 199, 89)", // Green
-                  "rgb(0, 122, 255)", // Blue
-                  "rgb(88, 86, 214)", // Indigo
-                  "rgb(191, 90, 242)", // Violet
-                  "rgb(225, 59, 48)", // Red
-                ]}
-                start={{ x: 0.5, y: 3 }}
-                end={{ x: 0.8, y: 0 }}
-                className="rounded-full"
+            <AppleAuthentication.AppleAuthenticationButton
+              buttonType={
+                AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN
+              }
+              buttonStyle={
+                AppleAuthentication.AppleAuthenticationButtonStyle.BLACK
+              }
+              cornerRadius={5}
+              style={{
+                width: 200,
+                height: 44,
+              }}
+              onPress={handleAppleSignIn}
+            />
+
+            <Pressable
+              className="active:opacity-50 transition-opacity"
+              onPress={handleGoogleSignIn}
+            >
+              <View
+                className="flex flex-row items-center gap-[0.3rem] bg-neutral-200 rounded-md px-4"
+                style={{
+                  width: 200,
+                  height: 40,
+                }}
               >
-                <View className="bg-white rounded-full m-[2px]">
-                  <View className="flex-row items-center justify-between py-3 px-6">
-                    <View className="flex-row items-center gap-1">
-                      <Icons.LineWeight size={16} color={"black"} />
-                      <Text className="font-bold text-sm">4</Text>
-                    </View>
+                <Icons.GoogleIconLogo size={12} />
 
-                    <View className="flex-row items-center gap-2">
-                      <Text className="text-lg font-bold font-[Avenir]">
-                        Start daily{" "}
-                        <Text className="font-[GillSans]">ReWise</Text>
-                      </Text>
-
-                      <Icons.PlayFill size={14} color={"black"} />
-                    </View>
-                  </View>
-                </View>
-              </LinearGradient>
-            </TouchableOpacity>
-          </Link>
-        </LinearGradient>
+                <Text className="font-[Avenir] font-semibold text-black">
+                  Sign in with Google
+                </Text>
+              </View>
+            </Pressable>
+          </View>
+        )}
       </View>
     </View>
   );
@@ -391,7 +237,7 @@ const HomeScreen = () => {
 
 // Entry point for the app
 const App = () => {
-  return <HomeScreen />;
+  return <LoginPage />;
 };
 
 export default App;

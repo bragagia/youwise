@@ -1,10 +1,8 @@
 import { Services } from "@/main/envs/type.js";
-import { UserAuthed, UserExpiredAuth } from "@/utils/auth.js";
 import { BadRequestError } from "@/utils/errors.js";
 
 export async function newAuthAccessToken(
   srv: Services,
-  auth: UserExpiredAuth | UserAuthed,
   refreshToken: string
 ): Promise<string> {
   const refreshTokenDecoded = srv.jwt.validateRefreshToken(refreshToken);
@@ -15,18 +13,18 @@ export async function newAuthAccessToken(
     );
   }
 
-  if (auth.userId !== refreshTokenDecoded.userId) {
-    console.error(
-      "Invalid refresh token, userId mismatch:",
-      auth.userId,
-      "!==",
-      refreshTokenDecoded.userId
-    );
+  // We double check that the user is valid (should check if not removed/deactivated in the future)
+  const userResponse = await srv.db
+    .selectFrom("users")
+    .selectAll()
+    .where("id", "=", refreshTokenDecoded.userId)
+    .executeTakeFirst();
 
-    throw new BadRequestError("Invalid refresh token, userId mismatch");
+  if (!userResponse) {
+    throw new BadRequestError("User not found for the provided refresh token");
   }
 
-  const accessToken = srv.jwt.generateAccessToken(auth.userId);
+  const accessToken = srv.jwt.generateAccessToken(refreshTokenDecoded.userId);
 
   return accessToken;
 }
