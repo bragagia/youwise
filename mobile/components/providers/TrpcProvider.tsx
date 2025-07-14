@@ -1,9 +1,5 @@
 import { useAuth } from "@/components/providers/authProvider";
-import {
-  QueryCache,
-  QueryClient,
-  QueryClientProvider,
-} from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   createTRPCClient,
   httpBatchLink,
@@ -32,15 +28,16 @@ const TrpcRawContext = createContext<TRPCClient<MainRouter> | null>(null);
 const TrpcContext = createContext<TRPCOptionsProxy<MainRouter> | null>(null);
 
 export function TrpcProvider({ children }: { children: ReactNode }) {
-  const { refreshToken, accessToken, updateAccessToken } = useAuth();
-  const [refreshingAccessToken, setRefreshingAccessToken] = useState(false);
+  const { refreshToken, accessToken, updateAccessToken, removeAuth } =
+    useAuth();
+  const [isRefreshingAccessToken, setIsRefreshingAccessToken] = useState(false);
 
   const trpcRaw = useMemo(
     () =>
       createTRPCClient<MainRouter>({
         links: [
           httpBatchLink({
-            url: "http://localhost:3001/trpc", // TODO: Env
+            url: "https://assured-neatly-polecat.ngrok-free.app/trpc", // TODO: Env
             transformer: {
               serialize: (data) => data,
               deserialize: (data) => data,
@@ -48,6 +45,7 @@ export function TrpcProvider({ children }: { children: ReactNode }) {
             async headers() {
               return {
                 authorization: accessToken ? "Bearer " + accessToken : "",
+                "ngrok-skip-browser-warning": "69420", // TODO: Should only be used in development
               };
             },
           }),
@@ -57,26 +55,29 @@ export function TrpcProvider({ children }: { children: ReactNode }) {
   );
 
   const refreshAccessToken = useCallback(async () => {
-    if (!refreshingAccessToken && refreshToken) {
+    if (!isRefreshingAccessToken && refreshToken) {
       try {
-        setRefreshingAccessToken(true);
+        setIsRefreshingAccessToken(true);
 
         const res = await trpcRaw.auth.newAccessToken.query({
           refreshToken: refreshToken,
         });
 
         updateAccessToken(res.accessToken);
+        setIsRefreshingAccessToken(false);
       } catch {
+        setIsRefreshingAccessToken(false);
+        // We logout the user if the refresh token is invalid
+        removeAuth();
         router.replace("/");
       }
-
-      setRefreshingAccessToken(false);
     }
   }, [
-    refreshingAccessToken,
+    isRefreshingAccessToken,
     refreshToken,
-    setRefreshingAccessToken,
+    setIsRefreshingAccessToken,
     updateAccessToken,
+    removeAuth,
     trpcRaw,
   ]);
 
@@ -89,29 +90,37 @@ export function TrpcProvider({ children }: { children: ReactNode }) {
             retry: (failureCount, error) => {
               // Don't retry for certain Unauthorized, should raise error and refresh token instantly
               console.error("RETRY:", error);
-              const err = error as unknown as TRPCClientErrorLike<MainRouter>;
-              // TODO: Check why error typing does't work
-              if (err.data?.code === "UNAUTHORIZED") {
-                return false;
-              }
 
-              // ? Why not do the token refresh inside this retry?
+              // TODO: Check why error typing does't work
+              const err = error as unknown as TRPCClientErrorLike<MainRouter>;
+
+              if (err.data?.code === "UNAUTHORIZED") {
+                try {
+                  refreshAccessToken();
+                } catch (e) {
+                  console.error("Error refreshing access token:", e);
+                  return false;
+                }
+              }
 
               // Retry all other errors, but only once
               return failureCount <= 1;
             },
           },
         },
-        queryCache: new QueryCache({
-          onError: (error) => {
-            console.error("FAILURE:", error);
-            const err = error as unknown as TRPCClientErrorLike<MainRouter>;
-            // TODO: Check why error typing does't work
-            if (err.data?.code === "UNAUTHORIZED") {
-              refreshAccessToken();
-            }
-          },
-        }),
+        // queryCache: new QueryCache({
+        //   onError: (error) => {
+        //     console.error("FAILURE:", error);
+
+        //     const err = error as unknown as TRPCClientErrorLike<MainRouter>;
+
+        //     // TODO: Check why error typing does't work
+        //     if (err.data?.code === "UNAUTHORIZED") {
+        //       console.log("Refreshing access token due to UNAUTHORIZED error");
+        //       refreshAccessToken();
+        //     }
+        //   },
+        // }),
       }),
     [refreshAccessToken]
   );

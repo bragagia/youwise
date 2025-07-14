@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "packageManager": "yarn@1.22.22",
   "main": "main/index.ts",
+  "types": "index.ts",
   "type": "module",
   "scripts": {
     "dev": "yarn migrate-all && yarn codegen && tsx watch --watch-preserve-output main/index.ts",
@@ -12,9 +13,9 @@
     "migrate-all": "yarn kysely migrate:latest"
   },
   "dependencies": {
-    "@youwise/shared": "1.0.0",
     "@fastify/cors": "^11.0.1",
     "@trpc/server": "^11.0.1",
+    "@youwise/shared": "1.0.0",
     "common-js": "^0.3.8",
     "fastify": "^5.2.2",
     "google-auth-library": "^9.15.1",

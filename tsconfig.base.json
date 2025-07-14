@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "declaration": true, // Important: Generates .d.ts files
+    "composite": true, // Important for project references
+    "paths": {
+      "@youwise/api/*": ["api/*"],
+      "@youwise/shared/*": ["shared/*"]
+    }
+  }
+}

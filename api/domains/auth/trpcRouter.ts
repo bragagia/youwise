@@ -1,8 +1,8 @@
+import { newAuthAccessToken } from "@/domains/auth/newAuthAccessToken.js";
+import { validateOAuth } from "@/domains/auth/validateOAuth.js";
+import { t } from "@/main/http/trpc.js";
+import { BadRequestError } from "@/utils/errors.js";
 import { z } from "zod/v4";
-import { t } from "../../main/http/trpc.js";
-import { BadRequestError } from "../../utils/errors.js";
-import { newAuthAccessToken } from "./newAuthAccessToken.js";
-import { validateOAuth } from "./validateOAuth.js";
 
 export const authTrpcRouter = t.router({
   auth: {
@@ -18,8 +18,12 @@ export const authTrpcRouter = t.router({
         })
       )
       .query(async ({ ctx, input }) => {
-        if (!ctx.auth.authed && !ctx.auth.expired)
-          throw new BadRequestError("");
+        if (!(ctx.auth.authed || ctx.auth.expired)) {
+          // Note: We expect to receive the expired access token as a bearer, so that we can see that it is expired
+          throw new BadRequestError(
+            "You must be authenticated or have an expired access token to request a new access token."
+          );
+        }
 
         const accessToken = await newAuthAccessToken(
           ctx.srv,

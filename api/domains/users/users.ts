@@ -1,6 +1,6 @@
-import { Services } from "../../main/envs/type.js";
-import { UserAuthed } from "../../utils/auth.js";
-import { NotFoundError } from "../../utils/errors.js";
+import { Services } from "@/main/envs/type.js";
+import { UserAuthed } from "@/utils/auth.js";
+import { NotFoundError } from "@/utils/errors.js";
 
 export async function getUserById(
   srv: Services,
@@ -18,21 +18,3 @@ export async function getUserById(
 
   return user;
 }
-
-// export async function createUser(
-//   srv: Services,
-//   user: {
-//     email: string;
-//     givenName: string;
-//   }
-// ) {
-//   const ret = await srv.db
-//     .insertInto("users")
-//     .values({
-//       email: user.email,
-//       given_name: user.givenName,
-//     })
-//     .executeTakeFirstOrThrow();
-
-//   return ret.insertId;
-// }

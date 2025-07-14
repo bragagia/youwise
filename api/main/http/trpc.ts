@@ -1,5 +1,5 @@
+import { TrpcContext } from "@/main/http/context.js";
 import { initTRPC } from "@trpc/server";
-import { TrpcContext } from "./context.js";
 
 export const t = initTRPC.context<TrpcContext>().create({
   // For some reason, the type inference of the output don't work without that basic transformer.

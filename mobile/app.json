@@ -21,7 +21,8 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.mathiasbragagia.youwise"
     },
     "web": {
       "bundler": "metro",
@@ -46,7 +47,9 @@
         {
           "iosUrlScheme": "com.googleusercontent.apps.835524820983-nlqq9pme2t88rtjft5v2tu2c3j99d52o"
         }
-      ]
+      ],
+      "expo-font",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true

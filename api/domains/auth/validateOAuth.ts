@@ -1,7 +1,7 @@
+import { Services } from "@/main/envs/type.js";
+import { BadRequestError } from "@/utils/errors.js";
 import type { UserModel } from "@youwise/shared";
 import { Updateable } from "kysely";
-import { Services } from "../../main/envs/type.js";
-import { BadRequestError } from "../../utils/errors.js";
 
 type UserInfoOAuth = {
   email: string;

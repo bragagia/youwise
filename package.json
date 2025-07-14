@@ -12,5 +12,11 @@
     "api",
     "web",
     "shared"
-  ]
+  ],
+  "resolutions": {
+    "@trpc/server": "11.1.2",
+    "@trpc/client": "11.1.2",
+    "@trpc/tanstack-react-query": "11.1.2",
+    "@tanstack/react-query": "5.83.0"
+  }
 }

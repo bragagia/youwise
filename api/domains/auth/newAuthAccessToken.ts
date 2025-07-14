@@ -1,6 +1,6 @@
-import { Services } from "../../main/envs/type.js";
-import { UserAuthed, UserExpiredAuth } from "../../utils/auth.js";
-import { BadRequestError, UnauthorizedError } from "../../utils/errors.js";
+import { Services } from "@/main/envs/type.js";
+import { UserAuthed, UserExpiredAuth } from "@/utils/auth.js";
+import { BadRequestError } from "@/utils/errors.js";
 
 export async function newAuthAccessToken(
   srv: Services,
@@ -8,10 +8,21 @@ export async function newAuthAccessToken(
   refreshToken: string
 ): Promise<string> {
   const refreshTokenDecoded = srv.jwt.validateRefreshToken(refreshToken);
+
   if (!refreshTokenDecoded.userId) {
-    throw new UnauthorizedError(refreshTokenDecoded.error);
+    throw new BadRequestError(
+      "Cannot decode refreshtoken: " + refreshTokenDecoded.error
+    );
   }
+
   if (auth.userId !== refreshTokenDecoded.userId) {
+    console.error(
+      "Invalid refresh token, userId mismatch:",
+      auth.userId,
+      "!==",
+      refreshTokenDecoded.userId
+    );
+
     throw new BadRequestError("Invalid refresh token, userId mismatch");
   }
 

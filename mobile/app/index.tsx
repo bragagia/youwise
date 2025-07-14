@@ -18,7 +18,9 @@ import {
   SignedInOnly,
   SignedOutOnly,
 } from "@/components/providers/authProvider";
+import { useTrpc } from "@/components/providers/TrpcProvider";
 import { mockRessources } from "@/lib/types/MOCK";
+import { useQuery } from "@tanstack/react-query";
 import { LinearGradient } from "expo-linear-gradient";
 
 type RessourceArray = {
@@ -35,9 +37,13 @@ type HomePageData = {
 const HomeScreen = () => {
   const insets = useSafeAreaInsets();
 
-  // const trpc = useTrpc();
+  const trpc = useTrpc();
 
-  // const { data, error } = useQuery(trpc.users.getById.queryOptions("123"));
+  const resourcesQuery = useQuery(trpc.resources.getList.queryOptions());
+
+  const onRefresh = () => {
+    resourcesQuery.refetch();
+  };
 
   const [loading, setLoading] = useState(true);
 
@@ -172,7 +178,7 @@ const HomeScreen = () => {
 
       <ScrollView
         refreshControl={
-          <RefreshControl refreshing={loading} /> // onRefresh={onRefresh}
+          <RefreshControl refreshing={loading} onRefresh={onRefresh} />
         }
       >
         {!loading ? (
@@ -241,7 +247,7 @@ const HomeScreen = () => {
                   <ScrollView horizontal className="">
                     <View className="flex flex-row pt-2 px-4 gap-3 mb-3">
                       {category === "Your library" &&
-                        homePageData?.library.map((resource, i) => (
+                        resourcesQuery.data?.map((resource, i) => (
                           <Link key={i} href={"/"}>
                             {/* "/ressource/" + resource.id */}
                             <View className="w-40 flex flex-col">

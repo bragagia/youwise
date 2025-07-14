@@ -3,7 +3,6 @@ import { useAuth } from "@/components/providers/authProvider";
 import { useTrpcRaw } from "@/components/providers/TrpcProvider";
 import {
   GoogleSignin,
-  isErrorWithCode,
   statusCodes,
 } from "@react-native-google-signin/google-signin";
 import * as AppleAuthentication from "expo-apple-authentication";
@@ -17,6 +16,11 @@ GoogleSignin.configure({
     "835524820983-nlqq9pme2t88rtjft5v2tu2c3j99d52o.apps.googleusercontent.com",
   scopes: [],
 });
+
+// Rewriting this as it was deleted from the free version of google-signin lib
+function isErrorWithCode(error: any): error is { code: string } {
+  return error && typeof error.code === "string";
+}
 
 const LoginPage = () => {
   const { accessToken, setAuth, removeAuth } = useAuth();

@@ -1,6 +1,6 @@
-import { createEnvDevelopment } from "./envs/development.js";
-import { EnvVars, initEnvVars } from "./envVars.js";
-import { startHttpServer } from "./http/server.js";
+import { createEnvDevelopment } from "@/main/envs/development.js";
+import { EnvVars, initEnvVars } from "@/main/envVars.js";
+import { startHttpServer } from "@/main/http/server.js";
 
 export function startApi() {
   const env = initEnvVars();

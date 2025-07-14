@@ -31,6 +31,8 @@ It's built as a monorepo with, in the root directory:
     - Admin dashboard to create app content and manage users
 - api
   - Backend used by both web and mobile
+- shared
+  - Contains db schema, higher level models and common schema validators
 
 ## User flows
 
@@ -79,17 +81,34 @@ The rest of the user flow will be about the authenticated experience.
 ### As an admin (web dashboard)
 
 - Access the admin dashboard at `/` [TODO: should be /admin and protected by a static key]
-  - See users list with details
-- See resources list with details
-  - Create new resources
-    - Upload EPUB file
-    - AI processing to extract content and generate summaries
-    - Each resource fields and sections content is editable
-  - See resources list
-    - See sections list
-      - Can click on a section to:
-        - See section content
-        - See list of section's cards
+  - Users page
+    - See users list with details
+  - Resources page
+    - Create new resources
+      - Upload EPUB file
+      - TODO: Upload cover image
+      - AI processing to extract content and generate summaries (prompt can be edited for every resource creation)
+    - See resources list with cover, title and short description
+      - Click on a resource to access resource page
+        - Button to access edit resource page
+          - Upload cover image button
+          - All resource object fields are editable
+        - See full resources details with all fields
+        - See resource intro
+        - See sections list
+          - Click on a section to access section page
+            - Button to edit section
+              - All section object fields are editable
+            - See section content and additional content
+            - See list of section's cards
+              - Button on cards to edit or delete them
+                - When clicking on "Edit" button of a card, it enters inline edit mode
+                  - In edit mode, you can discard or save the card
+                  - Possibility to edit any card field or variants, add new variants, etc...
+              - Button to add new card
+              - Button to generate new cards from section content using AI (redirect to a new page)
+                - Two-step AI process: extract Q&A pairs from section content then extract flashcards using both the section content and the Q&A pairs
+                - Cards are generated and saved directly to database, then user is redirected to the section page
 
 ## Tech stack
 
@@ -106,20 +125,43 @@ The rest of the user flow will be about the authenticated experience.
   - ts-fsrs: FSRS algorithm
   - icons are a mix of lucide-icons and copies of apple system icons
 - web
+
   - Next.js
+
     - Only use server actions, never build a route inside next code
     - actions should be collocated to the page they are used in, in an actions.tsx file.
       - If some actions are common to multiple page, make an actions folder
+    - Uses a "services" pattern to access db and external services. for ex.:
+
+      ```
+      import { getServices } from "@/lib/database"
+
+      export default async function UsersPage() {
+        const { db } = await getServices()
+        const users = await db.users.getUsers()
+        ...
+      }
+      ```
+
+    - All the db query must be written inside the lib/db/ folder in the file named with the main entity they are querying. For example, all the user queries must be in `lib/db/users.ts`
+    - A typical full stack page would be:
+      - A page.tsx file that use the db service to gather the data
+      - A page-client.tsx component that handle the client side state if needed
+      - A actions.tsx file that contains all the server actions of that page and call to the db
+      - The db query written inside the lib/db folder
+
+  - Protected using basic http password
   - Tailwind
   - Kysely to access the database
   - Shadcn/ui: Component library built on Radix UI.
     - All the admin dashboard is built using raw shadcn/ui components
   - epubjs: Used to parse epub
   - AI:
-    - OpenAI and Gemini: Used to generate book summaries and quizzes. Only Gemini is used now but OpenAI is still available for future use
+    - OpenAI and Gemini: Used to generate book summaries and flashcards. Only Gemini is used now but OpenAI is still available for future use
     - Langfuse: LLM observability and tracing
   - react-markdown
   - lucide-icons: Icon library
+
 - api: Backend used by both web and mobile
 
   - Fastify
@@ -155,13 +197,17 @@ Exact database can be found in `api/database.d.ts`, this is a summary:
 id are uuid, each table contains an updated_at and created_at timestamp
 
 - users → id, email, given_name, family_name (nullable), google_uid (nullable), apple_uid (nullable)
-- resources → id, name, description (markdown), cover (image url), tint (color value)
+- resources → id, name, description (markdown), intro (markdown), short_description (string), cover (image url), tint (color value)
 - resource_sections → id, resource_id, title, content (markdown), more_content (markdown, nullable), position (ordering)
-- cards → id, resource_section_id, variants (JSON array of CardVariant)
-  - exact definitions: `web/types/cards.ts` and `mobile/lib/types/card.tsx`
-  - CardVariant type definitions:
-    - ClassicCardVariant → type (only "classic" now), question: string|string[], answer: string|string[], fakeAnswers?: string[]
-  - note: variants is an array of CardVariant objects. Each card can have multiple variants for bidirectional learning (e.g., "What's the capital of France?" + "Of which country is Paris the capital?"). fakeAnswers enables multiple-choice quiz mode
+- cards → id, resource_section_id, variants (JSONB array of CardVariant), level (enum: "core_concept"|"knowledge"|"example")
+  - exact definitions: `web/lib/card-schemas.ts`
+  - CardVariant type definitions (all fields are string arrays):
+    - SingleResponseCardVariant → A simple question -> One answer
+    - UnorderedListCardVariant → A question that needs a list of multiple items as answer
+    - OrderedListCardVariant → A question that needs an ordered list of multiple items as answer OR a quote that has been split into multiple parts to learn by heart
+  - note: variants is an array of CardVariant objects. Each card can have multiple variants for bidirectional learning and to avoid "overfitting" and force the user to actually learn the content
+  - note: level indicates card importance "core_concept" (most important things to learn), "knowledge" (factual piece of knowledge, quotes that are not core concept, etc...), "example" (supporting examples, anecdotes or illustration)
+  - note: fakeAnswers enables multiple-choice quiz mode. For ordered lists, each answer position has its own fake answers array
   - note: cards are statically generated from book summaries, and are not associated to a user until they are memorized
 - memories → id, card_id, owner_user_id
 - memory_params → memory_id,
@@ -174,3 +220,4 @@ id are uuid, each table contains an updated_at and created_at timestamp
 ## Development guidelines
 
 - AI output should always be validated through zod schemas
+- Always use early failure check to handle error like "if error then ...", this is to avoid deep code nesting when using "if success then ..."

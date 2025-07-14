@@ -1,8 +1,8 @@
-import { createDatabase } from "../../services/db/db.js";
-import { GoogleAuthService } from "../../services/googleAuth/googleAuth.js";
-import { JWTService } from "../../services/jwt/jwt.js";
-import { EnvVars } from "../envVars.js";
-import { Services } from "./type.js";
+import { Services } from "@/main/envs/type.js";
+import { EnvVars } from "@/main/envVars.js";
+import { createDatabase } from "@/services/db/db.js";
+import { GoogleAuthService } from "@/services/googleAuth/googleAuth.js";
+import { JWTService } from "@/services/jwt/jwt.js";
 
 export function createEnvDevelopment(envVars: EnvVars): Services {
   return {

@@ -1,11 +1,11 @@
+import { Services } from "@/main/envs/type.js";
+import { buildCreateContext } from "@/main/http/context.js";
+import { mainRouter, MainRouter } from "@/main/http/router.js";
 import {
   fastifyTRPCPlugin,
   FastifyTRPCPluginOptions,
 } from "@trpc/server/adapters/fastify";
 import Fastify from "fastify";
-import { Services } from "../envs/type.js";
-import { buildCreateContext } from "./context.js";
-import { mainRouter, MainRouter } from "./router.js";
 
 export function startHttpServer(services: Services) {
   const fastify = Fastify({

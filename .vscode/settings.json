@@ -4,6 +4,16 @@
     {
       "splitTerminals": [
         {
+          "name": "ngrok",
+          "commands": [
+            "ngrok http --url=assured-neatly-polecat.ngrok-free.app 3001"
+          ]
+        }
+      ]
+    },
+    {
+      "splitTerminals": [
+        {
           "name": "next",
           "commands": ["cd web", "yarn dev"]
         },
@@ -52,7 +62,10 @@
   ],
   "cSpell.words": ["dayjs", "inngest", "rewised", "timeouted", "youwise"],
   "files.exclude": {
-    "api/build": true
+    "api/dist": true,
+    "mobile/ios": true,
+    "mobile/android": true,
+    "shared/dist": true
   },
   /* Added by expo by default: */
   "editor.codeActionsOnSave": {
