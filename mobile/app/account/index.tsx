@@ -11,7 +11,7 @@ const AccountPage = () => {
   const handleSignOut = async () => {
     await removeAuth();
 
-    router.back();
+    router.replace("/");
   };
 
   return (

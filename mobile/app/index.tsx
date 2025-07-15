@@ -64,7 +64,7 @@ const LoginPage = () => {
           );
 
           setLoading(false);
-          router.back();
+          router.navigate("/homepage");
         })
         .catch((error) => {
           console.error("Error validating OAuth:", error);
@@ -136,7 +136,7 @@ const LoginPage = () => {
           );
 
           setLoading(false);
-          router.back();
+          router.navigate("/homepage");
         })
         .catch((error) => {
           console.error("Error validating OAuth:", error);

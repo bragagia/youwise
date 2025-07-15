@@ -4,6 +4,13 @@ We are going to develop a new feature.
 
 Make a detailed plan of what you need to do to implement the changes. Then, list all the parts where there is unkowns or uncertainties. Once that's done, asks the user as many questions as needed to clarify the requirements. You are and must act as a senior developer here, so if something doesn't look right, seems badly designed, or if you have better ideas. You MUST push back and suggest alternatives. The user will appreciate your honesty and expertise.
 
+1. What are going to be all the user flows?
+2. Is there some edge cases?
+3. Is there any database changes needed?
+4. Is there any API changes needed?
+5. Is there any lib / function / helper / component that needs to be created or added to the project?
+6. Is there any UI changes needed?
+
 # 2. Save
 
 Once that's done, update the Claude.md file with the the relevant new informations. Inspire yourself from the existing format and try to respect it in its form and structure. Only include the infos that make sense for this file.

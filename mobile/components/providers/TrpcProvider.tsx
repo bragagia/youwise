@@ -89,7 +89,6 @@ export function TrpcProvider({ children }: { children: ReactNode }) {
             staleTime: 30000, // 30 seconds
             retry: (failureCount, error) => {
               // Don't retry for certain Unauthorized, should raise error and refresh token instantly
-              console.error("RETRY:", error);
 
               // TODO: Check why error typing does't work
               const err = error as unknown as TRPCClientErrorLike<MainRouter>;
@@ -108,19 +107,6 @@ export function TrpcProvider({ children }: { children: ReactNode }) {
             },
           },
         },
-        // queryCache: new QueryCache({
-        //   onError: (error) => {
-        //     console.error("FAILURE:", error);
-
-        //     const err = error as unknown as TRPCClientErrorLike<MainRouter>;
-
-        //     // TODO: Check why error typing does't work
-        //     if (err.data?.code === "UNAUTHORIZED") {
-        //       console.log("Refreshing access token due to UNAUTHORIZED error");
-        //       refreshAccessToken();
-        //     }
-        //   },
-        // }),
       }),
     [refreshAccessToken]
   );
