@@ -1,3 +1,4 @@
+import { getImageUrl } from "@/lib/images";
 import { Image, Text, View } from "react-native";
 
 export function VerticalResourcesList({
@@ -29,7 +30,7 @@ export function VerticalResourcesListItem({
     <View className="w-full flex flex-col mt-4">
       <View>
         <Image
-          source={require("./../../assets/images/homeImage.jpg")}
+          source={getImageUrl(resource.cover)}
           className="w-full h-48"
           alt="Resource image"
         />

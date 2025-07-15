@@ -37,7 +37,7 @@ export function TrpcProvider({ children }: { children: ReactNode }) {
       createTRPCClient<MainRouter>({
         links: [
           httpBatchLink({
-            url: "https://assured-neatly-polecat.ngrok-free.app/trpc", // TODO: Env
+            url: "https://api-youwise-dev.loca.lt/trpc", // TODO: Env
             transformer: {
               serialize: (data) => data,
               deserialize: (data) => data,
@@ -45,7 +45,7 @@ export function TrpcProvider({ children }: { children: ReactNode }) {
             async headers() {
               return {
                 authorization: accessToken ? "Bearer " + accessToken : "",
-                "ngrok-skip-browser-warning": "69420", // TODO: Should only be used in development
+                "bypass-tunnel-reminder": "1234", // TODO: Should only be used in development
               };
             },
           }),

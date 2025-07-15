@@ -4,9 +4,15 @@
     {
       "splitTerminals": [
         {
-          "name": "ngrok",
+          "name": "tunnel api",
           "commands": [
-            "ngrok http --url=assured-neatly-polecat.ngrok-free.app 3001"
+            "npx localtunnel --port 3001 --subdomain api-youwise-dev"
+          ]
+        },
+        {
+          "name": "tunnel web",
+          "commands": [
+            "npx localtunnel --port 3000 --subdomain web-youwise-dev"
           ]
         }
       ]

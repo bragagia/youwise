@@ -1,3 +1,4 @@
+import { getImageUrl } from "@/lib/images";
 import { Link } from "expo-router";
 import React from "react";
 import { Image, ScrollView, Text, View } from "react-native";
@@ -52,7 +53,7 @@ export function HorizontalResourcesListItem({
           }}
         >
           <Image
-            source={require("./../../assets/images/homeImage.jpg")}
+            source={getImageUrl(resource.cover)}
             className="rounded-lg"
             style={{
               height: 112,

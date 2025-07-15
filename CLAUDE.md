@@ -29,8 +29,9 @@ It's built as a monorepo with, in the root directory:
       - Can be used logged out
       - Allow account creation, but only to access the mobile app
     - Admin dashboard to create app content and manage users
+    - note: web doesn't use the api, it has its own backend and direct access to the db
 - api
-  - Backend used by both web and mobile
+  - Backend used by the mobile app
 - shared
   - Contains db schema, higher level models and common schema validators
 
