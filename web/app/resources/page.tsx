@@ -1,3 +1,4 @@
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
@@ -43,6 +44,15 @@ export default async function ResourcesPage() {
                       <div className="flex-1 space-y-2">
                         <CardTitle className="flex items-center gap-2">
                           {resource.name}
+                          <Badge
+                            variant={
+                              resource.published_at ? "destructive" : "default"
+                            }
+                          >
+                            {resource.published_at
+                              ? "Published"
+                              : "Unpublished"}
+                          </Badge>
                         </CardTitle>
 
                         <p className="text-sm text-muted-foreground">

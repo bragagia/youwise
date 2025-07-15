@@ -106,12 +106,13 @@ db: resource_saved_for_later → resource_id, user_id, order (float) (? Might al
       - Upload EPUB file
       - TODO: Upload cover image
       - AI processing to extract content and generate summaries (prompt can be edited for every resource creation)
-    - See resources list with cover, title and short description
+    - See resources list with cover, title, short description and published status
       - Click on a resource to access resource page
+        - Publish/Unpublish button to control resource visibility to end users
         - Button to access edit resource page
           - Upload cover image button
           - All resource object fields are editable
-        - See full resources details with all fields
+        - See full resources details with all fields and published status
         - See resource intro
         - See sections list
           - Click on a section to access section page
@@ -215,7 +216,7 @@ Exact database can be found in `api/database.d.ts`, this is a summary:
 id are uuid, each table contains an updated_at and created_at timestamp
 
 - users → id, email, given_name, family_name (nullable), google_uid (nullable), apple_uid (nullable)
-- resources → id, name, description (markdown), intro (markdown), short_description (string), cover (image url), tint (color value)
+- resources → id, name, description (markdown), intro (markdown), short_description (string), cover (image url), tint (color value), published_at (nullable timestamp)
 - resource_sections → id, resource_id, title, content (markdown), more_content (markdown, nullable), position (ordering)
 - cards → id, resource_section_id, variants (JSONB array of CardVariant), level (enum: "core_concept"|"knowledge"|"example")
   - exact definitions: `web/lib/card-schemas.ts`
@@ -235,7 +236,19 @@ id are uuid, each table contains an updated_at and created_at timestamp
 - memories_on_daily_revisions → memory_id, daily_revisions_id
   - note: Junction table linking memories to daily revision sessions
 
+### Publishing system
+
+Resources have a published state controlled by the `published_at` timestamp:
+
+- Published: `published_at` is not null (contains the publication timestamp)
+- Unpublished: `published_at` is null
+- New resources are unpublished by default
+- Only published resources are returned by the API endpoints to end users
+- Admin dashboard shows all resources regardless of published state
+- Admin can publish/unpublish resources via the web interface
+
 ## Development guidelines
 
 - AI output should always be validated through zod schemas
 - Always use early failure check to handle error like "if error then ...", this is to avoid deep code nesting when using "if success then ..."
+- Never EVER use form/formdata to send data/do an action in nextjs web app, always use direct calls to server actions

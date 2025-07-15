@@ -167,6 +167,34 @@ export class DatabaseResources {
 
     return updatedSection;
   }
+
+  async publishResource(resourceId: string) {
+    const publishedResource = await this.db
+      .updateTable("resources")
+      .set({
+        published_at: new Date(),
+        updated_at: new Date(),
+      })
+      .where("id", "=", resourceId)
+      .returningAll()
+      .executeTakeFirstOrThrow();
+
+    return publishedResource;
+  }
+
+  async unpublishResource(resourceId: string) {
+    const unpublishedResource = await this.db
+      .updateTable("resources")
+      .set({
+        published_at: null,
+        updated_at: new Date(),
+      })
+      .where("id", "=", resourceId)
+      .returningAll()
+      .executeTakeFirstOrThrow();
+
+    return unpublishedResource;
+  }
 }
 
 export type ResourceWithSections = NonNullable<

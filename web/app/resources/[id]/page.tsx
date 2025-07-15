@@ -3,11 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { getServices } from "@/lib/database";
-import { ArrowLeft, ChevronRight, Edit } from "lucide-react";
+import { ArrowLeft, ChevronRight, Edit, EyeOff } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Markdown from "react-markdown";
+import { publishResource, unpublishResource } from "./actions";
 
 interface ResourcePageProps {
   params: Promise<{
@@ -38,12 +39,34 @@ export default async function ResourcePage({ params }: ResourcePageProps) {
           <span className="text-muted-foreground">/</span>
           <h1 className="text-xl font-semibold">{resource.name}</h1>
         </div>
-        <Link href={`/resources/${id}/edit`}>
-          <Button variant="outline" className="gap-2">
-            <Edit className="h-4 w-4" />
-            Edit Resource
+        <div className="flex gap-2">
+          <Button
+            onClick={
+              resource.published_at
+                ? unpublishResource.bind(null, id)
+                : publishResource.bind(null, id)
+            }
+            type="submit"
+            variant="outline"
+            className="gap-2"
+          >
+            {resource.published_at ? (
+              <>
+                <EyeOff className="h-4 w-4" />
+                Unpublish
+              </>
+            ) : (
+              <>Publish</>
+            )}
           </Button>
-        </Link>
+
+          <Link href={`/resources/${id}/edit`}>
+            <Button variant="outline" className="gap-2">
+              <Edit className="h-4 w-4" />
+              Edit Resource
+            </Button>
+          </Link>
+        </div>
       </header>
 
       <div className="flex flex-1 flex-col gap-4 p-4">
@@ -61,8 +84,13 @@ export default async function ResourcePage({ params }: ResourcePageProps) {
               <div className="flex-1">
                 <CardTitle className="flex items-center gap-2">
                   {resource.name}
-                  <Badge variant="secondary">Tint {resource.tint}</Badge>
+                  <Badge
+                    variant={resource.published_at ? "destructive" : "default"}
+                  >
+                    {resource.published_at ? "Published" : "Unpublished"}
+                  </Badge>
                 </CardTitle>
+
                 <p className="text-sm text-muted-foreground mt-1">
                   <span className="font-medium text-gray-700">
                     Short description:{" "}
@@ -77,6 +105,11 @@ export default async function ResourcePage({ params }: ResourcePageProps) {
                 </p>
                 <p className="text-xs text-muted-foreground mt-2">
                   Created: {resource.created_at.toLocaleDateString()}
+                  {resource.published_at && (
+                    <span className="ml-4">
+                      Published: {resource.published_at.toLocaleDateString()}
+                    </span>
+                  )}
                 </p>
               </div>
             </div>
